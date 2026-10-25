@@ -269,6 +269,25 @@ echo "$csv" | grep -q "Bộ phận" && CSV_OK=0 || CSV_OK=1
 echo "  · CSV header: $(echo "$csv" | head -1 | cut -c1-60)"
 check "Xuất CSV báo cáo" $CSV_OK
 
+
+crm=$(curl -fsS -b "$MGR_JAR" "$API/crm/segments" 2>/dev/null || echo '{}')
+echo "$crm" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print(f\"  · CRM: {d.get('total',0)} khách · {len(d.get('segments',[]))} phân khúc\")
+sys.exit(0 if d.get('total',0)>0 else 1)
+" 2>/dev/null
+check "CRM phân khúc khách hàng" $?
+
+reviews=$(curl -fsS -b "$MGR_JAR" "$API/crm/reviews" 2>/dev/null || echo '{}')
+echo "$reviews" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print(f\"  · Đánh giá: {d.get('count',0)} · trung bình {d.get('average')} sao\")
+sys.exit(0 if d.get('count',0)>0 else 1)
+" 2>/dev/null
+check "CRM đánh giá & phản hồi" $?
+
 rm -f "$MGR_JAR"
 
 echo ""

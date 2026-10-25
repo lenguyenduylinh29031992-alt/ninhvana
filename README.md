@@ -18,7 +18,7 @@
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất (Gate 3) |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ✅ Hoàn tất (Gate 4) |
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
-| 6 | Kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⏳ Tiếp theo |
+| 6 | CRM, kiểm thử, bảo mật, PWA, đóng gói | 🟡 Đang hoàn thiện |
 
 Kế hoạch đầy đủ: [`docs/PLAN.md`](docs/PLAN.md) · Tiến độ & bằng chứng: [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
@@ -122,6 +122,17 @@ bash scripts/check-acceptance.sh
 
 ---
 
+## CRM — Giai đoạn 6
+
+- Phân khúc khách (VIP, quay lại, không quay lại 6 tháng), top khách theo giá trị trọn đời.
+- Đánh giá sao, phản hồi của khách sạn, trạng thái xử lý, audit.
+- Chiến dịch email theo phân khúc, gửi mock và đếm người nhận.
+- 5 luồng browser e2e chạy thật: dashboard, đặt phòng, POS thêm món, buồng phòng, report builder.
+
+![CRM](docs/evidence/crm-1920.png)
+
+---
+
 ## Tài khoản demo
 
 Mật khẩu chung: **`GrandSuite@2026`** (đổi qua `SEED_ADMIN_PASSWORD` trước khi seed).
@@ -199,9 +210,9 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 ## Kiểm thử
 
 - **78 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
-- **34 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
-- `bash scripts/check-acceptance.sh` chạy **36 kiểm tra** Gate 1–5.
-- Ảnh chụp 1920 / 768 / 390 px (30 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
+- **37 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
+- `bash scripts/check-acceptance.sh` chạy **38 kiểm tra** Gate 1–6.
+- Ảnh chụp 1920 / 768 / 390 px (31 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
 ---
 

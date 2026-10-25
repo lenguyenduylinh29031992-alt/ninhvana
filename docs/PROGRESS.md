@@ -121,3 +121,23 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - 2026-10-25: Mọi chi phí/lương qua `PostingService`.
 - 2026-10-25: Dashboard hợp nhất cache 60 giây, forecast có backtest cuộn thay vì chỉ số in-sample.
 - 2026-10-25: Seed dài dùng bút toán tổng hợp theo ngày thay vì nhân bản reservation 24 tháng — giữ thời gian seed <2 giây và đủ cho báo cáo tài chính/dự báo.
+
+---
+
+## Giai đoạn 6 — CRM & kiểm thử (đang hoàn thiện)
+
+### Đã hoàn thành
+
+- **CRM**: 2 bảng mới `GuestReview`, `Campaign`; phân khúc ALL/VIP/REPEAT/LAPSED, top khách theo lifetime value; đánh giá 5 tiêu chí, phản hồi + audit; chiến dịch email theo phân khúc, gửi mock đếm người nhận. UI `/crm` 3 tab.
+- **Seed CRM**: 24 đánh giá, 4 chiến dịch mẫu, idempotent.
+- **Browser e2e**: `apps/web/e2e/flows.mjs` — 5/5 luồng PASS, 0 console error: dashboard KPI, dialog đặt phòng, POS mở bàn + thêm món, cập nhật buồng phòng, chạy Report Builder.
+- **Test**: 78 unit shared + **37 integration API** (thêm 3 CRM) + **38 kiểm tra acceptance**.
+- **Build/lint/typecheck**: xanh.
+
+### Còn lại trước khi đóng Giai đoạn 6
+
+1. Chạy `docker compose up` thật trên máy có Docker và chụp evidence.
+2. Đo coverage và đạt ≥70% cho lõi (shared + accounting/PMS).
+3. Rà soát bảo mật có hệ thống (dependency audit, IDOR, CSP, rate limit endpoint công khai) và vá.
+4. PWA offline: service worker, cache shell, hàng đợi thao tác POS/housekeeping.
+5. Đối chiếu đủ 8 tiêu chí nghiệm thu, cập nhật README/PROGRESS thành Gate 6 PASS.
