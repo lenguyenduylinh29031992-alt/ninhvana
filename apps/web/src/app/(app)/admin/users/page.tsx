@@ -45,6 +45,8 @@ import { useActiveProperty } from '@/lib/property-context';
 import { useAccess } from '@/lib/session';
 import { cn } from '@/lib/utils';
 
+type DepartmentOption = { code: string; name: string; division: string };
+
 interface RoleInfo {
   code: string;
   name: string;
@@ -62,6 +64,7 @@ type UserForm = {
   password: string;
   roleCode: string;
   propertyId: string;
+  departmentCode: string;
   isActive: boolean;
 };
 
@@ -72,6 +75,7 @@ const EMPTY_FORM: UserForm = {
   password: '',
   roleCode: 'FRONT_DESK',
   propertyId: '',
+  departmentCode: '',
   isActive: true,
 };
 
@@ -94,6 +98,8 @@ export default function UsersPage() {
     queryFn: () => api<RoleInfo[]>('/roles'),
     enabled: canManage,
   });
+
+  const departmentsQuery = useQuery<DepartmentOption[]>({ queryKey: ['departments', 'all'], queryFn: () => api('/hr/departments'), enabled: canManage });
 
   const usersQuery = useQuery<Paginated<UserRecord>>({
     queryKey: ['users', { search, roleFilter, page }],
@@ -191,6 +197,7 @@ export default function UsersPage() {
                 <TableRow>
                   <TableHead className="pl-5">Người dùng</TableHead>
                   <TableHead>Vai trò</TableHead>
+                  <TableHead className="hidden xl:table-cell">Bộ phận</TableHead>
                   <TableHead className="hidden md:table-cell">Cơ sở</TableHead>
                   <TableHead className="hidden lg:table-cell">Đăng nhập gần nhất</TableHead>
                   <TableHead>2FA</TableHead>
@@ -225,6 +232,18 @@ export default function UsersPage() {
                           </Badge>
                         ))}
                       </div>
+                    </TableCell>
+                    <TableCell className="hidden xl:table-cell">
+                      <NativeSelect
+                        aria-label={`Bộ phận của ${user.fullName}`}
+                        value={user.departmentCode ?? ''}
+                        disabled={!canManage}
+                        onChange={(event) => updateUser.mutate({ id: user.id, body: { departmentCode: event.target.value || null } })}
+                        className="h-8 min-w-[150px] text-[11px]"
+                      >
+                        <option value="">Chưa gán</option>
+                        {(departmentsQuery.data ?? []).map((department) => <option key={department.code} value={department.code}>{department.name}</option>)}
+                      </NativeSelect>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <span className="text-[11px] text-muted-foreground">
@@ -332,6 +351,7 @@ export default function UsersPage() {
         onOpenChange={setCreateOpen}
         roles={rolesQuery.data ?? []}
         properties={properties}
+        departments={departmentsQuery.data ?? []}
         onCreated={() => {
           setCreateOpen(false);
           void queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -348,12 +368,14 @@ function CreateUserDialog({
   onOpenChange,
   roles,
   properties,
+  departments,
   onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   roles: RoleInfo[];
   properties: Array<{ id: string; name: string; code: string }>;
+  departments: DepartmentOption[];
   onCreated: () => void;
 }) {
   const { t } = useI18n();
@@ -373,6 +395,7 @@ function CreateUserDialog({
           phone: form.phone || undefined,
           password: form.password,
           locale: 'vi',
+          departmentCode: form.departmentCode || undefined,
           isActive: form.isActive,
           roles: [
             {
@@ -471,6 +494,14 @@ function CreateUserDialog({
               />
               <FieldError>{errors.password}</FieldError>
             </div>
+          </div>
+          <div>
+            <Label htmlFor="departmentCode">Bộ phận</Label>
+            <NativeSelect id="departmentCode" value={form.departmentCode} onChange={(event) => setForm({ ...form, departmentCode: event.target.value })}>
+              <option value="">Không gán bộ phận</option>
+              {departments.map((department) => <option key={department.code} value={department.code}>{department.division === 'RESTAURANT' ? 'Nhà hàng' : department.division === 'HOTEL' ? 'Khách sạn' : 'Dùng chung'} · {department.name}</option>)}
+            </NativeSelect>
+            <p className="mt-1 text-[10px] text-muted-foreground">Bộ phận quyết định icon và màn hình nghiệp vụ chính trên thanh điều hướng điện thoại.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>

@@ -231,22 +231,22 @@ const OUTLETS = {
   ],
 };
 
-const DEMO_USERS = [
+const DEMO_USERS: Array<{ email: string; fullName: string; role: string; property: string | null; phone: string; department?: string }> = [
   { email: 'admin@ninhvana.vn', fullName: 'Nguyễn Văn A', role: 'SUPER_ADMIN', property: null, phone: '+84 90 000 0001' },
   { email: 'chairman@ninhvana.vn', fullName: 'Nguyễn Văn B', role: 'CHAIRMAN', property: null, phone: '+84 90 000 0002' },
   { email: 'ceo@ninhvana.vn', fullName: 'Nguyễn Văn C', role: 'CEO', property: null, phone: '+84 90 000 0003' },
   { email: 'cfo@ninhvana.vn', fullName: 'Nguyễn Văn D', role: 'CFO', property: null, phone: '+84 90 000 0004' },
   { email: 'revenue@ninhvana.vn', fullName: 'Nguyễn Văn E', role: 'REVENUE_DIRECTOR', property: null, phone: '+84 90 000 0005' },
-  { email: 'manager.hanoi@ninhvana.vn', fullName: 'Nguyễn Văn F', role: 'PROPERTY_MANAGER', property: 'NVN', phone: '+84 90 000 0006' },
-  { email: 'manager.ninhvan@ninhvana.vn', fullName: 'Nguyễn Văn G', role: 'PROPERTY_MANAGER', property: 'NVN', phone: '+84 90 000 0007' },
-  { email: 'frontdesk@ninhvana.vn', fullName: 'Nguyễn Văn H', role: 'FRONT_DESK', property: 'NVN', phone: '+84 90 000 0008' },
-  { email: 'housekeeping@ninhvana.vn', fullName: 'Nguyễn Văn I', role: 'HOUSEKEEPING', property: 'NVN', phone: '+84 90 000 0009' },
-  { email: 'chef@ninhvana.vn', fullName: 'Nguyễn Văn J', role: 'EXEC_CHEF', property: 'NVN', phone: '+84 90 000 0010' },
-  { email: 'fnb@ninhvana.vn', fullName: 'Nguyễn Văn K', role: 'FNB_MANAGER', property: 'NVN', phone: '+84 90 000 0011' },
-  { email: 'cashier@ninhvana.vn', fullName: 'Nguyễn Văn L', role: 'CASHIER', property: 'NVN', phone: '+84 90 000 0012' },
-  { email: 'hr@ninhvana.vn', fullName: 'Nguyễn Văn M', role: 'HR_MANAGER', property: null, phone: '+84 90 000 0013' },
-  { email: 'warehouse@ninhvana.vn', fullName: 'Nguyễn Văn N', role: 'WAREHOUSE', property: 'NVN', phone: '+84 90 000 0014' },
-  { email: 'marketing@ninhvana.vn', fullName: 'Nguyễn Văn O', role: 'MARKETING', property: null, phone: '+84 90 000 0015' },
+  { email: 'manager.hanoi@ninhvana.vn', fullName: 'Nguyễn Văn F', role: 'PROPERTY_MANAGER', property: 'NVN', department: 'PROPERTY_OPS', phone: '+84 90 000 0006' },
+  { email: 'manager.ninhvan@ninhvana.vn', fullName: 'Nguyễn Văn G', role: 'PROPERTY_MANAGER', property: 'NVN', department: 'PROPERTY_OPS', phone: '+84 90 000 0007' },
+  { email: 'frontdesk@ninhvana.vn', fullName: 'Nguyễn Văn H', role: 'FRONT_DESK', property: 'NVN', department: 'FRONT_OFFICE', phone: '+84 90 000 0008' },
+  { email: 'housekeeping@ninhvana.vn', fullName: 'Nguyễn Văn I', role: 'HOUSEKEEPING', property: 'NVN', department: 'HOUSEKEEPING', phone: '+84 90 000 0009' },
+  { email: 'chef@ninhvana.vn', fullName: 'Nguyễn Văn J', role: 'EXEC_CHEF', property: 'NVN', department: 'KITCHEN', phone: '+84 90 000 0010' },
+  { email: 'fnb@ninhvana.vn', fullName: 'Nguyễn Văn K', role: 'FNB_MANAGER', property: 'NVN', department: 'RESTAURANT', phone: '+84 90 000 0011' },
+  { email: 'cashier@ninhvana.vn', fullName: 'Nguyễn Văn L', role: 'CASHIER', property: 'NVN', department: 'FRONT_OFFICE', phone: '+84 90 000 0012' },
+  { email: 'hr@ninhvana.vn', fullName: 'Nguyễn Văn M', role: 'HR_MANAGER', property: null, department: 'HR', phone: '+84 90 000 0013' },
+  { email: 'warehouse@ninhvana.vn', fullName: 'Nguyễn Văn N', role: 'WAREHOUSE', property: 'NVN', department: 'PURCHASING', phone: '+84 90 000 0014' },
+  { email: 'marketing@ninhvana.vn', fullName: 'Nguyễn Văn O', role: 'MARKETING', property: null, department: 'TIKTOK', phone: '+84 90 000 0015' },
 ];
 
 const SETTINGS: Array<{ scope: string; key: string; value: Prisma.InputJsonValue; category: string; description?: string }> = [
@@ -817,6 +817,7 @@ async function main(): Promise<void> {
       where: { email: userDefinition.email },
       update: {
         fullName: userDefinition.fullName,
+        departmentCode: userDefinition.department ?? null,
         phone: userDefinition.phone,
         isActive: true,
       },
@@ -825,6 +826,7 @@ async function main(): Promise<void> {
         email: userDefinition.email,
         passwordHash,
         fullName: userDefinition.fullName,
+        departmentCode: userDefinition.department ?? null,
         phone: userDefinition.phone,
         locale: 'vi',
       },

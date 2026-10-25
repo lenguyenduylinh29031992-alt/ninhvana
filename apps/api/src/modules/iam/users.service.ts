@@ -83,6 +83,7 @@ export class UsersService {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
+        departmentCode: user.departmentCode,
         phone: user.phone,
         locale: user.locale,
         avatarUrl: user.avatarUrl,
@@ -114,6 +115,7 @@ export class UsersService {
       id: user.id,
       email: user.email,
       fullName: user.fullName,
+      departmentCode: user.departmentCode,
       phone: user.phone,
       locale: user.locale,
       avatarUrl: user.avatarUrl,
@@ -220,6 +222,7 @@ export class UsersService {
         where: { id },
         data: {
           ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
+          ...(input.departmentCode !== undefined ? { departmentCode: input.departmentCode } : {}),
           ...(input.phone !== undefined ? { phone: input.phone } : {}),
           ...(input.locale !== undefined ? { locale: input.locale } : {}),
           ...(input.avatarUrl !== undefined ? { avatarUrl: input.avatarUrl } : {}),

@@ -255,3 +255,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Thêm overlay bảo trì toàn cục khi health check lỗi: thời gian chạy HH:MM:SS, địa chỉ máy chủ, thử lại, tự kiểm tra 15 giây.
 - Native launcher có panel bảo trì tương tự, probe URL 6 giây, thử lại/đổi địa chỉ; đã build lại iOS simulator.
 - Ảnh: `marketing-390.png`, `mobile-dashboard-390.png`, `maintenance-390.png`, `ios-launcher-390.png`, `ios-maintenance-panel.png`.
+
+
+## Icon điều hướng theo bộ phận (2026-10-25)
+
+- Thêm `User.departmentCode`; gán bộ phận cho 10 tài khoản demo (Lễ tân, Buồng phòng, Bếp, Nhà hàng, Nhân sự, Mua hàng, Marketing TikTok, Vận hành).
+- Mobile bottom bar đổi icon/nhãn theo bộ phận: TikTok, Bếp, Buồng phòng, Lễ tân, Kế toán, Nhân sự, Mua hàng…
+- Admin gán bộ phận khi tạo tài khoản hoặc đổi trực tiếp trong danh sách người dùng.
+- Ảnh: `docs/evidence/marketing-dept-390.png`.

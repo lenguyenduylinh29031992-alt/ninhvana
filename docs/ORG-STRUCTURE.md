@@ -15,7 +15,7 @@
 | Nhà hàng | Nhà hàng, Quầy bar, Bếp, Tiệc & Hội nghị |
 | Dùng chung | Kinh doanh & Tiếp thị, Marketing TikTok, Tài chính & Kế toán, Nhân sự, Mua hàng & Kho, Công nghệ thông tin, Hành chính, Bảo trì, Năng lượng |
 
-Mỗi bộ phận có `code`, `division`, `group`, `isRevenueCenter`, `sortOrder` trong bảng `Department`. Đây là nền để gắn người dùng/chức danh và phân quyền theo bộ phận ở giai đoạn sau.
+Mỗi bộ phận có `code`, `division`, `group`, `isRevenueCenter`, `sortOrder` trong bảng `Department`. Người dùng có `departmentCode` để thanh điều hướng điện thoại hiển thị đúng icon/màn hình chính của bộ phận. Đây là nền để gắn chức danh và phân quyền theo bộ phận ở giai đoạn sau.
 
 ## Doanh thu nhiều khu vực
 

@@ -271,6 +271,7 @@ model User {
   email               String    @unique
   passwordHash        String
   fullName            String
+  departmentCode      String?
   phone               String?
   avatarUrl           String?
   locale              String    @default("vi")

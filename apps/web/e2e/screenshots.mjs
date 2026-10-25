@@ -167,6 +167,16 @@ async function shot(page, name, fullPage = false) {
   await adminPage.waitForTimeout(2200);
   await shot(adminPage, 'maintenance-390');
   await adminPage.unroute('**/api/v1/health/live');
+
+  const deptContext = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'vi-VN' });
+  const deptPage = await deptContext.newPage();
+  deptPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  deptPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
+  await login(deptPage, 'marketing@ninhvana.vn');
+  await deptPage.goto(`${base}/marketing`, { waitUntil: 'domcontentloaded' });
+  await deptPage.waitForTimeout(1200);
+  await shot(deptPage, 'marketing-dept-390');
+  await deptContext.close();
 }
 
 await browser.close();

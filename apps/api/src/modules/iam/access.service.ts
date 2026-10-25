@@ -106,6 +106,7 @@ export class AccessService {
       id: record.id,
       email: record.email,
       fullName: record.fullName,
+      departmentCode: record.departmentCode,
       orgId: record.orgId,
       locale: record.locale === 'en' ? 'en' : 'vi',
       avatarUrl: record.avatarUrl,

@@ -15,6 +15,13 @@ Trên màn hình `< 1024px`, thanh icon cố định ở đáy gồm 5 mục:
 - Mục đang chọn có nền xanh nhạt, icon và nhãn màu xanh thương hiệu.
 - Nút tròn giữa luôn nổi cao hơn; khi ở Trung tâm điều hành, nút chuyển màu xanh đậm và có vòng sáng.
 - Mục không có quyền sẽ tự ẩn; nút giữa vẫn hiện nếu có `dashboard:view`.
+- **Icon thay đổi theo bộ phận của tài khoản** (`User.departmentCode`):
+  - Lễ tân → Lễ tân; Buồng phòng → Buồng phòng; Bộ phận Phòng → Sơ đồ phòng.
+  - Bếp → Bếp (KDS); Nhà hàng/Bar/Dịch vụ phòng → POS tương ứng.
+  - Marketing TikTok → **TikTok**; Kinh doanh → Kinh doanh.
+  - Kế toán → Kế toán; Mua hàng → Mua hàng; Nhân sự → Nhân sự.
+  - Các bộ phận vận hành/bảo trì → Cơ sở; IT/Hành chính → Cấu hình/Tích hợp.
+- Admin có thể gán bộ phận khi tạo tài khoản hoặc đổi trực tiếp trong **Quản trị → Người dùng**.
 - Nội dung trang có padding đáy để không bị thanh điều hướng che.
 
 Ảnh kiểm chứng: `docs/evidence/marketing-390.png`, `docs/evidence/mobile-dashboard-390.png`.
@@ -45,3 +52,6 @@ pnpm --filter @grand-suite/web exec node e2e/screenshots.mjs
 ```
 
 Script chụp desktop, marketing mobile, dashboard mobile và mô phỏng lỗi health để chụp bảng bảo trì.
+
+
+Ảnh minh họa tài khoản Marketing TikTok có icon **TikTok**: `docs/evidence/marketing-dept-390.png`.
