@@ -81,6 +81,85 @@ sys.exit(0 if ok else 1)
 " 2>/dev/null
 check "Nhật ký kiểm toán toàn vẹn" $?
 
+
+# ─────────────── Gate 2: PMS, POS, night audit & reconciliation ───────────────
+MGR_JAR="$(mktemp)"
+PROP=$(python3 - <<'PY2'
+import json
+with open('/tmp/gs-login.json') as handle:
+    data = json.load(handle)
+props = data['user']['properties']
+hotel = next((p for p in props if p.get('type') == 'HOTEL'), props[0])
+print(hotel['id'])
+PY2
+)
+curl -s -o /dev/null -H "X-Forwarded-For: 10.99.2.1" -c "$MGR_JAR" -H 'Content-Type: application/json' \
+  -d "{\"email\":\"manager.han@grandsuite.vn\",\"password\":\"$PASSWORD\"}" "$API/auth/login"
+
+board=$(curl -fsS -b "$MGR_JAR" "$API/front-office/board?propertyId=$PROP" 2>/dev/null || echo '{}')
+echo "$board" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = isinstance(d.get('arrivals'), list) and isinstance(d.get('inHouse'), list) and d.get('businessDate')
+print(f\"  · Lễ tân: {len(d.get('arrivals',[]))} đến · {len(d.get('inHouse',[]))} đang ở · {len(d.get('departures',[]))} trả phòng\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Bàn lễ tân trả về danh sách đến/ở/đi" $?
+
+availability=$(curl -fsS -b "$MGR_JAR" "$API/reservations/availability?propertyId=$PROP&checkIn=2026-11-10&checkOut=2026-11-12&adults=2" 2>/dev/null || echo '[]')
+echo "$availability" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = isinstance(d,list) and len(d)>0 and any(r.get('available',0)>0 for r in d)
+print(f\"  · Tồn phòng: {len(d)} hạng phòng\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Kiểm tra tồn phòng theo ngày" $?
+
+outlets=$(curl -fsS -b "$MGR_JAR" "$API/pos/outlets?propertyId=$PROP" 2>/dev/null || echo '[]')
+echo "$outlets" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = isinstance(d,list) and len(d)>0 and any(o.get('tables') for o in d)
+print(f\"  · POS: {len(d)} outlet\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "POS outlets & sơ đồ bàn" $?
+
+tasks=$(curl -fsS -b "$MGR_JAR" "$API/housekeeping/tasks?propertyId=$PROP" 2>/dev/null || echo '{}')
+echo "$tasks" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = isinstance(d.get('items'), list) and len(d.get('items',[])) > 0
+print(f\"  · Buồng phòng: {len(d.get('items',[]))} công việc\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Bảng công việc buồng phòng" $?
+
+TODAY=$(python3 -c "import datetime; print(datetime.date.today())")
+FROM=$(python3 -c "import datetime; print(datetime.date.today()-datetime.timedelta(days=29))")
+recon=$(curl -fsS -b "$MGR_JAR" "$API/accounting/reconciliation?propertyId=$PROP&from=$FROM&to=$TODAY" 2>/dev/null || echo '{}')
+echo "$recon" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = d.get('balanced') is True and d.get('revenue',0) > 0 and abs(d.get('revenue',0)-d.get('departmentTotal',-1))<0.5 and abs(d.get('revenue',0)-d.get('channelTotal',-1))<0.5
+print(f\"  · Doanh thu {d.get('revenue',0):,.0f} ₫ · bộ phận {d.get('departmentTotal',0):,.0f} ₫ · kênh {d.get('channelTotal',0):,.0f} ₫ · khớp={d.get('balanced')}\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Đối soát Dashboard = bộ phận = kênh = sổ cái" $?
+
+audits=$(curl -fsS -b "$MGR_JAR" "$API/night-audit/latest?propertyId=$PROP" 2>/dev/null || echo '[]')
+echo "$audits" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = isinstance(d,list) and any(r.get('status')=='COMPLETED' for r in d)
+print(f\"  · Night audit: {len(d)} ngày đã khoá sổ\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Lịch sử Night Audit" $?
+
+rm -f "$MGR_JAR"
+
 echo ""
 echo "  Kết quả: $pass đạt · $fail lỗi"
 echo ""

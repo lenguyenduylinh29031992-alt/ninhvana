@@ -30,7 +30,10 @@
     "db:studio": "pnpm --filter @grand-suite/api prisma:studio",
     "db:start": "bash scripts/dev-db.sh start",
     "db:stop": "bash scripts/dev-db.sh stop",
-    "db:status": "bash scripts/dev-db.sh status"
+    "db:status": "bash scripts/dev-db.sh status",
+    "db:seed:ops": "pnpm --filter @grand-suite/api exec tsx prisma/seed-operations-run.ts",
+    "db:seed:history": "pnpm --filter @grand-suite/api exec tsx prisma/seed-history.ts",
+    "db:demo": "pnpm db:seed && pnpm db:seed:history"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

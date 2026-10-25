@@ -16,4 +16,10 @@ if [ "${SEED_ON_START:-false}" = "true" ]; then
   " | grep -q 'seed:missing' && ./node_modules/.bin/tsx prisma/seed.ts || echo "→ Dữ liệu đã tồn tại, bỏ qua seed."
 fi
 
+if [ "${SEED_HISTORY_ON_START:-true}" = "true" ]; then
+  echo "→ Bổ sung lịch sử vận hành (idempotent)…"
+  SEED_HISTORY_DAYS="${SEED_HISTORY_DAYS:-30}" ./node_modules/.bin/tsx prisma/seed-history.ts || \
+    echo "⚠ Không sinh được lịch sử — API vẫn khởi động."
+fi
+
 exec "$@"

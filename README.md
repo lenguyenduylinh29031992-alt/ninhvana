@@ -14,8 +14,8 @@
 |---|---|---|
 | 0 | Kế hoạch, kiến trúc, ERD, backlog | ✅ Hoàn tất |
 | 1 | Nền tảng: monorepo, DB, auth/2FA, RBAC, audit, design system, seed | ✅ Hoàn tất (Gate 1) |
-| 2 | PMS + Folio + POS + Night Audit + Revenue posting | ⏳ Tiếp theo |
-| 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ⬜ |
+| 2 | PMS + Folio + POS + Night Audit + Revenue posting | ✅ Hoàn tất (Gate 2) |
+| 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ⏳ Tiếp theo |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ⬜ |
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
 | 6 | Kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⬜ |
@@ -37,7 +37,7 @@ docker compose up -d --build
 - API + Swagger: <http://localhost:4000/api/docs>
 - MailHog (email demo): <http://localhost:8025>
 
-Container `api` tự chạy migration và seed lần đầu. Dữ liệu demo có sẵn 2 cơ sở, 250 phòng, 15 tài khoản.
+Container `api` tự chạy migration, seed nền tảng và 30 ngày lịch sử vận hành (đặt phòng, POS, night audit) trong lần khởi động đầu.
 
 ### Cách B — Local (không cần Docker)
 
@@ -48,11 +48,29 @@ pnpm dev        # API :4000 · Web :3000
 
 Yêu cầu: Node.js ≥ 22, pnpm 11, PostgreSQL 16 + Redis (script `scripts/dev-db.sh` tự quản lý cluster trong `.dev/`, không ảnh hưởng dữ liệu hệ thống).
 
-Kiểm tra nghiệm thu Giai đoạn 1:
+Kiểm tra nghiệm thu Giai đoạn 1–2:
 
 ```bash
 bash scripts/check-acceptance.sh
 ```
+
+---
+
+## Năng lực Giai đoạn 2
+
+- **Đặt phòng & chống overbooking**: Redis lock → PostgreSQL advisory lock → kiểm tra trong transaction → `EXCLUDE USING gist` trên khoảng ngày. Bài test 10 request đồng thời cho phòng cuối chỉ cho đúng 1 thành công.
+- **Lễ tân**: bàn đến/đi/đang ở, nhận & trả phòng, folio, ghi phí, thanh toán đa phương thức, xuất hoá đơn GTGT in được.
+- **POS & KDS**: sơ đồ bàn, menu theo outlet, gửi bếp/bar, ghi nợ phòng, thanh toán, màn hình bếp realtime.
+- **Night Audit**: kết chuyển doanh thu phòng theo từng đêm, hạch toán hoa hồng OTA, khoá ngày nghiệp vụ, đối soát Nợ/Có và doanh thu bộ phận/kênh.
+- **Sổ nhật ký kép**: mọi khoản phí và thanh toán đều sinh bút toán cân bằng; dashboard đọc trực tiếp từ sổ.
+- **Buồng phòng**: bảng công việc tối ưu điện thoại, checklist, đổi trạng thái phòng, báo hỏng.
+- **Tape chart**: 14 ngày, kéo thanh đặt phòng sang phòng khác để đổi phòng.
+
+![Bàn lễ tân](docs/evidence/front-desk-1920.png)
+
+![POS & sơ đồ bàn](docs/evidence/pos-1920.png)
+
+![Night Audit](docs/evidence/night-audit-1920.png)
 
 ---
 
@@ -124,6 +142,7 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 | `pnpm test:coverage` | Coverage logic lõi |
 | `pnpm db:start` / `db:stop` | PostgreSQL + Redis cục bộ |
 | `pnpm db:migrate` / `db:seed` | Migration / dữ liệu demo |
+| `pnpm db:seed:history` | Sinh lại 30 ngày lịch sử vận hành |
 | `pnpm db:reset` | Xoá & dựng lại dữ liệu demo |
 | `bash scripts/check-acceptance.sh` | Kiểm tra Gate hiện tại |
 
@@ -131,9 +150,10 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 
 ## Kiểm thử
 
-- **63 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, zod schema.
-- **7 integration test** chạy trên PostgreSQL thật: đăng nhập đủ 15 vai trò, sai mật khẩu, CSRF, chặn truy cập chéo cơ sở, 401, toàn vẹn chuỗi audit, API công khai không lộ PII.
-- Ảnh chụp 1920 / 768 / 390 px: [`docs/evidence/`](docs/evidence/).
+- **78 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
+- **15 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, tạo đặt phòng, check-in, POS ghi nợ phòng, night audit + hoa hồng, checkout, thanh toán, hoá đơn, đối soát, 10 request đồng thời, RBAC.
+- `bash scripts/check-acceptance.sh` chạy **25 kiểm tra** Gate 1–2.
+- Ảnh chụp 1920 / 768 / 390 px (22 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
 ---
 
