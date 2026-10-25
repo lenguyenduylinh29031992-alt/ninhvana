@@ -268,3 +268,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 ## Cố định nút Trung tâm (2026-10-25)
 
 - Thanh mobile dùng hai cột trái/phải cân bằng; nút Trung tâm luôn ở giữa tuyệt đối dù icon bộ phận ít/nhiều hoặc bị ẩn do quyền.
+
+
+## Nhân sự theo bộ phận & bảo trì đa nền tảng (2026-10-25)
+
+- Nhấp thẻ bộ phận ở `/hr` để xem danh sách nhân viên, vị trí, trạng thái và lương cơ bản tương ứng.
+- Chuyển 18 nhân sự demo sang mã bộ phận chi tiết: Lễ tân, Buồng phòng, Bếp, Nhà hàng, Bar, Kế toán, Kinh doanh, Bảo trì, Spa…
+- Bảng bảo trì dùng chung cho web, iOS, Android và desktop Electron; desktop setup có đồng hồ chạy và thử lại.

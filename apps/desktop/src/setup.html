@@ -21,6 +21,20 @@
   button { width: 100%; height: 46px; margin-top: 14px; border: 0; border-radius: 10px; background: #1f6699; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
   button:hover { background: #17557f; }
   .error { display: none; margin-top: 14px; padding: 10px 12px; border-radius: 8px; background: #fdf0ef; color: #a33d36; font-size: 12px; }
+  .maintenance { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(11,34,57,.48); backdrop-filter: blur(5px); }
+  .maintenance[hidden] { display: none; }
+  .maintenance .sheet { width: min(460px, 100%); overflow: hidden; border-radius: 18px; background: #faf7f2; box-shadow: 0 24px 70px rgba(11,34,57,.28); }
+  .maintenance .head { background: #0b2239; color: #f7f3eb; padding: 22px; }
+  .maintenance .head small { display: block; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: #b7c6cf; }
+  .maintenance .head h2 { margin: 7px 0 0; font-family: Georgia, serif; font-weight: 500; font-size: 28px; }
+  .maintenance .head p { margin: 8px 0 0; color: #c7d1d6; font-size: 12px; line-height: 1.6; }
+  .maintenance .body { padding: 20px; }
+  .maintenance .clock { display: flex; align-items: center; justify-content: space-between; border: 1px solid #e4dccf; border-radius: 11px; background: #fffdf9; padding: 12px 14px; }
+  .maintenance .clock span { display: block; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #7a878f; }
+  .maintenance .clock strong { display: block; margin-top: 5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 24px; letter-spacing: .1em; }
+  .maintenance .actions { display: flex; gap: 8px; margin-top: 12px; }
+  .maintenance .actions button { margin-top: 0; }
+  .maintenance button.secondary { background: #eee7db; color: #334b5c; }
   .hint { margin-top: 18px; padding-top: 16px; border-top: 1px solid #eee7db; font-size: 11px; color: #8a949a; line-height: 1.6; }
   code { background: #f2ede4; padding: 1px 5px; border-radius: 4px; color: #45545d; }
 </style>
@@ -36,17 +50,49 @@
     <div class="error" id="error"></div>
     <div class="hint">Mặc định khi chạy Docker: <code>http://localhost:3000</code>. Trong mạng LAN: <code>http://192.168.1.20:3000</code>. Có thể đổi lại qua menu <b>NinhVaNa → Đổi máy chủ…</b>.</div>
   </main>
+  <div class="maintenance" id="maintenance" hidden>
+    <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="maintenance-title">
+      <div class="head"><small>NinhVaNa · Trạng thái hệ thống</small><h2 id="maintenance-title">Hệ thống đang bảo trì</h2><p>Không thể kết nối tới máy chủ. Đội kỹ thuật đang kiểm tra; dữ liệu của bạn vẫn được giữ an toàn.</p></div>
+      <div class="body">
+        <div class="clock"><div><span>Thời gian chạy</span><strong id="elapsed">00:00:00</strong></div><span>🛠️</span></div>
+        <div class="actions"><button id="retry" type="button">Thử kết nối lại</button><button id="edit" class="secondary" type="button">Đổi địa chỉ</button></div>
+      </div>
+    </div>
+  </div>
   <script>
     const params = new URLSearchParams(location.search);
     const input = document.getElementById('url');
     const error = document.getElementById('error');
     const message = params.get('message');
-    if (message) { error.textContent = message; error.style.display = 'block'; }
+    const panel = document.getElementById('maintenance');
+    const elapsed = document.getElementById('elapsed');
+    let since = null;
+    let timer = null;
+    function formatElapsed(seconds) {
+      const h = Math.floor(seconds / 3600); const m = Math.floor((seconds % 3600) / 60); const sec = seconds % 60;
+      return [h, m, sec].map((value) => String(value).padStart(2, '0')).join(':');
+    }
+    function showMaintenance(message) {
+      if (message) error.textContent = message;
+      error.style.display = 'block';
+      if (!since) since = Date.now();
+      panel.hidden = false;
+      const tick = () => { elapsed.textContent = formatElapsed(Math.max(0, Math.floor((Date.now() - since) / 1000))); };
+      tick();
+      if (timer) clearInterval(timer);
+      timer = setInterval(tick, 1000);
+    }
+    function hideMaintenance() { panel.hidden = true; if (timer) clearInterval(timer); timer = null; since = null; }
+    if (message) showMaintenance(message);
     window.ninhvana.defaultServer().then((url) => { input.value = params.get('url') || url; });
-    document.getElementById('connect').addEventListener('click', async () => {
+    async function connect() {
       const result = await window.ninhvana.setServer(input.value);
-      if (!result.ok) { error.textContent = result.error; error.style.display = 'block'; }
-    });
+      if (!result.ok) { showMaintenance(result.error); }
+      else { hideMaintenance(); }
+    }
+    document.getElementById('connect').addEventListener('click', connect);
+    document.getElementById('retry').addEventListener('click', connect);
+    document.getElementById('edit').addEventListener('click', () => { hideMaintenance(); input.focus(); input.select(); });
     input.addEventListener('keydown', (event) => { if (event.key === 'Enter') document.getElementById('connect').click(); });
   </script>
 </body>

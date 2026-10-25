@@ -55,3 +55,15 @@ Script chụp desktop, marketing mobile, dashboard mobile và mô phỏng lỗi 
 
 
 Ảnh minh họa tài khoản Marketing TikTok có icon **TikTok**: `docs/evidence/marketing-dept-390.png`.
+
+
+## Áp dụng cho mọi hệ điều hành
+
+| Nền tảng | Cơ chế bảo trì |
+|---|---|
+| Web (macOS, Windows, Linux, trình duyệt) | `SystemHealth` gọi `/api/v1/health/live`, hiện overlay + đồng hồ + thử lại mỗi 15 giây |
+| iOS native | Launcher trong `apps/mobile/www` kiểm tra URL trước khi mở WebView |
+| Android native | Dùng chung launcher `apps/mobile/www`; cùng panel bảo trì |
+| Desktop Electron (macOS, Windows, Linux) | `apps/desktop/src/setup.html` hiện panel bảo trì + đồng hồ khi `did-fail-load` hoặc kết nối lỗi |
+
+Ảnh desktop: `docs/evidence/desktop-maintenance.png`.

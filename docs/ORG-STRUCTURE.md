@@ -27,6 +27,14 @@ Trang `/revenue` hiển thị:
 
 Hiện dữ liệu doanh thu đang bằng 0 theo yêu cầu reset. Khi phát sinh bút toán, sổ cái sẽ cộng vào nhóm bộ phận tương ứng; cấu trúc khu vực/bộ phận đã sẵn sàng.
 
+## Nhân sự theo bộ phận
+
+Trang `/hr` có 22 thẻ bộ phận. Nhấp vào thẻ sẽ:
+- Đổi tiêu đề sang bộ phận đang chọn.
+- Hiện danh sách nhân viên của bộ phận: mã, họ tên, vị trí/chức danh, trạng thái, lương cơ bản.
+- Với Marketing TikTok, hiện thêm tạm ứng/thực lãnh và bảng chấm công tháng 10.
+- Bộ phận chưa có nhân viên hiện thông báo trống.
+
 ## Ghi chú phân quyền
 
 Hiện phân quyền theo vai trò + cơ sở (`UserPropertyRole`). Chưa gắn quyền theo từng bộ phận để tránh thay đổi RBAC đột ngột. Khi cần, có thể thêm `departmentId` vào phân quyền người dùng và kiểm tra quyền theo bộ phận mà không đổi dữ liệu kế toán.

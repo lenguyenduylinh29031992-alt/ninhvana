@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarCheck2, ExternalLink, HandCoins, Users } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -11,6 +12,7 @@ import { PermissionNotice } from '@/components/domain/permission-notice';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/feedback';
+import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Employee { id: string; code: string; fullName: string; position: string; department: string; baseSalary: number; status: string }
@@ -37,6 +39,7 @@ const STATUS_META: Record<string, { label: string; symbol: string; className: st
 
 export default function HrPage() {
   const { can } = useAccess();
+  const [selectedCode, setSelectedCode] = useState('TIKTOK');
   const { activeProperty, properties } = useActiveProperty();
   const propertyId = activeProperty?.id ?? properties.find((property) => property.type === 'HOTEL')?.id ?? properties[0]?.id;
   const enabled = Boolean(propertyId) && can('payroll:view');
@@ -46,38 +49,40 @@ export default function HrPage() {
   const departments = useQuery<Department[]>({ queryKey: ['departments', propertyId], queryFn: () => api(`/hr/departments?propertyId=${propertyId}`), enabled });
   if (!can('payroll:view')) return <PermissionNotice />;
 
-  const marketing = (employees.data ?? []).filter((employee) => employee.department === 'TIKTOK');
-  const team = marketing.length ? marketing : (employees.data ?? []);
+  const selectedDepartment = (departments.data ?? []).find((department) => department.code === selectedCode);
+  const team = (employees.data ?? []).filter((employee) => employee.department === selectedCode);
+  const isTikTok = selectedCode === 'TIKTOK';
   const run = (runs.data ?? []).find((item) => item.period === '2026-10') ?? (runs.data ?? [])[0];
   const lineFor = (employeeId: string) => run?.lines.find((line) => line.employeeId === employeeId);
   const recordFor = (employeeId: string, day: number) => (attendance.data ?? []).find((record) => record.employeeId === employeeId && record.date.slice(0, 10) === `2026-10-${String(day).padStart(2, '0')}`);
-  const totalWork = team.reduce((sum, employee) => sum + DAYS.reduce((days, day) => days + (recordFor(employee.id, day)?.status === 'PRESENT' ? 1 : recordFor(employee.id, day)?.status === 'HALF_DAY' ? 0.5 : 0), 0), 0);
-  const totalAdvance = team.reduce((sum, employee) => sum + Number(lineFor(employee.id)?.advanceAmount ?? 0), 0);
-  const totalNet = team.reduce((sum, employee) => sum + Number(lineFor(employee.id)?.net ?? 0), 0);
+  const activeCount = team.filter((employee) => employee.status === 'ACTIVE').length;
+  const baseSalaryTotal = team.reduce((sum, employee) => sum + Number(employee.baseSalary), 0);
+  const positionCount = new Set(team.map((employee) => employee.position)).size;
+  const headcount = (code: string) => (employees.data ?? []).filter((employee) => employee.department === code).length;
 
   return (
     <div className="space-y-4">
       <PageHeader
-        eyebrow="Nhân sự · Marketing TikTok"
+        eyebrow="Nhân sự · Cơ cấu bộ phận"
         title="Nhân sự & chấm công"
-        description="Đội Marketing TikTok — chấm công tháng 10/2026 và bảng lương thực lãnh kèm tạm ứng, đồng bộ từ Google Sheet."
+        description={`${selectedDepartment?.name ?? 'Chọn bộ phận'} — danh sách nhân viên, vị trí và chấm công tháng 10/2026. Chọn một bộ phận bên dưới để xem danh sách tương ứng.`}
         actions={<div className="flex flex-wrap items-center gap-2"><ExportMenu dataset="employees" label="Xuất nhân sự" /><ExportMenu dataset="payroll" label="Xuất lương" /></div>}
       />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi icon={Users} label="Nhân sự Marketing" value={String(team.length)} hint="Bộ phận Marketing TikTok" />
-        <Kpi icon={CalendarCheck2} label="Tổng công thực tế" value={totalWork.toLocaleString('vi-VN')} hint="Đủ công + nửa công" />
-        <Kpi icon={HandCoins} label="Tạm ứng tháng 10" value={formatMoney(totalAdvance)} hint="Theo bảng lương" />
-        <Kpi icon={HandCoins} label="Thực lãnh tháng 10" value={formatMoney(totalNet)} hint={run ? `Kỳ ${run.period} · ${run.status}` : 'Chưa có kỳ lương'} />
+        <Kpi icon={Users} label="Nhân sự bộ phận" value={String(team.length)} hint={selectedDepartment?.name ?? 'Chưa chọn bộ phận'} />
+        <Kpi icon={CalendarCheck2} label="Đang hoạt động" value={String(activeCount)} hint={`${team.length - activeCount} tạm dừng`} />
+        <Kpi icon={HandCoins} label="Tổng lương cơ bản" value={formatMoney(baseSalaryTotal)} hint="Theo hồ sơ nhân sự" />
+        <Kpi icon={Users} label="Vị trí / chức danh" value={String(positionCount)} hint="Trong bộ phận đang chọn" />
       </div>
 
       <Card>
         <CardContent className="p-0">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
-            <div><p className="font-display text-lg text-ink">Đội Marketing TikTok</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">Mã nhân viên · chức danh · lương cơ bản</p></div>
+            <div><p className="font-display text-lg text-ink">Nhân viên — {selectedDepartment?.name ?? 'Chưa chọn bộ phận'}</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">Mã nhân viên · họ tên · vị trí · trạng thái</p></div>
             <Badge tone="brand">{team.length} nhân sự</Badge>
           </div>
           <Table>
-            <TableHeader><TableRow><TableHead className="pl-4">Mã</TableHead><TableHead>Họ tên</TableHead><TableHead>Chức danh</TableHead><TableHead className="text-right">Lương cơ bản</TableHead><TableHead className="text-right">Tạm ứng</TableHead><TableHead className="pr-4 text-right">Thực lãnh 10/2026</TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead className="pl-4">Mã</TableHead><TableHead>Họ tên</TableHead><TableHead>Vị trí</TableHead><TableHead>Trạng thái</TableHead><TableHead className="text-right">Lương cơ bản</TableHead>{isTikTok ? <><TableHead className="text-right">Tạm ứng</TableHead><TableHead className="pr-4 text-right">Thực lãnh 10/2026</TableHead></> : null}</TableRow></TableHeader>
             <TableBody>
               {team.map((employee) => {
                 const line = lineFor(employee.id);
@@ -85,12 +90,12 @@ export default function HrPage() {
                   <TableCell className="pl-4 font-mono text-[11px]">{employee.code}</TableCell>
                   <TableCell className="text-xs">{employee.fullName}</TableCell>
                   <TableCell className="text-[11px] text-muted-foreground">{employee.position}</TableCell>
+                  <TableCell><Badge tone={employee.status === 'ACTIVE' ? 'success' : 'outline'}>{employee.status === 'ACTIVE' ? 'Hoạt động' : employee.status}</Badge></TableCell>
                   <TableCell className="tabular text-right text-xs">{formatMoney(Number(employee.baseSalary))}</TableCell>
-                  <TableCell className="tabular text-right text-xs">{formatMoney(Number(line?.advanceAmount ?? 0))}</TableCell>
-                  <TableCell className="tabular pr-4 text-right text-xs text-brand">{formatMoney(Number(line?.net ?? 0))}</TableCell>
+                  {isTikTok ? <><TableCell className="tabular text-right text-xs">{formatMoney(Number(line?.advanceAmount ?? 0))}</TableCell><TableCell className="tabular pr-4 text-right text-xs text-brand">{formatMoney(Number(line?.net ?? 0))}</TableCell></> : null}
                 </TableRow>;
               })}
-              {team.length === 0 ? <TableRow><TableCell colSpan={6} className="py-10 text-center text-xs text-muted-foreground">Chưa có nhân sự Marketing TikTok. Chạy script đồng bộ Google Sheet để nạp dữ liệu.</TableCell></TableRow> : null}
+              {team.length === 0 ? <TableRow><TableCell colSpan={isTikTok ? 7 : 5} className="py-10 text-center text-xs text-muted-foreground">Bộ phận này chưa có nhân viên. Thêm nhân sự hoặc chuyển bộ phận cho tài khoản.</TableCell></TableRow> : null}
             </TableBody>
           </Table>
         </CardContent>
@@ -103,14 +108,15 @@ export default function HrPage() {
             <div className="flex gap-1"><Badge tone="success">{departments.data?.filter((d) => d.division === 'HOTEL').length ?? 0} khách sạn</Badge><Badge tone="brand">{departments.data?.filter((d) => d.division === 'RESTAURANT').length ?? 0} nhà hàng</Badge><Badge tone="outline">{departments.data?.filter((d) => d.division === 'SHARED').length ?? 0} dùng chung</Badge></div>
           </div>
           <div className="grid gap-px bg-line sm:grid-cols-2 xl:grid-cols-3">
-            {(departments.data ?? []).map((department) => <div key={department.code} className="flex items-start justify-between gap-3 bg-surface p-3">
-              <div><p className="text-xs font-medium text-ink">{department.name}</p><p className="mt-0.5 font-mono text-[9px] text-muted-foreground">{department.code} · {department.group}</p></div>
+            {(departments.data ?? []).map((department) => <button key={department.code} type="button" aria-pressed={selectedCode === department.code} onClick={() => setSelectedCode(department.code)} className={cn('flex items-start justify-between gap-3 p-3 text-left transition-colors', selectedCode === department.code ? 'bg-brand-soft ring-1 ring-inset ring-brand' : 'bg-surface hover:bg-muted/50')}>
+              <div><p className={cn('text-xs font-medium', selectedCode === department.code ? 'text-brand' : 'text-ink')}>{department.name}</p><p className="mt-0.5 font-mono text-[9px] text-muted-foreground">{department.code} · {department.group} · {headcount(department.code)} người</p></div>
               <div className="flex shrink-0 flex-col items-end gap-1"><Badge tone={department.division === 'RESTAURANT' ? 'brand' : department.division === 'HOTEL' ? 'success' : 'outline'}>{department.division === 'RESTAURANT' ? 'Nhà hàng' : department.division === 'HOTEL' ? 'Khách sạn' : 'Dùng chung'}</Badge>{department.isRevenueCenter ? <span className="text-[9px] text-brand">Trung tâm doanh thu</span> : null}</div>
-            </div>)}
+            </button>)}
           </div>
         </CardContent>
       </Card>
 
+      {isTikTok ? (
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
           <div><p className="font-display text-lg text-ink">Bảng chấm công — tháng 10/2026</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">● đủ công · ◐ nửa công · — nghỉ tuần</p></div>
@@ -139,6 +145,10 @@ export default function HrPage() {
           </table>
         </div>
       </Card>
+
+      ) : (
+        <Card><CardContent className="p-6 text-center text-xs text-muted-foreground">Chấm công chi tiết tháng 10/2026 đang được đồng bộ cho bộ phận Marketing TikTok. Chọn bộ phận TikTok để xem bảng công; các bộ phận khác sẽ bổ sung khi có dữ liệu chấm công.</CardContent></Card>
+      )}
 
       <div className="grid gap-3 md:grid-cols-3">
         <SourceCard title="Chấm công & lịch nghỉ" href={SHEETS.attendance} note="Nguồn: bảng theo dõi công tháng 10/2026" />

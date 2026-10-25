@@ -155,6 +155,12 @@ async function shot(page, name, fullPage = false) {
     await adminPage.waitForTimeout(1400);
     await shot(adminPage, name, true);
   }
+  await adminPage.goto(`${base}/hr`, { waitUntil: 'domcontentloaded' });
+  await adminPage.waitForTimeout(1000);
+  await adminPage.locator('button[aria-pressed]').filter({ hasText: 'Lễ tân' }).first().click();
+  await adminPage.waitForTimeout(700);
+  await shot(adminPage, 'hr-front-office-1920', true);
+
   await adminPage.setViewportSize({ width: 390, height: 844 });
   await adminPage.goto(`${base}/marketing`, { waitUntil: 'domcontentloaded' });
   await adminPage.waitForTimeout(1000);
