@@ -1,0 +1,62 @@
+# Truy cập NinhVaNa từ iPhone (LAN và ngoài Wi-Fi)
+
+## Vì sao iPhone cùng Wi-Fi vẫn không vào?
+
+Máy Mac hiện tại:
+
+```text
+IP LAN: 192.168.1.27
+Cổng web: 3000
+Server bind: *:3000
+Firewall macOS: tắt
+Truy cập từ chính Mac qua LAN: HTTP 200
+```
+
+Như vậy server đã mở đúng. Trên iPhone **không được nhập `localhost`** — `localhost` là chính iPhone. Nhập:
+
+```text
+http://192.168.1.27:3000
+```
+
+Sau đó nhấn **Kết nối**. Nếu vẫn lỗi:
+
+1. Kiểm tra iPhone và Mac đang ở **cùng một SSID chính**, không phải Wi-Fi Guest.
+2. Tắt VPN/Private Relay trên iPhone.
+3. Router có bật **AP/client isolation** → iPhone không gọi được Mac dù chung Wi-Fi.
+4. Thử mở Safari trên iPhone: `http://192.168.1.27:3000/login`.
+   - Safari mở được → app đang lưu URL cũ; sửa URL trong app.
+   - Safari không mở được → lỗi router/AP isolation, dùng tunnel bên dưới.
+
+## Cách khác: Cloudflare Tunnel (4G/5G/Wi-Fi khác)
+
+Đã dựng tunnel công khai:
+
+```text
+https://ohio-note-holes-jam.trycloudflare.com
+```
+
+Nhập URL này vào ô **Địa chỉ máy chủ** trong app iPhone, nhấn **Kết nối**. Không cần chung Wi-Fi; dùng được 4G/5G.
+
+Điều kiện: Mac đang bật, web cổng 3000 đang chạy và tiến trình cloudflared còn sống. URL Quick Tunnel đổi mỗi lần khởi động lại.
+
+Khởi động lại tunnel:
+
+```bash
+bash scripts/start-tunnel.sh
+```
+
+Dừng tunnel:
+
+```bash
+pkill -f "cloudflared tunnel --url http://127.0.0.1:3000"
+```
+
+### Lưu ý bảo mật
+
+Quick Tunnel là URL công khai, ai biết URL đều thấy trang đăng nhập. Hãy dừng tunnel khi không dùng. Để có tên miền cố định + kiểm soát truy cập, cần tài khoản Cloudflare (Named Tunnel) hoặc triển khai app lên VPS có HTTPS.
+
+## Truy cập lâu dài
+
+- **Cùng văn phòng:** dùng IP LAN cố định (đặt DHCP reservation cho Mac).
+- **Ngoài văn phòng:** Cloudflare Named Tunnel + tên miền, hoặc VPS/Docker.
+- **Không nên** mở cổng 3000 trực tiếp ra Internet.
