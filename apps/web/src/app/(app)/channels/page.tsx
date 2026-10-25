@@ -38,7 +38,7 @@ interface ChannelsResponse {
   logs: Array<{ id: string; channelCode: string; channelName: string; direction: string; kind: string; status: string; error: string | null; durationMs: number | null; createdAt: string }>;
 }
 
-const TYPE_LABEL: Record<string, string> = { OTA: 'OTA', SOCIAL: 'Mạng xã hội', DIRECT: 'Trực tiếp', B2B: 'B2B', OFFLINE: 'Offline' };
+const TYPE_LABEL: Record<string, string> = { OTA: 'OTA', SOCIAL: 'Mạng xã hội', DIRECT: 'Trực tiếp', B2B: 'B2B', OFFLINE: 'Ngoại tuyến' };
 
 export default function ChannelsPage() {
   const { can } = useAccess();
@@ -75,7 +75,7 @@ export default function ChannelsPage() {
     <div className="space-y-4">
       <PageHeader
         eyebrow="Thương mại · Kênh phân phối"
-        title="Channel Manager"
+        title="Quản lý kênh"
         description="Đồng bộ tồn phòng & giá (ARI) hai chiều với OTA và mạng xã hội. Connector mock chạy đầy đủ retry, backoff và dead-letter queue."
         actions={
           <div className="flex items-center gap-2"><ExportMenu dataset="channels" label="Xuất" /><Badge tone={data?.totals.dlq ? 'danger' : 'success'}>

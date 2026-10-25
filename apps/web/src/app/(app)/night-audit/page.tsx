@@ -107,7 +107,7 @@ export default function NightAuditPage() {
     <div className="space-y-4">
       <PageHeader
         eyebrow="Tài chính · Kiểm toán đêm"
-        title="Night Audit"
+        title="Kiểm toán đêm"
         description="Khoá ngày nghiệp vụ, kết chuyển doanh thu phòng, hoa hồng OTA và đối soát sổ cái."
         actions={
           <div className="flex items-end gap-2">

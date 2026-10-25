@@ -3,6 +3,8 @@ import type { TranslationKey } from './vi';
 export const en: Record<TranslationKey, string> = {
   'app.name': 'NinhVaNa',
   'app.tagline': 'Hotel & Restaurant Management',
+  'app.sidebarTagline': 'Hospitality ERP',
+  'app.systemTagline': 'Hospitality Operating System',
   'app.fullName': 'NinhVaNa — Hospitality Enterprise Management',
   'app.copyright': '© {year} NinhVaNa Group',
 
@@ -86,6 +88,10 @@ export const en: Record<TranslationKey, string> = {
   'common.showPassword': 'Show password',
   'common.hidePassword': 'Hide password',
   'common.selectProperty': 'Select property',
+  'common.realtime': 'Live',
+  'common.offline': 'Offline',
+  'common.realtimeConnected': 'Realtime connection is active',
+  'common.realtimeDisconnected': 'Realtime connection is unavailable',
   'common.searchEverything': 'Search everything…',
   'common.commandMenu': 'Command menu',
   'common.commandHint': 'Type to find pages, guests, rooms or actions',

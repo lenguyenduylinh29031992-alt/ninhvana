@@ -104,7 +104,7 @@ export default function InboxPage() {
     <div className="space-y-4">
       <PageHeader
         eyebrow="Thương mại · Hộp thư đa kênh"
-        title="Social Commerce Inbox"
+        title="Hộp thư thương mại mạng xã hội"
         description="Facebook, Instagram, Zalo, WhatsApp, TikTok, Telegram, LINE, KakaoTalk, WeChat trong một hộp thư."
         actions={<Badge tone="brand"><MessageCircle className="size-3" /> {inbox.data?.counts.open ?? 0} hội thoại mở</Badge>}
       />

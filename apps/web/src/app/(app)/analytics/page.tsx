@@ -42,7 +42,7 @@ export default function AnalyticsPage() {
     <div className="space-y-4">
       <PageHeader
         eyebrow="Điều hành · Phân tích hợp nhất"
-        title="Group Performance"
+        title="Hiệu quả tập đoàn"
         description={`${data.scope} · ${data.period.from} → ${data.period.to} · dữ liệu sổ cái 24 tháng`}
         actions={<div className="flex items-center gap-2"><Badge tone={data.cached ? 'outline' : 'success'}>{data.cached ? 'cache' : `${data.tookMs} ms`}</Badge><Button asChild size="sm"><Link href="/reports"><FileBarChart /> Báo cáo</Link></Button></div>}
       />

@@ -44,7 +44,7 @@ const DEMO_ACCOUNTS = [
   { email: 'cashier@ninhvana.vn', name: 'Nguyễn Văn L', role: 'Thu ngân', group: 'Cơ sở' },
   { email: 'hr@ninhvana.vn', name: 'Nguyễn Văn M', role: 'Quản lý nhân sự', group: 'Hỗ trợ' },
   { email: 'warehouse@ninhvana.vn', name: 'Nguyễn Văn N', role: 'Quản lý kho', group: 'Hỗ trợ' },
-  { email: 'marketing@ninhvana.vn', name: 'Nguyễn Văn O', role: 'Marketing', group: 'Hỗ trợ' },
+  { email: 'marketing@ninhvana.vn', name: 'Nguyễn Văn O', role: 'Tiếp thị', group: 'Hỗ trợ' },
 ] as const;
 
 interface PublicSummary {
@@ -145,7 +145,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
           <div>
             <p className="font-display text-lg leading-none tracking-[0.16em]">NINHVANA</p>
             <p className="mt-1 text-[9px] uppercase tracking-[0.26em] text-sidebar-muted">
-              Hospitality Operating System
+              {t('app.systemTagline')}
             </p>
           </div>
         </div>

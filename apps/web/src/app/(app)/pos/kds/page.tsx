@@ -57,7 +57,7 @@ export default function KdsPage() {
     <div className="space-y-4">
       <PageHeader
         eyebrow="Vận hành · Bếp"
-        title="Màn hình bếp (KDS)"
+        title="Màn hình bếp"
         description="Ticket từ POS tự động chuyển sang bếp/bar. Cập nhật trạng thái theo thời gian thực."
         actions={<Badge tone="brand"><ChefHat className="size-3" /> {tickets.data?.length ?? 0} ticket</Badge>}
       />

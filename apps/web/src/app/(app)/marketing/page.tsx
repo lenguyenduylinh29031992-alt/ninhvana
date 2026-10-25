@@ -51,7 +51,7 @@ export default function MarketingPage() {
       parentId: dialog.parentId,
     } }),
     onSuccess: async () => {
-      toast.success(dialog.parentId ? 'Đã thêm mục con marketing' : 'Đã thêm mục marketing');
+      toast.success(dialog.parentId ? 'Đã thêm mục con tiếp thị' : 'Đã thêm mục tiếp thị');
       setDialog({ open: false, parentId: null });
       setForm({ title: '', description: '', status: 'PLANNED', channel: '', budget: '', notes: '' });
       await queryClient.invalidateQueries({ queryKey: ['marketing-tree'] });
@@ -59,11 +59,11 @@ export default function MarketingPage() {
   });
   const update = useMutation({
     mutationFn: (body: Record<string, unknown>) => api(`/marketing/items/${selected?.id}`, { method: 'PATCH', body }),
-    onSuccess: async () => { toast.success('Đã cập nhật mục marketing'); await queryClient.invalidateQueries({ queryKey: ['marketing-tree'] }); },
+    onSuccess: async () => { toast.success('Đã cập nhật mục tiếp thị'); await queryClient.invalidateQueries({ queryKey: ['marketing-tree'] }); },
   });
   const remove = useMutation({
     mutationFn: (id: string) => api(`/marketing/items/${id}`, { method: 'DELETE' }),
-    onSuccess: async () => { toast.success('Đã xoá mục marketing'); setSelectedId(null); await queryClient.invalidateQueries({ queryKey: ['marketing-tree'] }); },
+    onSuccess: async () => { toast.success('Đã xoá mục tiếp thị'); setSelectedId(null); await queryClient.invalidateQueries({ queryKey: ['marketing-tree'] }); },
   });
 
   if (!can('marketing:view')) return <PermissionNotice />;
@@ -76,16 +76,16 @@ export default function MarketingPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        eyebrow="Thương mại · Đội Marketing"
-        title="Marketing Workspace"
+        eyebrow="Thương mại · Đội tiếp thị"
+        title="Không gian tiếp thị"
         description="Chiến dịch, nội dung, kênh đối tác và ngân sách — tổ chức thành các mục lớn, thêm mục con chi tiết bằng nút +."
-        actions={<><ExportMenu dataset="marketing" label="Xuất marketing" /><Button size="sm" disabled={!can('marketing:manage')} onClick={() => openAdd(null)}><Plus /> Mục lớn</Button></>}
+        actions={<><ExportMenu dataset="marketing" label="Xuất tiếp thị" /><Button size="sm" disabled={!can('marketing:manage')} onClick={() => openAdd(null)}><Plus /> Mục lớn</Button></>}
       />
       <div className="grid gap-4 xl:grid-cols-[340px_1fr]">
         <Card className="h-fit">
           <CardContent className="p-3">
             <div className="mb-2 flex items-center justify-between px-2 py-1">
-              <p className="label-xs flex items-center gap-2"><FolderTree className="size-3.5" /> Danh mục marketing</p>
+              <p className="label-xs flex items-center gap-2"><FolderTree className="size-3.5" /> Danh mục tiếp thị</p>
               <Button size="icon" variant="ghost" aria-label="Thêm mục lớn" disabled={!can('marketing:manage')} onClick={() => openAdd(null)}><Plus /></Button>
             </div>
             <div className="space-y-1">
@@ -124,7 +124,7 @@ export default function MarketingPage() {
               <CardContent className="p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="label-xs flex items-center gap-1.5"><Megaphone className="size-3.5" /> {selected.parentId ? 'Mục con marketing' : 'Mục lớn marketing'}</p>
+                    <p className="label-xs flex items-center gap-1.5"><Megaphone className="size-3.5" /> {selected.parentId ? 'Mục con tiếp thị' : 'Mục lớn tiếp thị'}</p>
                     <h2 className="mt-1 font-display text-3xl text-ink">{selected.title}</h2>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{selected.description || 'Chưa có mô tả. Thêm mục con hoặc cập nhật nội dung chi tiết.'}</p>
                   </div>
@@ -150,7 +150,7 @@ export default function MarketingPage() {
               {selected.children.map((child) => (
                 <button key={child.id} onClick={() => setSelectedId(child.id)} className="card-surface p-4 text-left transition hover:border-brand/40">
                   <div className="flex items-center justify-between"><p className="text-sm font-medium text-ink">{child.title}</p><Badge tone={STATUS[child.status]?.tone ?? 'outline'}>{STATUS[child.status]?.label ?? child.status}</Badge></div>
-                  <p className="mt-2 line-clamp-2 text-[11px] text-muted-foreground">{child.description || 'Chi tiết marketing'}</p>
+                  <p className="mt-2 line-clamp-2 text-[11px] text-muted-foreground">{child.description || 'Chi tiết tiếp thị'}</p>
                   <p className="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">{child.channel || 'Chưa chọn kênh'}{child.budget ? ` · ${formatMoney(child.budget)}` : ''}</p>
                 </button>
               ))}
@@ -158,12 +158,12 @@ export default function MarketingPage() {
             </div>
             {selected.notes ? <Card><CardContent className="p-4"><p className="label-xs">Ghi chú</p><p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{selected.notes}</p></CardContent></Card> : null}
           </div>
-        ) : <Card><CardContent className="flex min-h-64 flex-col items-center justify-center gap-2 p-8 text-center text-sm text-muted-foreground"><Target className="size-6" />Chưa có mục marketing nào. Nhấn + để tạo mục lớn đầu tiên.</CardContent></Card>}
+        ) : <Card><CardContent className="flex min-h-64 flex-col items-center justify-center gap-2 p-8 text-center text-sm text-muted-foreground"><Target className="size-6" />Chưa có mục tiếp thị nào. Nhấn + để tạo mục lớn đầu tiên.</CardContent></Card>}
       </div>
 
       <Dialog open={dialog.open} onOpenChange={(open) => setDialog({ ...dialog, open })}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{dialog.parentId ? `Thêm mục con cho “${dialog.parentTitle}”` : 'Thêm mục marketing lớn'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{dialog.parentId ? `Thêm mục con cho “${dialog.parentTitle}”` : 'Thêm mục tiếp thị lớn'}</DialogTitle></DialogHeader>
           <div className="space-y-2">
             <div><Label>Tiêu đề</Label><Input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Ví dụ: Ưu đãi cuối năm" autoFocus /></div>
             <div><Label>Mô tả chi tiết</Label><Textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Mục tiêu, đối tượng, thông điệp…" /></div>
@@ -174,7 +174,7 @@ export default function MarketingPage() {
             <div><Label>Ngân sách (VND)</Label><Input type="number" min="0" value={form.budget} onChange={(event) => setForm({ ...form, budget: event.target.value })} placeholder="0" /></div>
             <div><Label>Ghi chú</Label><Textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} /></div>
           </div>
-          <Button className="mt-3 w-full" loading={create.isPending} disabled={form.title.trim().length < 2} onClick={() => create.mutate()}>Lưu mục marketing</Button>
+          <Button className="mt-3 w-full" loading={create.isPending} disabled={form.title.trim().length < 2} onClick={() => create.mutate()}>Lưu mục tiếp thị</Button>
         </DialogContent>
       </Dialog>
     </div>

@@ -121,13 +121,13 @@ export function Topbar({
                 )}
                 aria-hidden
               />
-              {realtimeConnected ? 'Realtime' : 'Offline'}
+              {realtimeConnected ? t('common.realtime') : t('common.offline')}
             </span>
           </TooltipTrigger>
           <TooltipContent>
             {realtimeConnected
-              ? 'Kết nối thời gian thực đang hoạt động'
-              : 'Chưa kết nối được thời gian thực'}
+              ? t('common.realtimeConnected')
+              : t('common.realtimeDisconnected')}
           </TooltipContent>
         </Tooltip>
 

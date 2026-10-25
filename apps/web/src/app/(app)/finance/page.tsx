@@ -54,7 +54,7 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Tài chính · Báo cáo quản trị" title="Finance & P&L" description="P&L theo USALI, cân đối kế toán, lưu chuyển tiền tệ và tuổi nợ — tất cả đọc từ sổ nhật ký kép." actions={<ExportMenu dataset="finance" label="Xuất sổ" />} />
+      <PageHeader eyebrow="Tài chính · Báo cáo quản trị" title="Tài chính & lãi lỗ" description="P&L theo USALI, cân đối kế toán, lưu chuyển tiền tệ và tuổi nợ — tất cả đọc từ sổ nhật ký kép." actions={<ExportMenu dataset="finance" label="Xuất sổ" />} />
       <Card><CardContent className="flex flex-wrap items-end gap-3 p-3">
         <div><Label htmlFor="fin-from">Từ ngày</Label><Input id="fin-from" type="date" value={from} onChange={(event) => setFrom(event.target.value)} /></div>
         <div><Label htmlFor="fin-to">Đến ngày</Label><Input id="fin-to" type="date" value={to} onChange={(event) => setTo(event.target.value)} /></div>

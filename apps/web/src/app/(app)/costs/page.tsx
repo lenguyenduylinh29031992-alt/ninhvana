@@ -23,7 +23,7 @@ interface Expense { id: string; number: string; description: string; accountCode
 interface StockRow { id: string; quantity: number; value: number; item?: { name: string; unit: string }; lowStock: boolean }
 interface ApInvoice { id: string; number: string; total: number; balance: number; dueDate: string; status: string; supplier: { name: string } }
 
-const ACCOUNTS = [['6100', 'Điện'], ['6110', 'Nước'], ['6200', 'Marketing'], ['6300', 'Bảo trì'], ['6400', 'Hành chính'], ['6900', 'Khác']];
+const ACCOUNTS = [['6100', 'Điện'], ['6110', 'Nước'], ['6200', 'Tiếp thị'], ['6300', 'Bảo trì'], ['6400', 'Hành chính'], ['6900', 'Khác']];
 const DEPTS = [['ADMIN', 'Hành chính'], ['ROOMS', 'Phòng'], ['FNB', 'F&B'], ['SPA', 'Spa'], ['ENGINEERING', 'Kỹ thuật']];
 
 export default function CostsPage() {
@@ -42,7 +42,7 @@ export default function CostsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Cost Control" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={<div className="flex items-center gap-2"><ExportMenu dataset="supplier-invoices" label="Xuất chi phí" />{can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null}</div>} />
+      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Kiểm soát chi phí" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={<div className="flex items-center gap-2"><ExportMenu dataset="supplier-invoices" label="Xuất chi phí" />{can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null}</div>} />
       <div className="grid gap-3 sm:grid-cols-3">
         <Kpi icon={Receipt} label="Chi phí đã ghi" value={formatMoney(totalExpense)} hint={`${expenses.data?.length ?? 0} chứng từ`} />
         <Kpi icon={Boxes} label="Giá trị tồn kho" value={formatMoney(stockValue)} hint={`${stock.data?.length ?? 0} mặt hàng`} />

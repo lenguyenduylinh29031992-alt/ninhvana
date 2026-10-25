@@ -34,6 +34,7 @@ interface TwoFactorSetup {
 
 export default function ProfilePage() {
   const { user, refetch } = useAccess();
+  const isAdmin = user?.roles.some((role) => role.roleCode === 'SUPER_ADMIN') ?? false;
   const { t, locale, setLocale, formatDateTime } = useI18n();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -152,7 +153,8 @@ export default function ProfilePage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="fullName">Họ và tên</Label>
-                  <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} />
+                  <Input id="fullName" value={fullName} disabled={!isAdmin} onChange={(event) => setFullName(event.target.value)} />
+                  <p className="mt-1 text-[10px] text-muted-foreground">{isAdmin ? 'Admin có thể đổi tên hiển thị.' : 'Chỉ tài khoản Admin được đổi tên. Liên hệ quản trị viên nếu cần.'}</p>
                 </div>
                 <div>
                   <Label htmlFor="phone">Điện thoại</Label>

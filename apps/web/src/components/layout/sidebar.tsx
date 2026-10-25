@@ -62,7 +62,7 @@ export function Sidebar({
               NINHVANA
             </p>
             <p className="mt-1 text-[9px] uppercase tracking-[0.22em] text-sidebar-muted">
-              Hospitality ERP
+              {t('app.sidebarTagline')}
             </p>
           </div>
           <Button

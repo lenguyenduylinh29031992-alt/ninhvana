@@ -43,7 +43,7 @@ export default function PayrollPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Nhân sự · Tiền lương" title="HR & Payroll" description="Bảng lương theo bộ phận, hạch toán chi phí lương và thanh toán." actions={<ExportMenu dataset="payroll" label="Xuất lương" />} />
+      <PageHeader eyebrow="Nhân sự · Tiền lương" title="Nhân sự & tiền lương" description="Bảng lương theo bộ phận, hạch toán chi phí lương và thanh toán." actions={<ExportMenu dataset="payroll" label="Xuất lương" />} />
       <div className="grid gap-3 sm:grid-cols-3">
         <Kpi icon={Users} label="Nhân sự hoạt động" value={headcount} hint={`${employees.data?.length ?? 0} hồ sơ`} />
         <Kpi icon={BadgeDollarSign} label="Quỹ lương kỳ gần nhất" value={formatMoney(latest?.gross ?? 0)} hint={latest ? `Kỳ ${latest.period} · ${latest.status}` : 'Chưa có kỳ lương'} />

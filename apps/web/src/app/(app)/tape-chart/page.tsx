@@ -98,7 +98,7 @@ export default function TapeChartPage() {
     <div className="space-y-4">
       <PageHeader
         eyebrow="Vận hành · Sơ đồ phòng"
-        title="Tape chart"
+        title="Sơ đồ phòng"
         description="Kéo thanh đặt phòng sang phòng khác để đổi phòng. Màu thể hiện trạng thái lưu trú."
         actions={
           <div className="flex items-center gap-1">

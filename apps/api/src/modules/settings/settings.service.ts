@@ -83,6 +83,11 @@ export class SettingsService {
       assertPropertyAccess(actor, scope);
     }
 
+    const isSuperAdmin = actor.roles.some((assignment) => assignment.roleCode === 'SUPER_ADMIN');
+    if ((key.startsWith('branding.') || key.endsWith('.name')) && !isSuperAdmin) {
+      throw new AppError(ERROR_CODES.FORBIDDEN, 'Chỉ tài khoản Admin được phép đổi tên thương hiệu.', 403);
+    }
+
     const sensitive = SENSITIVE_PREFIXES.some((prefix) => key.startsWith(prefix));
     if (sensitive && (!input.reason || input.reason.trim().length < 5)) {
       throw new AppError(

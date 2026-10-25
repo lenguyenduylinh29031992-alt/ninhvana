@@ -47,7 +47,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Phân tích · Báo cáo" title="Report Builder" description="Chọn mẫu, tham số ngày/cơ sở, xem trước và xuất CSV (mở được bằng Excel)." />
+      <PageHeader eyebrow="Phân tích · Báo cáo" title="Trình tạo báo cáo" description="Chọn mẫu, tham số ngày/cơ sở, xem trước và xuất CSV (mở được bằng Excel)." />
       <Card><CardContent className="flex flex-wrap items-end gap-3 p-3">
         <div><Label>Từ ngày</Label><Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} /></div>
         <div><Label>Đến ngày</Label><Input type="date" value={to} onChange={(event) => setTo(event.target.value)} /></div>

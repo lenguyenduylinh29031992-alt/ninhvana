@@ -573,11 +573,11 @@ async function main(): Promise<void> {
   // Marketing workspace: default pillars, each with sub-items.
   if ((await prisma.marketingItem.count({ where: { orgId: org.id } })) === 0) {
     const pillars = [
-      { title: 'Chiến dịch', description: 'Kế hoạch khuyến mãi, ưu đãi theo mùa và theo phân khúc.', status: 'IN_PROGRESS', children: ['Ưu đãi cuối năm', 'Combo Ninh Vân 2N1Đ', 'Retarget khách đã ở'] },
-      { title: 'Nội dung & thương hiệu', description: 'Lịch nội dung, hình ảnh, câu chuyện thương hiệu NinhVaNa.', status: 'IN_PROGRESS', children: ['Lịch content tháng 11', 'Bộ ảnh Ninh Vân', 'Nhận diện logo & màu sắc'] },
-      { title: 'Kênh & đối tác', description: 'OTA, KOL/KOC, báo chí và đối tác phân phối.', status: 'PLANNED', children: ['Booking.com', 'KOL review Ninh Vân', 'Hợp tác travel agency'] },
+      { title: 'Chiến dịch', description: 'Kế hoạch khuyến mãi, ưu đãi theo mùa và theo phân khúc.', status: 'IN_PROGRESS', children: ['Ưu đãi cuối năm', 'Gói Ninh Vân 2N1Đ', 'Tiếp thị lại khách đã ở'] },
+      { title: 'Nội dung & thương hiệu', description: 'Lịch nội dung, hình ảnh, câu chuyện thương hiệu NinhVaNa.', status: 'IN_PROGRESS', children: ['Lịch nội dung tháng 11', 'Bộ ảnh Ninh Vân', 'Nhận diện logo & màu sắc'] },
+      { title: 'Kênh & đối tác', description: 'OTA, KOL/KOC, báo chí và đối tác phân phối.', status: 'PLANNED', children: ['Booking.com', 'Đánh giá từ KOL Ninh Vân', 'Hợp tác đại lý du lịch'] },
       { title: 'Ngân sách & ROI', description: 'Theo dõi chi phí, hiệu quả và attribution theo kênh.', status: 'PLANNED', children: ['Ngân sách Q4', 'Báo cáo ROI tháng'] },
-      { title: 'Chăm sóc khách hàng', description: 'Email, SMS và chương trình khách quay lại.', status: 'PLANNED', children: ['Email sau lưu trú', 'Ưu đãi sinh nhật'] },
+      { title: 'Chăm sóc khách hàng', description: 'Email, SMS và chương trình khách quay lại.', status: 'PLANNED', children: ['Thư điện tử sau lưu trú', 'Ưu đãi sinh nhật'] },
     ];
     for (const [index, pillar] of pillars.entries()) {
       const root = await prisma.marketingItem.create({ data: { orgId: org.id, title: pillar.title, description: pillar.description, status: pillar.status, sortOrder: index + 1 } });

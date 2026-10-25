@@ -38,7 +38,7 @@ export default function CrmPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Khách hàng · CRM" title="Guest Experience" description="Phân khúc, đánh giá và chiến dịch chăm sóc khách hàng đa cơ sở." actions={<div className="flex items-center gap-2"><ExportMenu dataset="crm-reviews" label="Xuất CRM" /><Badge tone="brand"><Star className="size-3" /> {reviews.data?.average ?? '—'} / 5</Badge></div>} />
+      <PageHeader eyebrow="Khách hàng · Quan hệ khách hàng" title="Trải nghiệm khách hàng" description="Phân khúc, đánh giá và chiến dịch chăm sóc khách hàng đa cơ sở." actions={<div className="flex items-center gap-2"><ExportMenu dataset="crm-reviews" label="Xuất quan hệ khách hàng" /><Badge tone="brand"><Star className="size-3" /> {reviews.data?.average ?? '—'} / 5</Badge></div>} />
       <div className="grid gap-3 sm:grid-cols-3"><Kpi icon={Users} label="Khách hàng" value={segments.data?.total ?? 0} /><Kpi icon={Star} label="Đánh giá trung bình" value={reviews.data?.average ?? 0} /><Kpi icon={Mail} label="Chiến dịch" value={campaigns.data?.length ?? 0} /></div>
       <div className="flex gap-1">{([['SEGMENTS', 'Phân khúc'], ['REVIEWS', 'Đánh giá'], ['CAMPAIGNS', 'Chiến dịch']] as const).map(([value, label]) => <Button key={value} size="sm" variant={tab === value ? 'primary' : 'secondary'} onClick={() => setTab(value)}>{label}</Button>)}</div>
 

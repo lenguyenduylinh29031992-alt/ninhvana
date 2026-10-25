@@ -73,6 +73,20 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
     expect(unknown.body.code).toBe('INVALID_CREDENTIALS');
   });
 
+  it('allows only the dedicated admin to change a display name', async () => {
+    const ceo = request.agent(http);
+    const ceoLogin = await ceo.post('/api/v1/auth/login').set('X-Forwarded-For', '10.21.0.100').send({ email: 'ceo@ninhvana.vn', password: PASSWORD }).expect(200);
+    const ceoCsrf = readSetCookie(ceoLogin.headers, 'gs_csrf')!;
+    await ceo.patch('/api/v1/auth/profile').set('x-csrf-token', ceoCsrf).send({ fullName: 'Tên trái phép' }).expect(403);
+
+    const admin = request.agent(http);
+    const adminLogin = await admin.post('/api/v1/auth/login').set('X-Forwarded-For', '10.21.0.101').send({ email: 'admin@ninhvana.vn', password: PASSWORD }).expect(200);
+    const adminCsrf = readSetCookie(adminLogin.headers, 'gs_csrf')!;
+    const original = adminLogin.body.user.fullName as string;
+    await admin.patch('/api/v1/auth/profile').set('x-csrf-token', adminCsrf).send({ fullName: `${original} (Admin)` }).expect(200);
+    await admin.patch('/api/v1/auth/profile').set('x-csrf-token', adminCsrf).send({ fullName: original }).expect(200);
+  });
+
   it('grants the dedicated admin every permission', async () => {
     const response = await request(http)
       .post('/api/v1/auth/login')

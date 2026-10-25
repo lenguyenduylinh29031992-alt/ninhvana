@@ -120,7 +120,7 @@ export class AuthController {
     @Body(new ZodValidationPipe(updateProfileSchema))
     body: { fullName?: string; phone?: string; locale?: 'vi' | 'en'; avatarUrl?: string | null },
   ) {
-    return this.auth.updateProfile(user.id, body);
+    return this.auth.updateProfile(user, body);
   }
 
   @Post('change-password')

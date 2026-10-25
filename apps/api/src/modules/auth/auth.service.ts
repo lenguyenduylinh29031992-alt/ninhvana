@@ -21,7 +21,7 @@ import { CryptoService } from '../../common/crypto/crypto.module';
 import { PrismaService } from '../../common/prisma/prisma.module';
 import { hashPassword, verifyPassword } from '../../common/auth/password';
 import { AccessService } from '../iam/access.service';
-import type { MfaPayload, RefreshPayload } from '../../common/auth/auth.types';
+import type { AuthUser, MfaPayload, RefreshPayload } from '../../common/auth/auth.types';
 
 export interface SessionTokens {
   accessToken: string;
@@ -261,13 +261,17 @@ export class AuthService {
   }
 
   async updateProfile(
-    userId: string,
+    actor: AuthUser,
     input: { fullName?: string; phone?: string; locale?: 'vi' | 'en'; avatarUrl?: string | null },
   ): Promise<SessionUser> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({ where: { id: actor.id } });
     if (!user) throw new AppError(ERROR_CODES.NOT_FOUND, undefined, 404);
+    const isSuperAdmin = actor.roles.some((assignment) => assignment.roleCode === 'SUPER_ADMIN');
+    if (input.fullName !== undefined && input.fullName.trim() !== user.fullName && !isSuperAdmin) {
+      throw new AppError(ERROR_CODES.FORBIDDEN, 'Chỉ tài khoản Admin được phép đổi tên. Vui lòng liên hệ quản trị viên.', 403);
+    }
     const updated = await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: actor.id },
       data: {
         ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
         ...(input.phone !== undefined ? { phone: input.phone } : {}),
@@ -277,15 +281,15 @@ export class AuthService {
     });
     await this.audit.record({
       orgId: updated.orgId,
-      actorId: userId,
+      actorId: actor.id,
       actorName: updated.fullName,
       action: 'auth.profile_updated',
       entityType: 'User',
-      entityId: userId,
+      entityId: actor.id,
       before: { fullName: user.fullName, phone: user.phone, locale: user.locale },
       after: { fullName: updated.fullName, phone: updated.phone, locale: updated.locale },
     });
-    return this.me(userId);
+    return this.me(actor.id);
   }
 
   async changePassword(

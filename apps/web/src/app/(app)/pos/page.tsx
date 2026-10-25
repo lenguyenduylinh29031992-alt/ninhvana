@@ -122,7 +122,7 @@ export default function PosPage() {
     <div className="space-y-4">
       <PageHeader
         eyebrow="Vận hành · Nhà hàng"
-        title="POS & sơ đồ bàn"
+        title="Bán hàng & sơ đồ bàn"
         description="Chọn bàn hoặc mở order mang đi, thêm món, gửi bếp và ghi nợ phòng."
         actions={
           <div className="flex items-center gap-2">
