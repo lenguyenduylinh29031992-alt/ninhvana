@@ -293,15 +293,15 @@ function TrendChart({ points }: { points: Array<{ date: string; revenue: number 
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
           <defs>
             <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#2f6b4f" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#2f6b4f" stopOpacity="0" />
+              <stop offset="0%" stopColor="#1f6699" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#1f6699" stopOpacity="0" />
             </linearGradient>
           </defs>
           <polygon points={area} fill="url(#rev)" />
-          <polyline points={coords.join(' ')} fill="none" stroke="#2f6b4f" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />
+          <polyline points={coords.join(' ')} fill="none" stroke="#1f6699" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />
           {coords.map((coord, index) => {
             const [x, y] = coord.split(',');
-            return <circle key={points[index]!.date} cx={x} cy={y} r="1.2" fill="#2f6b4f"><title>{points[index]!.date}: {formatMoney(points[index]!.revenue)}</title></circle>;
+            return <circle key={points[index]!.date} cx={x} cy={y} r="1.2" fill="#1f6699"><title>{points[index]!.date}: {formatMoney(points[index]!.revenue)}</title></circle>;
           })}
         </svg>
       </div>

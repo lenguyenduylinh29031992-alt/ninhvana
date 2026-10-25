@@ -54,7 +54,7 @@ export function Sidebar({
         aria-label="Điều hướng chính"
       >
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-line px-5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-brand/40 font-display text-[15px] tracking-wide text-brand">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-sidebar-ink/30 font-display text-[15px] tracking-wide text-sidebar-ink">
             GS
           </span>
           <div className="min-w-0 flex-1">

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   Grand Suite design tokens — warm ivory, deep forest green, brass-free luxury.
+   Grand Suite design tokens — warm ivory, deep sea blue, quiet coastal luxury.
    HSL channel triplets consumed by Tailwind (<alpha-value>).
    ───────────────────────────────────────────────────────────── */
 @layer base {
@@ -11,12 +11,12 @@
     --canvas: 40 40% 97%;
     --surface: 40 50% 99%;
     --elevated: 40 35% 99%;
-    --ink: 158 30% 12%;
-    --muted: 145 18% 93%;
-    --muted-foreground: 150 8% 38%;
-    --line: 145 14% 86%;
-    --brand: 154 40% 27%;
-    --brand-soft: 145 30% 91%;
+    --ink: 210 45% 12%;
+    --muted: 205 20% 94%;
+    --muted-foreground: 210 10% 40%;
+    --line: 205 18% 87%;
+    --brand: 203 72% 30%;
+    --brand-soft: 202 55% 92%;
     --brand-foreground: 40 50% 98%;
     --forest: 160 45% 34%;
     --forest-soft: 150 32% 91%;
@@ -26,37 +26,37 @@
     --warning-soft: 36 80% 94%;
     --info: 214 45% 38%;
     --info-soft: 214 60% 95%;
-    --sidebar: 158 40% 9%;
+    --sidebar: 210 55% 9%;
     --sidebar-ink: 42 35% 92%;
-    --sidebar-muted: 145 10% 62%;
-    --sidebar-line: 155 20% 17%;
+    --sidebar-muted: 205 12% 66%;
+    --sidebar-line: 210 22% 18%;
     --font-display: 'Cormorant Garamond';
     --font-sans: 'Inter';
   }
 
   .dark {
-    --canvas: 155 12% 6%;
-    --surface: 155 10% 8%;
-    --elevated: 155 9% 11%;
+    --canvas: 210 18% 6%;
+    --surface: 210 15% 8%;
+    --elevated: 210 12% 11%;
     --ink: 42 30% 92%;
-    --muted: 150 8% 14%;
-    --muted-foreground: 145 10% 62%;
-    --line: 150 10% 18%;
-    --brand: 150 32% 62%;
-    --brand-soft: 150 18% 15%;
-    --brand-foreground: 150 20% 8%;
-    --forest: 150 28% 58%;
-    --forest-soft: 150 18% 13%;
+    --muted: 210 10% 14%;
+    --muted-foreground: 205 12% 64%;
+    --line: 210 12% 18%;
+    --brand: 200 65% 62%;
+    --brand-soft: 205 30% 15%;
+    --brand-foreground: 210 30% 8%;
+    --forest: 155 35% 58%;
+    --forest-soft: 155 18% 13%;
     --danger: 0 60% 62%;
     --danger-soft: 0 30% 16%;
     --warning: 38 70% 58%;
     --warning-soft: 36 30% 14%;
     --info: 210 50% 65%;
     --info-soft: 212 30% 16%;
-    --sidebar: 158 18% 4%;
+    --sidebar: 210 30% 4%;
     --sidebar-ink: 42 30% 90%;
-    --sidebar-muted: 145 8% 50%;
-    --sidebar-line: 150 10% 13%;
+    --sidebar-muted: 205 10% 52%;
+    --sidebar-line: 210 15% 13%;
   }
 
   html {

@@ -135,11 +135,11 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
       {/* Brand panel */}
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-sidebar p-12 text-sidebar-ink lg:flex">
         <div className="pointer-events-none absolute -left-40 -top-40 size-[560px] rounded-full bg-brand/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-56 -right-24 size-[520px] rounded-full bg-[#2a2118]/60 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-56 -right-24 size-[520px] rounded-full bg-[#0b2b45]/60 blur-3xl" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-brand/20 to-transparent" />
 
         <div className="relative flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-full border border-brand/40 font-display text-lg text-brand">
+          <span className="flex size-10 items-center justify-center rounded-full border border-sidebar-ink/30 font-display text-lg text-sidebar-ink">
             GS
           </span>
           <div>
@@ -174,7 +174,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
               { icon: ShieldCheck, text: 'RBAC đa cơ sở, audit bất biến, tuân thủ dữ liệu' },
             ].map((feature) => (
               <li key={feature.text} className="flex items-center gap-3 text-[13px] text-sidebar-muted">
-                <span className="flex size-7 items-center justify-center rounded-full border border-sidebar-line text-brand">
+                <span className="flex size-7 items-center justify-center rounded-full border border-sidebar-ink/20 text-sidebar-ink/70">
                   <feature.icon className="size-3.5" />
                 </span>
                 {feature.text}

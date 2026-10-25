@@ -20,6 +20,8 @@
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
 | 6 | CRM, kiểm thử, bảo mật, PWA, đóng gói | ✅ Hoàn tất (Gate 6) |
 
+Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TEST.md`](docs/HUONG-DAN-TEST.md).
+
 Kế hoạch đầy đủ: [`docs/PLAN.md`](docs/PLAN.md) · Tiến độ & bằng chứng: [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 ---

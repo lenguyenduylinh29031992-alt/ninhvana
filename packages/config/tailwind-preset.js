@@ -1,6 +1,6 @@
 /**
  * Grand Suite — Tailwind design tokens.
- * Palette: warm ivory & deep forest green; serif display, sans data.
+ * Palette: warm ivory & deep sea blue; serif display, sans data.
  * All colors are HSL channel triplets so opacity modifiers keep working.
  */
 /** @type {import('tailwindcss').Config} */
