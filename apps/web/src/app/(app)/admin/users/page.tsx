@@ -439,7 +439,7 @@ function CreateUserDialog({
                 type="email"
                 value={form.email}
                 onChange={(event) => setForm({ ...form, email: event.target.value })}
-                placeholder="ten@grandsuite.vn"
+                placeholder="ten@ninhvana.vn"
                 aria-invalid={Boolean(errors.email)}
               />
               <FieldError>{errors.email}</FieldError>

@@ -27,24 +27,24 @@ import { useI18n } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
-const DEMO_PASSWORD = 'GrandSuite@2026';
+const DEMO_PASSWORD = 'NinhVaNa@2026';
 
 const DEMO_ACCOUNTS = [
-  { email: 'chairman@grandsuite.vn', name: 'Lê Hoàng Nam', role: 'Chủ tịch', group: 'Lãnh đạo' },
-  { email: 'ceo@grandsuite.vn', name: 'Trần Minh Đức', role: 'Tổng giám đốc', group: 'Lãnh đạo' },
-  { email: 'cfo@grandsuite.vn', name: 'Nguyễn Thu Hà', role: 'Kế toán trưởng', group: 'Lãnh đạo' },
-  { email: 'revenue@grandsuite.vn', name: 'Phạm Quốc Bảo', role: 'GĐ doanh thu', group: 'Lãnh đạo' },
-  { email: 'manager.han@grandsuite.vn', name: 'Đỗ Thanh Mai', role: 'GĐ khách sạn HN', group: 'Cơ sở' },
-  { email: 'manager.dan@grandsuite.vn', name: 'Vũ Hải Yến', role: 'GĐ Le Jardin', group: 'Cơ sở' },
-  { email: 'frontdesk@grandsuite.vn', name: 'Nguyễn Thị Lan', role: 'Lễ tân', group: 'Cơ sở' },
-  { email: 'housekeeping@grandsuite.vn', name: 'Trần Văn Tùng', role: 'Buồng phòng', group: 'Cơ sở' },
-  { email: 'chef@grandsuite.vn', name: 'Lê Đình Khôi', role: 'Bếp trưởng', group: 'Cơ sở' },
-  { email: 'fnb@grandsuite.vn', name: 'Hoàng Anh Tuấn', role: 'Quản lý F&B', group: 'Cơ sở' },
-  { email: 'cashier@grandsuite.vn', name: 'Phạm Thị Ngọc', role: 'Thu ngân', group: 'Cơ sở' },
-  { email: 'hr@grandsuite.vn', name: 'Nguyễn Mai Phương', role: 'Quản lý nhân sự', group: 'Hỗ trợ' },
-  { email: 'warehouse@grandsuite.vn', name: 'Bùi Văn Hùng', role: 'Quản lý kho', group: 'Hỗ trợ' },
-  { email: 'marketing@grandsuite.vn', name: 'Trịnh Thu Trang', role: 'Marketing & Sales', group: 'Hỗ trợ' },
-  { email: 'admin@grandsuite.vn', name: 'Quản trị hệ thống', role: 'Quản trị', group: 'Hệ thống' },
+  { email: 'admin@ninhvana.vn', name: 'Nguyễn Văn A', role: 'Quản trị hệ thống (toàn quyền)', group: 'Quản trị' },
+  { email: 'chairman@ninhvana.vn', name: 'Nguyễn Văn B', role: 'Chủ tịch', group: 'Lãnh đạo' },
+  { email: 'ceo@ninhvana.vn', name: 'Nguyễn Văn C', role: 'Tổng giám đốc', group: 'Lãnh đạo' },
+  { email: 'cfo@ninhvana.vn', name: 'Nguyễn Văn D', role: 'Kế toán trưởng', group: 'Lãnh đạo' },
+  { email: 'revenue@ninhvana.vn', name: 'Nguyễn Văn E', role: 'GĐ doanh thu', group: 'Lãnh đạo' },
+  { email: 'manager.hanoi@ninhvana.vn', name: 'Nguyễn Văn F', role: 'GĐ khách sạn NinhVaNa', group: 'Cơ sở' },
+  { email: 'manager.danang@ninhvana.vn', name: 'Nguyễn Văn G', role: 'GĐ Le Jardin', group: 'Cơ sở' },
+  { email: 'frontdesk@ninhvana.vn', name: 'Nguyễn Văn H', role: 'Lễ tân', group: 'Cơ sở' },
+  { email: 'housekeeping@ninhvana.vn', name: 'Nguyễn Văn I', role: 'Buồng phòng', group: 'Cơ sở' },
+  { email: 'chef@ninhvana.vn', name: 'Nguyễn Văn J', role: 'Bếp trưởng', group: 'Cơ sở' },
+  { email: 'fnb@ninhvana.vn', name: 'Nguyễn Văn K', role: 'Quản lý F&B', group: 'Cơ sở' },
+  { email: 'cashier@ninhvana.vn', name: 'Nguyễn Văn L', role: 'Thu ngân', group: 'Cơ sở' },
+  { email: 'hr@ninhvana.vn', name: 'Nguyễn Văn M', role: 'Quản lý nhân sự', group: 'Hỗ trợ' },
+  { email: 'warehouse@ninhvana.vn', name: 'Nguyễn Văn N', role: 'Quản lý kho', group: 'Hỗ trợ' },
+  { email: 'marketing@ninhvana.vn', name: 'Nguyễn Văn O', role: 'Marketing', group: 'Hỗ trợ' },
 ] as const;
 
 interface PublicSummary {
@@ -61,7 +61,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [email, setEmail] = useState('ceo@grandsuite.vn');
+  const [email, setEmail] = useState('ceo@ninhvana.vn');
   const [password, setPassword] = useState(DEMO_PASSWORD);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -140,10 +140,10 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
 
         <div className="relative flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-full border border-sidebar-ink/30 font-display text-lg text-sidebar-ink">
-            GS
+            NV
           </span>
           <div>
-            <p className="font-display text-lg leading-none tracking-[0.16em]">GRAND SUITE</p>
+            <p className="font-display text-lg leading-none tracking-[0.16em]">NINHVANA</p>
             <p className="mt-1 text-[9px] uppercase tracking-[0.26em] text-sidebar-muted">
               Hospitality Operating System
             </p>
@@ -194,9 +194,9 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 lg:hidden">
             <span className="flex size-9 items-center justify-center rounded-full border border-brand/40 font-display text-brand">
-              GS
+              NV
             </span>
-            <span className="font-display text-base tracking-[0.14em]">GRAND SUITE</span>
+            <span className="font-display text-base tracking-[0.14em]">NINHVANA</span>
           </div>
           <div className="ml-auto flex items-center gap-1">
             <Button variant="ghost" size="sm" onClick={() => setLocale(locale === 'vi' ? 'en' : 'vi')}>

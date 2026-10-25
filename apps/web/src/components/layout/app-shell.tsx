@@ -40,7 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="w-full max-w-sm space-y-4 px-6">
           <div className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-full border border-brand/40 font-display text-brand">
-              GS
+              NV
             </span>
             <div className="flex-1">
               <Skeleton className="h-4 w-32" />
@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <footer className="mx-auto w-full max-w-[1600px] px-4 pb-6 pt-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 md:px-6 lg:px-8">
-            Grand Suite · Hospitality Operating System · v0.1
+            NinhVaNa · Hospitality Operating System · v0.1
           </footer>
         </div>
         <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} user={access.user} />

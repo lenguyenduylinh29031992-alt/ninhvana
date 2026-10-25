@@ -1,11 +1,11 @@
 {
-  "name": "Grand Suite — Hospitality Operating System",
-  "short_name": "Grand Suite",
+  "name": "NinhVaNa — Hospitality Operating System",
+  "short_name": "NinhVaNa",
   "description": "Hệ thống quản trị khách sạn & nhà hàng 5 sao",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#FAF7F2",
-  "theme_color": "#17130F",
+  "theme_color": "#0B2239",
   "orientation": "any",
   "lang": "vi",
   "icons": [

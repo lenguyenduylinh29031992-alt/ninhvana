@@ -3,10 +3,10 @@
  * `en.ts` is typed against these keys, so a missing translation is a type error.
  */
 export const vi = {
-  'app.name': 'Grand Suite',
+  'app.name': 'NinhVaNa',
   'app.tagline': 'Quản trị Khách sạn & Nhà hàng',
-  'app.fullName': 'Grand Suite — Hệ thống Quản trị Doanh nghiệp Khách sạn & Nhà hàng',
-  'app.copyright': '© {year} Grand Suite Group',
+  'app.fullName': 'NinhVaNa — Hệ thống Quản trị Doanh nghiệp Khách sạn & Nhà hàng',
+  'app.copyright': '© {year} NinhVaNa Group',
 
   'common.loading': 'Đang tải…',
   'common.save': 'Lưu',
@@ -97,7 +97,7 @@ export const vi = {
   'common.viewDetails': 'Xem chi tiết',
   'common.overview': 'Tổng quan',
   'common.help': 'Trợ giúp',
-  'common.poweredBy': 'Vận hành trên Grand Suite',
+  'common.poweredBy': 'Vận hành trên NinhVaNa',
 
   'auth.welcomeBack': 'Chào mừng trở lại',
   'auth.signInSubtitle': 'Đăng nhập vào trung tâm điều hành của bạn',

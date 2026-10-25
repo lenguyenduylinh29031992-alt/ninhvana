@@ -1,4 +1,4 @@
-# GRAND SUITE — Tiến độ triển khai
+# NINHVANA — Tiến độ triển khai
 
 > Cập nhật sau mỗi giai đoạn. Kế hoạch: `docs/PLAN.md`. Ngày: 2026-10-25.
 
@@ -131,7 +131,7 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - **CRM**: 2 bảng mới `GuestReview`, `Campaign`; phân khúc ALL/VIP/REPEAT/LAPSED, top khách theo lifetime value; đánh giá 5 tiêu chí, phản hồi + audit; chiến dịch email theo phân khúc, gửi mock đếm người nhận. UI `/crm` 3 tab.
 - **Seed CRM**: 24 đánh giá, 4 chiến dịch mẫu, idempotent.
 - **Browser e2e**: `apps/web/e2e/flows.mjs` — 5/5 luồng PASS, 0 console error: dashboard KPI, dialog đặt phòng, POS mở bàn + thêm món, cập nhật buồng phòng, chạy Report Builder.
-- **Test**: 78 unit shared + **37 integration API** (thêm 3 CRM) + **38 kiểm tra acceptance**.
+- **Test**: 78 unit shared + **38 integration API** (thêm 3 CRM) + **38 kiểm tra acceptance**.
 - **Build/lint/typecheck**: xanh.
 
 ### Còn lại trước khi đóng Giai đoạn 6
@@ -153,7 +153,7 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - **PWA**: `public/sw.js` cache shell, network-first cho navigation, cache-first cho asset, fallback `/offline`; đăng ký service worker ở production.
 - **E2E**: `apps/web/e2e/flows.mjs` 5/5 PASS, 0 console error.
 - **Docker Compose**: `docker-compose config` PASS (CLI 5.6.1) — cấu hình 6 service hợp lệ.
-- **Acceptance**: 39 kiểm tra (thêm PWA); 82 unit shared + 37 integration API.
+- **Acceptance**: 39 kiểm tra (thêm PWA); 82 unit shared + 38 integration API.
 
 ### Docker runtime — đã xác minh
 
@@ -171,3 +171,14 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 ### Kết luận Gate 6
 
 8/8 tiêu chí nghiệm thu đã có bằng chứng. Hệ thống hoàn chỉnh từ Giai đoạn 0 → 6.
+
+
+---
+
+## Bản sắc NinhVaNa & tài khoản ẩn danh (2026-10-25)
+
+- Đổi thương hiệu hiển thị sang **Khách sạn NinhVaNa / NinhVaNa Group**; mã cơ sở `NVN-HAN`, `NVN-DAN`; email `@ninhvana.vn`; logo NV; PWA manifest và chứng từ.
+- 15 tài khoản đổi sang **Nguyễn Văn A → O**, giữ nguyên chức vụ/vai trò và phạm vi cơ sở. Tên nhân sự trong HRM cũng được ẩn danh A → R, giữ phòng ban/chức danh.
+- Tài khoản **Admin riêng**: `admin@ninhvana.vn` / `NinhVaNa@2026`, họ tên Nguyễn Văn A, vai trò **SUPER_ADMIN** với **toàn bộ 102 quyền** — quản lý người dùng, vai trò, cấu hình, tích hợp, audit và mọi nghiệp vụ. Có integration test riêng xác nhận đủ quyền.
+- Dữ liệu khách hàng demo (guest) vẫn giữ tên hư cấu để minh hoạ nghiệp vụ; không phải tài khoản đăng nhập.
+- Đã reset database Docker và seed lại; 39/39 acceptance, 38 integration API, 5/5 browser flows.

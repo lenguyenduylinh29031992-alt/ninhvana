@@ -334,7 +334,7 @@ export class AuthService {
       where: { id: userId },
       data: { twoFactorSecret: this.crypto.encrypt(secret), twoFactorEnabled: false },
     });
-    const otpauthUrl = authenticator.keyuri(user.email, 'Grand Suite', secret);
+    const otpauthUrl = authenticator.keyuri(user.email, 'NinhVaNa', secret);
     const qrDataUrl = await QRCode.toDataURL(otpauthUrl, { margin: 1, width: 260 });
     return { secret, otpauthUrl, qrDataUrl };
   }

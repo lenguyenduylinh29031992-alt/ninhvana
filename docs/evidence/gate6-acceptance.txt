@@ -1,26 +1,26 @@
 
-  GRAND SUITE — kiểm tra nghiệm thu (Gate 1)
+  NINHVANA — kiểm tra nghiệm thu (Gate 1)
   ────────────────────────────────────────────
   ✔ API health endpoint
   ✔ PostgreSQL + Redis healthy
-  ✔ Đăng nhập admin@grandsuite.vn
-  ✔ Đăng nhập chairman@grandsuite.vn
-  ✔ Đăng nhập ceo@grandsuite.vn
-  ✔ Đăng nhập cfo@grandsuite.vn
-  ✔ Đăng nhập revenue@grandsuite.vn
-  ✔ Đăng nhập hr@grandsuite.vn
-  ✔ Đăng nhập marketing@grandsuite.vn
-  ✔ Đăng nhập manager.han@grandsuite.vn
-  ✔ Đăng nhập manager.dan@grandsuite.vn
-  ✔ Đăng nhập frontdesk@grandsuite.vn
-  ✔ Đăng nhập housekeeping@grandsuite.vn
-  ✔ Đăng nhập chef@grandsuite.vn
-  ✔ Đăng nhập fnb@grandsuite.vn
-  ✔ Đăng nhập cashier@grandsuite.vn
-  ✔ Đăng nhập warehouse@grandsuite.vn
+  ✔ Đăng nhập admin@ninhvana.vn
+  ✔ Đăng nhập chairman@ninhvana.vn
+  ✔ Đăng nhập ceo@ninhvana.vn
+  ✔ Đăng nhập cfo@ninhvana.vn
+  ✔ Đăng nhập revenue@ninhvana.vn
+  ✔ Đăng nhập hr@ninhvana.vn
+  ✔ Đăng nhập marketing@ninhvana.vn
+  ✔ Đăng nhập manager.hanoi@ninhvana.vn
+  ✔ Đăng nhập manager.danang@ninhvana.vn
+  ✔ Đăng nhập frontdesk@ninhvana.vn
+  ✔ Đăng nhập housekeeping@ninhvana.vn
+  ✔ Đăng nhập chef@ninhvana.vn
+  ✔ Đăng nhập fnb@ninhvana.vn
+  ✔ Đăng nhập cashier@ninhvana.vn
+  ✔ Đăng nhập warehouse@ninhvana.vn
   · 2 cơ sở · 250 phòng · 15 tài khoản · 14 vai trò · 8 gói giá
   ✔ Dữ liệu nền (2 cơ sở, 250 phòng, 15 tài khoản)
-  · Chuỗi băm: 54 bản ghi, hợp lệ=True
+  · Chuỗi băm: 76 bản ghi, hợp lệ=True
   ✔ Nhật ký kiểm toán toàn vẹn
   · Lễ tân: 20 đến · 120 đang ở · 40 trả phòng
   ✔ Bàn lễ tân trả về danh sách đến/ở/đi
@@ -50,7 +50,7 @@
   ✔ Bảng lương đã hạch toán
   · Kho: 10 mặt hàng · giá trị 932,500,000 ₫
   ✔ Tồn kho & giá vốn
-  · Hợp nhất: 24 tháng · doanh thu 28,022,350,000 ₫ · GOP 24,398,132,636 ₫ · dự báo 6 tháng · MAPE 19.7% · 123 ms
+  · Hợp nhất: 24 tháng · doanh thu 28,022,350,000 ₫ · GOP 24,398,132,636 ₫ · dự báo 6 tháng · MAPE 19.7% · 139 ms
   ✔ Dashboard hợp nhất 24 tháng + dự báo + <2s
   · Report builder: 6 mẫu báo cáo
   ✔ Report builder templates

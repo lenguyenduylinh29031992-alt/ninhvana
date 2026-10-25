@@ -1,4 +1,4 @@
-// Grand Suite — Prisma schema
+// NinhVaNa — Prisma schema
 // Foundation slice (Phase 1): tenancy, identity, RBAC, audit, configuration,
 // property structure (floors/room types/rooms/rate plans), USALI chart of accounts.
 //

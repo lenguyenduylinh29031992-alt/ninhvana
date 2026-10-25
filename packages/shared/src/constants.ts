@@ -1,4 +1,4 @@
-export const APP_NAME = 'Grand Suite';
+export const APP_NAME = 'NinhVaNa';
 export const APP_TAGLINE = 'Hệ thống Quản trị Khách sạn & Nhà hàng';
 export const DEFAULT_LOCALE = 'vi' as const;
 export const SUPPORTED_LOCALES = ['vi', 'en'] as const;

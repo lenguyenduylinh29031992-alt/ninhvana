@@ -55,11 +55,11 @@ export function Sidebar({
       >
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-line px-5">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-sidebar-ink/30 font-display text-[15px] tracking-wide text-sidebar-ink">
-            GS
+            NV
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-display text-[17px] leading-none tracking-[0.12em] text-sidebar-ink">
-              GRAND SUITE
+              NINHVANA
             </p>
             <p className="mt-1 text-[9px] uppercase tracking-[0.22em] text-sidebar-muted">
               Hospitality ERP

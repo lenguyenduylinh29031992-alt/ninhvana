@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 API="${API_URL:-http://127.0.0.1:4000/api/v1}"
-PASSWORD="${SEED_ADMIN_PASSWORD:-GrandSuite@2026}"
+PASSWORD="${SEED_ADMIN_PASSWORD:-NinhVaNa@2026}"
 JAR="$(mktemp)"
 trap 'rm -f "$JAR"' EXIT
 
@@ -22,7 +22,7 @@ check() {
 }
 
 echo ""
-echo "  GRAND SUITE — kiểm tra nghiệm thu (Gate 1)"
+echo "  NINHVANA — kiểm tra nghiệm thu (Gate 1)"
 echo "  ────────────────────────────────────────────"
 
 curl -fsS "$API/health/live" >/dev/null 2>&1
@@ -39,7 +39,7 @@ check "PostgreSQL + Redis healthy" $?
 
 ACCOUNTS=(
   admin chairman ceo cfo revenue hr marketing
-  manager.han manager.dan frontdesk housekeeping chef fnb cashier warehouse
+  manager.hanoi manager.danang frontdesk housekeeping chef fnb cashier warehouse
 )
 i=0
 for account in "${ACCOUNTS[@]}"; do
@@ -47,19 +47,19 @@ for account in "${ACCOUNTS[@]}"; do
   code=$(curl -s -o /tmp/gs-login.json -w "%{http_code}" \
     -H "X-Forwarded-For: 10.99.0.$i" \
     -c "$JAR" -H 'Content-Type: application/json' \
-    -d "{\"email\":\"${account}@grandsuite.vn\",\"password\":\"$PASSWORD\"}" \
+    -d "{\"email\":\"${account}@ninhvana.vn\",\"password\":\"$PASSWORD\"}" \
     "$API/auth/login")
   token_ok=$(grep -c 'gs_at' "$JAR" || true)
   if [ "$code" = "200" ] && [ "$token_ok" -gt 0 ]; then
-    check "Đăng nhập ${account}@grandsuite.vn" 0
+    check "Đăng nhập ${account}@ninhvana.vn" 0
   else
-    check "Đăng nhập ${account}@grandsuite.vn (HTTP $code)" 1
+    check "Đăng nhập ${account}@ninhvana.vn (HTTP $code)" 1
   fi
 done
 
 # Re-authenticate as a group administrator for portfolio-wide figures.
 curl -s -o /dev/null -H "X-Forwarded-For: 10.99.1.1" -c "$JAR" -H 'Content-Type: application/json' \
-  -d "{\"email\":\"admin@grandsuite.vn\",\"password\":\"$PASSWORD\"}" "$API/auth/login"
+  -d "{\"email\":\"admin@ninhvana.vn\",\"password\":\"$PASSWORD\"}" "$API/auth/login"
 
 stats=$(curl -fsS -b "$JAR" "$API/dashboard/stats" 2>/dev/null || echo '{}')
 echo "$stats" | python3 -c "
@@ -94,7 +94,7 @@ print(hotel['id'])
 PY2
 )
 curl -s -o /dev/null -H "X-Forwarded-For: 10.99.2.1" -c "$MGR_JAR" -H 'Content-Type: application/json' \
-  -d "{\"email\":\"manager.han@grandsuite.vn\",\"password\":\"$PASSWORD\"}" "$API/auth/login"
+  -d "{\"email\":\"manager.hanoi@ninhvana.vn\",\"password\":\"$PASSWORD\"}" "$API/auth/login"
 
 board=$(curl -fsS -b "$MGR_JAR" "$API/front-office/board?propertyId=$PROP" 2>/dev/null || echo '{}')
 echo "$board" | python3 -c "
@@ -180,7 +180,7 @@ sys.exit(0 if ok else 1)
 " 2>/dev/null
 check "Social Inbox đa kênh" $?
 
-booking=$(curl -fsS "$API/public/booking/availability?propertyCode=GSL-HAN&checkIn=2026-12-28&checkOut=2026-12-30&adults=2" 2>/dev/null || echo '{}')
+booking=$(curl -fsS "$API/public/booking/availability?propertyCode=NVN-HAN&checkIn=2026-12-28&checkOut=2026-12-30&adults=2" 2>/dev/null || echo '{}')
 echo "$booking" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)

@@ -1,4 +1,4 @@
-# Mở & kiểm thử Grand Suite trên macOS, Windows, Android, iOS
+# Mở & kiểm thử NinhVaNa trên macOS, Windows, Android, iOS
 
 ## 0. Thông tin chung
 
@@ -7,8 +7,9 @@
 | Giao diện | http://localhost:3000 |
 | API / Swagger | http://localhost:4000/api/v1 · http://localhost:4000/api/docs |
 | MailHog (email demo) | http://localhost:8025 |
-| Mật khẩu demo | `GrandSuite@2026` |
-| Tài khoản gợi ý | `ceo@grandsuite.vn` (toàn tập đoàn), `manager.han@grandsuite.vn` (quản lý cơ sở Hà Nội), `cfo@grandsuite.vn` (tài chính) |
+| Mật khẩu demo | `NinhVaNa@2026` |
+| Admin toàn quyền | `admin@ninhvana.vn` — Nguyễn Văn A |
+| Tài khoản gợi ý | `ceo@ninhvana.vn` (Nguyễn Văn C), `manager.hanoi@ninhvana.vn` (Nguyễn Văn F), `cfo@ninhvana.vn` (Nguyễn Văn D) |
 
 Trang login có nút **Tài khoản demo** để chọn nhanh 15 vai trò. Dữ liệu seed gồm 2 cơ sở, 250 phòng, 30 ngày vận hành chi tiết và 24 tháng lịch sử tài chính.
 
@@ -179,7 +180,7 @@ Lưu ý iOS:
 |---|---|
 | `pnpm lint` | ESLint toàn monorepo |
 | `pnpm typecheck` | TypeScript API/Web/Shared |
-| `pnpm test` | 82 unit shared + 37 integration API |
+| `pnpm test` | 82 unit shared + 38 integration API |
 | `pnpm build` | Build production toàn bộ |
 | `pnpm --filter @grand-suite/shared test:coverage` | Coverage shared (≥70%) |
 | `pnpm --filter @grand-suite/api exec vitest run --coverage` | Coverage lõi API (≥70%) |

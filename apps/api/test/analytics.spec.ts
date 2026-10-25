@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { createTestApp } from './test-app';
 
-const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'GrandSuite@2026';
+const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'NinhVaNa@2026';
 
 describe('Consolidated dashboard, forecast and report builder', () => {
   let app: INestApplication;
@@ -13,7 +13,7 @@ describe('Consolidated dashboard, forecast and report builder', () => {
 
   beforeAll(async () => {
     app = await createTestApp(); http = app.getHttpServer(); agent = request.agent(http);
-    await agent.post('/api/v1/auth/login').set('X-Forwarded-For', '10.95.0.1').send({ email: 'cfo@grandsuite.vn', password: PASSWORD }).expect(200);
+    await agent.post('/api/v1/auth/login').set('X-Forwarded-For', '10.95.0.1').send({ email: 'cfo@ninhvana.vn', password: PASSWORD }).expect(200);
     const properties = await agent.get('/api/v1/properties').expect(200);
     propertyId = (properties.body.items ?? properties.body).find((property: { type: string }) => property.type === 'HOTEL').id;
   }, 90_000);

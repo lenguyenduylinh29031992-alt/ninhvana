@@ -74,7 +74,7 @@ const MENU: Record<string, Array<{ category: string; items: Array<[string, strin
         ['Bò Úc sốt tiêu đen', 'Wagyu MB5 black pepper', 1_250_000, 'Bò Wagyu 200g, khoai tây truffle', 'KITCHEN', 'VAT8'],
         ['Cá tuyết áp chảo', 'Pan-seared cod', 680_000, 'Rau mầm, sốt beurre blanc', 'KITCHEN', 'VAT8'],
         ['Cơm chiên hải sản', 'Seafood fried rice', 320_000, 'Tôm, mực, điệp, trứng muối', 'KITCHEN', 'VAT8'],
-        ['Phở bò Grand Suite', 'Grand Suite beef pho', 280_000, 'Nước dùng 12 giờ, bò tái, gân', 'KITCHEN', 'VAT8'],
+        ['Phở bò NinhVaNa', 'NinhVaNa beef pho', 280_000, 'Nước dùng 12 giờ, bò tái, gân', 'KITCHEN', 'VAT8'],
         ['Risotto nấm truffle', 'Truffle mushroom risotto', 450_000, 'Gạo carnaroli, nấm đen, parmesan', 'KITCHEN', 'VAT8'],
       ],
     },
@@ -311,7 +311,7 @@ export async function seedOperations(
 
 
   // Channel room mappings for OTA connectors.
-  const hotel = await prisma.property.findFirst({ where: { code: 'GSL-HAN' } });
+  const hotel = await prisma.property.findFirst({ where: { code: 'NVN-HAN' } });
   if (hotel) {
     const roomTypes = await prisma.roomType.findMany({ where: { propertyId: hotel.id, isActive: true } });
     const otaChannels = await prisma.channel.findMany({
@@ -378,8 +378,8 @@ export async function seedOperations(
               {
                 direction: 'OUTBOUND',
                 externalId: `${channel.code}-MSG-${index}-2`,
-                senderName: 'Lễ tân Grand Suite',
-                body: 'Chào anh/chị, Grand Suite rất vui được hỗ trợ. Anh/chị cho em xin ngày dự kiến và số khách để kiểm tra phòng tốt nhất ạ.',
+                senderName: 'Lễ tân NinhVaNa',
+                body: 'Chào anh/chị, NinhVaNa rất vui được hỗ trợ. Anh/chị cho em xin ngày dự kiến và số khách để kiểm tra phòng tốt nhất ạ.',
                 sentAt: new Date(createdAt.getTime() + 600_000),
               },
               {

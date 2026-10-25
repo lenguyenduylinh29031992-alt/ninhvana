@@ -1,4 +1,4 @@
-# GRAND SUITE — Kế hoạch triển khai (Giai đoạn 0)
+# NINHVANA — Kế hoạch triển khai (Giai đoạn 0)
 
 > Hệ thống Quản trị Doanh nghiệp Khách sạn & Nhà hàng 5 sao — đa cơ sở, đa kênh, tài chính hợp nhất.
 > Tài liệu này là **nguồn sự thật duy nhất** cho kiến trúc, mô hình dữ liệu, backlog và tiêu chí nghiệm thu.
@@ -10,7 +10,7 @@
 
 | Hạng mục | Quyết định |
 |---|---|
-| Sản phẩm | Grand Suite — PMS + POS + Channel Manager + Revenue + Cost + HRM + Finance + CRM + BI |
+| Sản phẩm | NinhVaNa — PMS + POS + Channel Manager + Revenue + Cost + HRM + Finance + CRM + BI |
 | Mô hình | Modular monolith (NestJS) sẵn sàng tách service; monorepo TypeScript |
 | Frontend | Next.js 15 (App Router) + React 19 + Tailwind 3.4 + shadcn-style primitives (Radix) |
 | Mobile | **PWA responsive** (quyết định: tiết kiệm 4–6 tuần so với React Native, đáp ứng đủ "dùng trên điện thoại" + offline cơ bản cho POS/Housekeeping). Kiến trúc UI dùng chung, không fork code. |
@@ -33,7 +33,7 @@
 
 | # | Giả định | Lý do / tác động |
 |---|---|---|
-| A1 | Tập đoàn demo: **Grand Suite Group** gồm `GSL-HAN` (khách sạn 250 phòng, 5★, Hà Nội: 4 nhà hàng/bar, spa, 3 phòng hội nghị) và `GSL-DAN` (nhà hàng cao cấp độc lập Đà Nẵng, 120 chỗ, 1 bar) | Đúng yêu cầu seed; 2 mô hình vận hành khác nhau để chứng minh đa cơ sở |
+| A1 | Tập đoàn demo: **NinhVaNa Group** gồm `NVN-HAN` (khách sạn 250 phòng, 5★, Hà Nội: 4 nhà hàng/bar, spa, 3 phòng hội nghị) và `NVN-DAN` (nhà hàng cao cấp độc lập Đà Nẵng, 120 chỗ, 1 bar) | Đúng yêu cầu seed; 2 mô hình vận hành khác nhau để chứng minh đa cơ sở |
 | A2 | Năm tài chính = năm dương lịch; báo cáo quản trị theo **business date**; kỳ kế toán tháng | Chuẩn USALI & VAS |
 | A3 | VAT: 8% (dịch vụ lưu trú/ăn uống theo chính sách giảm thuế) và 10% (hàng hoá/khác) — **cấu hình theo `TaxRate`**, không hardcode; phí dịch vụ F&B 5%, spa 5%, rooms 0% (cấu hình) | Tránh sai lệch khi luật đổi |
 | A4 | Giá niêm yết **đã bao gồm** VAT và phí dịch vụ hay **chưa**? → Chọn **chưa bao gồm** (++), thể hiện rõ trên booking engine/POS; có cờ `pricesIncludeTax` theo property để đổi | Thực tế VN: niêm yết ++ tại khách sạn 5★ |
@@ -601,8 +601,8 @@ Quy tắc bổ sung:
 - Hoàn tiền > 10tr cần CFO duyệt (workflow `ApprovalRequest`).
 - Sửa giá/ huỷ hoá đơn/ sửa lương → bắt buộc nhập lý do → ghi AuditLog.
 
-**Tài khoản demo (mật khẩu chung `GrandSuite@2026`, 2FA tắt cho demo, có 1 tài khoản bật 2FA để test):**
-`chairman@grandsuite.vn`, `ceo@grandsuite.vn`, `cfo@grandsuite.vn`, `revenue@grandsuite.vn`, `manager.han@grandsuite.vn`, `frontdesk@grandsuite.vn`, `housekeeping@grandsuite.vn`, `chef@grandsuite.vn`, `fnb@grandsuite.vn`, `cashier@grandsuite.vn`, `hr@grandsuite.vn`, `warehouse@grandsuite.vn`, `marketing@grandsuite.vn`, `admin@grandsuite.vn`.
+**Tài khoản demo (mật khẩu chung `NinhVaNa@2026`, 2FA tắt cho demo, có 1 tài khoản bật 2FA để test):**
+`chairman@ninhvana.vn`, `ceo@ninhvana.vn`, `cfo@ninhvana.vn`, `revenue@ninhvana.vn`, `manager.hanoi@ninhvana.vn`, `frontdesk@ninhvana.vn`, `housekeeping@ninhvana.vn`, `chef@ninhvana.vn`, `fnb@ninhvana.vn`, `cashier@ninhvana.vn`, `hr@ninhvana.vn`, `warehouse@ninhvana.vn`, `marketing@ninhvana.vn`, `admin@ninhvana.vn`.
 
 ---
 

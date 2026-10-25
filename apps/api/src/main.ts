@@ -53,7 +53,7 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Grand Suite API')
+    .setTitle('NinhVaNa API')
     .setDescription(
       'Hệ thống quản trị khách sạn & nhà hàng 5 sao — API nội bộ cho PWA và đối tác.',
     )
@@ -76,7 +76,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(port, '0.0.0.0');
 
   logger.log(
-    `Grand Suite API ${isProduction ? '(production)' : '(development)'} — http://127.0.0.1:${port}/api/v1 · docs /api/docs`,
+    `NinhVaNa API ${isProduction ? '(production)' : '(development)'} — http://127.0.0.1:${port}/api/v1 · docs /api/docs`,
   );
 }
 

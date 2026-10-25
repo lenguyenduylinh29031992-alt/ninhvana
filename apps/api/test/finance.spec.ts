@@ -4,7 +4,7 @@ import request from 'supertest';
 import { createTestApp, readSetCookie } from './test-app';
 import { PrismaService } from '../src/common/prisma/prisma.module';
 
-const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'GrandSuite@2026';
+const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'NinhVaNa@2026';
 
 describe('Costs, payroll and financial statements', () => {
   let app: INestApplication;
@@ -18,9 +18,9 @@ describe('Costs, payroll and financial statements', () => {
     app = await createTestApp();
     http = app.getHttpServer();
     agent = request.agent(http);
-    await agent.post('/api/v1/auth/login').set('X-Forwarded-For', '10.90.0.1').send({ email: 'cfo@grandsuite.vn', password: PASSWORD }).expect(200);
+    await agent.post('/api/v1/auth/login').set('X-Forwarded-For', '10.90.0.1').send({ email: 'cfo@ninhvana.vn', password: PASSWORD }).expect(200);
     admin = request.agent(http);
-    const adminLogin = await admin.post('/api/v1/auth/login').set('X-Forwarded-For', '10.90.0.2').send({ email: 'admin@grandsuite.vn', password: PASSWORD }).expect(200);
+    const adminLogin = await admin.post('/api/v1/auth/login').set('X-Forwarded-For', '10.90.0.2').send({ email: 'admin@ninhvana.vn', password: PASSWORD }).expect(200);
     adminCsrf = readSetCookie(adminLogin.headers, 'gs_csrf')!;
     const properties = await agent.get('/api/v1/properties').expect(200);
     const list = properties.body.items ?? properties.body;

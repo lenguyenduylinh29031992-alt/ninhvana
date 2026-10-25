@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────
-# Grand Suite — local PostgreSQL + Redis without Docker.
+# NinhVaNa — local PostgreSQL + Redis without Docker.
 # Creates an isolated cluster inside .dev/ (never touches system data).
 #   ./scripts/dev-db.sh start|stop|status|reset
 # Ports: PostgreSQL 55432 · Redis 56379

@@ -1,8 +1,8 @@
-# Grand Suite
+# NinhVaNa
 
 **Hệ thống Quản trị Doanh nghiệp Khách sạn & Nhà hàng 5 sao** — PMS, POS, Channel Manager, Revenue, Cost, HRM, Finance, CRM và BI trong một nền tảng đa cơ sở.
 
-![Grand Suite — Trung tâm điều hành](docs/evidence/dashboard-1920.png)
+![NinhVaNa — Trung tâm điều hành](docs/evidence/dashboard-1920.png)
 
 > Đa cơ sở · Đa kênh · Tài chính hợp nhất theo thời gian thực · Giao diện tiếng Việt / English
 
@@ -162,25 +162,27 @@ Bằng chứng: `docs/evidence/docker-compose-stack.txt`, `docker-seed-log.txt`,
 
 ## Tài khoản demo
 
-Mật khẩu chung: **`GrandSuite@2026`** (đổi qua `SEED_ADMIN_PASSWORD` trước khi seed).
+Mật khẩu chung: **`NinhVaNa@2026`** (đổi qua `SEED_ADMIN_PASSWORD` trước khi seed).
 
-| Email | Vai trò | Phạm vi |
-|---|---|---|
-| `chairman@grandsuite.vn` | Chủ tịch | Toàn tập đoàn |
-| `ceo@grandsuite.vn` | Tổng giám đốc | Toàn tập đoàn |
-| `cfo@grandsuite.vn` | Kế toán trưởng | Toàn tập đoàn |
-| `revenue@grandsuite.vn` | Giám đốc doanh thu | Toàn tập đoàn |
-| `hr@grandsuite.vn` | Quản lý nhân sự | Toàn tập đoàn |
-| `marketing@grandsuite.vn` | Marketing & Sales | Toàn tập đoàn |
-| `manager.han@grandsuite.vn` | Giám đốc khách sạn | Grand Suite Hà Nội |
-| `manager.dan@grandsuite.vn` | Giám đốc nhà hàng | Le Jardin Đà Nẵng |
-| `frontdesk@grandsuite.vn` | Lễ tân | Grand Suite Hà Nội |
-| `housekeeping@grandsuite.vn` | Buồng phòng | Grand Suite Hà Nội |
-| `chef@grandsuite.vn` | Bếp trưởng | Grand Suite Hà Nội |
-| `fnb@grandsuite.vn` | Quản lý nhà hàng | Grand Suite Hà Nội |
-| `cashier@grandsuite.vn` | Thu ngân | Grand Suite Hà Nội |
-| `warehouse@grandsuite.vn` | Quản lý kho | Grand Suite Hà Nội |
-| `admin@grandsuite.vn` | Quản trị hệ thống | Toàn tập đoàn |
+| Email | Họ tên | Chức vụ / vai trò | Phạm vi |
+|---|---|---|---|
+| `admin@ninhvana.vn` | Nguyễn Văn A | **Quản trị hệ thống — toàn quyền** | Toàn tập đoàn |
+| `chairman@ninhvana.vn` | Nguyễn Văn B | Chủ tịch | Toàn tập đoàn |
+| `ceo@ninhvana.vn` | Nguyễn Văn C | Tổng giám đốc | Toàn tập đoàn |
+| `cfo@ninhvana.vn` | Nguyễn Văn D | Kế toán trưởng | Toàn tập đoàn |
+| `revenue@ninhvana.vn` | Nguyễn Văn E | Giám đốc doanh thu | Toàn tập đoàn |
+| `manager.hanoi@ninhvana.vn` | Nguyễn Văn F | Giám đốc khách sạn | Khách sạn NinhVaNa |
+| `manager.danang@ninhvana.vn` | Nguyễn Văn G | Giám đốc nhà hàng | NinhVaNa Le Jardin Đà Nẵng |
+| `frontdesk@ninhvana.vn` | Nguyễn Văn H | Lễ tân | Khách sạn NinhVaNa |
+| `housekeeping@ninhvana.vn` | Nguyễn Văn I | Buồng phòng | Khách sạn NinhVaNa |
+| `chef@ninhvana.vn` | Nguyễn Văn J | Bếp trưởng | Khách sạn NinhVaNa |
+| `fnb@ninhvana.vn` | Nguyễn Văn K | Quản lý F&B | Khách sạn NinhVaNa |
+| `cashier@ninhvana.vn` | Nguyễn Văn L | Thu ngân | Khách sạn NinhVaNa |
+| `hr@ninhvana.vn` | Nguyễn Văn M | Quản lý nhân sự | Toàn tập đoàn |
+| `warehouse@ninhvana.vn` | Nguyễn Văn N | Quản lý kho | Khách sạn NinhVaNa |
+| `marketing@ninhvana.vn` | Nguyễn Văn O | Marketing & Sales | Toàn tập đoàn |
+
+> `admin@ninhvana.vn` là tài khoản **SUPER_ADMIN** riêng, có toàn bộ 102 quyền: quản lý người dùng, vai trò, cấu hình, tích hợp, audit, mọi nghiệp vụ và báo cáo. Chỉ dùng cho quản trị hệ thống.
 
 ---
 
@@ -237,7 +239,7 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 ## Kiểm thử
 
 - **82 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
-- **37 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
+- **38 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
 - `bash scripts/check-acceptance.sh` chạy **39 kiểm tra** Gate 1–6.
 - Ảnh chụp 1920 / 768 / 390 px (32 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
@@ -250,4 +252,4 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 - Backup: service `backup` trong compose chạy `pg_dump` hằng ngày, giữ 7 ngày (cấu hình qua `BACKUP_RETENTION_DAYS`).
 - Production: thay toàn bộ secret mặc định, bật HTTPS, cấu hình `ALLOWED_ORIGINS`, dùng object storage cho chứng từ.
 
-© 2026 Grand Suite Group — dữ liệu trong repo là dữ liệu demo, không phải khách hàng thật.
+© 2026 NinhVaNa Group — dữ liệu trong repo là dữ liệu demo, không phải khách hàng thật.

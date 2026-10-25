@@ -2,7 +2,7 @@
   "name": "grand-suite",
   "version": "0.1.0",
   "private": true,
-  "description": "Grand Suite — Hospitality ERP for luxury hotels & restaurants (multi-property)",
+  "description": "NinhVaNa — Hospitality ERP for luxury hotels & restaurants (multi-property)",
   "packageManager": "pnpm@11.19.0",
   "engines": {
     "node": ">=22"

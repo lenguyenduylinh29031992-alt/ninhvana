@@ -4,12 +4,12 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Grand Suite — Hospitality Operating System',
-    template: '%s · Grand Suite',
+    default: 'NinhVaNa — Hospitality Operating System',
+    template: '%s · NinhVaNa',
   },
   description:
     'Hệ thống quản trị khách sạn & nhà hàng 5 sao: PMS, POS, kênh bán, doanh thu, chi phí, nhân sự và báo cáo hợp nhất.',
-  applicationName: 'Grand Suite',
+  applicationName: 'NinhVaNa',
   manifest: '/manifest.webmanifest',
   icons: { icon: '/icon.svg', apple: '/icon.svg' },
   formatDetection: { telephone: false },

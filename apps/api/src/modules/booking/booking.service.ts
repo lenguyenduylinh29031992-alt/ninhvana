@@ -66,7 +66,7 @@ export class BookingService {
       where: { id: input.roomTypeId, propertyId: property.id, isActive: true },
     });
     if (!roomType) throw new AppError(ERROR_CODES.NOT_FOUND, 'Không tìm thấy hạng phòng', 404);
-    const actor = await buildSystemActor(this.prisma, property.orgId, 'Grand Suite · Website');
+    const actor = await buildSystemActor(this.prisma, property.orgId, 'NinhVaNa · Website');
     const reservation = await this.reservations.create(actor, {
       propertyId: property.id,
       checkIn: input.checkIn,

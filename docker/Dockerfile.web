@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Grand Suite Web — Next.js standalone image
+# NinhVaNa Web — Next.js standalone image
 FROM node:24-alpine AS build
 RUN corepack enable && apk add --no-cache openssl
 WORKDIR /app

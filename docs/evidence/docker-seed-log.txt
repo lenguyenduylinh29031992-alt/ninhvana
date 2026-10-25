@@ -1,4 +1,6 @@
-  Grand Suite — seed hoàn tất
+  NinhVaNa — seed hoàn tất
+  Tổ chức      : NinhVaNa Group
+  Nhân sự demo : 15 tài khoản (mật khẩu NinhVaNa@2026)
 finance seed complete {
 long history seeded {
-{"level":30,"time":1792904769378,"pid":7,"hostname":"3f8b74f400b3","context":"NestApplication","msg":"Nest application successfully started"}
+{"level":30,"time":1792908674700,"pid":7,"hostname":"94507af174c0","context":"NestApplication","msg":"Nest application successfully started"}

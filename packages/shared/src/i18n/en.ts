@@ -1,10 +1,10 @@
 import type { TranslationKey } from './vi';
 
 export const en: Record<TranslationKey, string> = {
-  'app.name': 'Grand Suite',
+  'app.name': 'NinhVaNa',
   'app.tagline': 'Hotel & Restaurant Management',
-  'app.fullName': 'Grand Suite — Hospitality Enterprise Management',
-  'app.copyright': '© {year} Grand Suite Group',
+  'app.fullName': 'NinhVaNa — Hospitality Enterprise Management',
+  'app.copyright': '© {year} NinhVaNa Group',
 
   'common.loading': 'Loading…',
   'common.save': 'Save',
@@ -95,7 +95,7 @@ export const en: Record<TranslationKey, string> = {
   'common.viewDetails': 'View details',
   'common.overview': 'Overview',
   'common.help': 'Help',
-  'common.poweredBy': 'Powered by Grand Suite',
+  'common.poweredBy': 'Powered by NinhVaNa',
 
   'auth.welcomeBack': 'Welcome back',
   'auth.signInSubtitle': 'Sign in to your command center',

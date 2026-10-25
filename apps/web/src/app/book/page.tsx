@@ -152,7 +152,7 @@ export default function BookingEnginePage() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         <Link href="/book" className="flex items-center gap-3">
           <span className="flex size-9 items-center justify-center rounded-full border border-brand/40 font-display text-sm text-brand">GS</span>
-          <span><span className="block font-display text-lg tracking-wide text-ink">GRAND SUITE</span><span className="block text-[8px] uppercase tracking-[0.3em] text-muted-foreground">Hospitality</span></span>
+          <span><span className="block font-display text-lg tracking-wide text-ink">NINHVANA</span><span className="block text-[8px] uppercase tracking-[0.3em] text-muted-foreground">Hospitality</span></span>
         </Link>
         <div className="flex items-center gap-3 text-[11px]">
           <Link href="/login" className="text-muted-foreground hover:text-ink">Đăng nhập</Link>
@@ -167,7 +167,7 @@ export default function BookingEnginePage() {
             Nghỉ dưỡng tại nơi <em className="text-brand">tĩnh lặng</em> giữa lòng thành phố.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Đặt phòng trực tiếp với Grand Suite — xác nhận tức thì, miễn phí huỷ trước 48 giờ, đưa đón sân bay và đặc quyền ẩm thực.
+            Đặt phòng trực tiếp với NinhVaNa — xác nhận tức thì, miễn phí huỷ trước 48 giờ, đưa đón sân bay và đặc quyền ẩm thực.
           </p>
         </div>
       </section>
@@ -274,7 +274,7 @@ export default function BookingEnginePage() {
       ) : null}
 
       <footer className="border-t border-line px-5 py-6 text-center text-[10px] text-muted-foreground">
-        GRAND SUITE · HOSPITALITY OPERATING SYSTEM · Đặt phòng trực tiếp được bảo đảm bởi hệ thống PMS
+        NINHVANA · HOSPITALITY OPERATING SYSTEM · Đặt phòng trực tiếp được bảo đảm bởi hệ thống PMS
       </footer>
     </main>
   );

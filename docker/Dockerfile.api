@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Grand Suite API — build and runtime image
+# NinhVaNa API — build and runtime image
 FROM node:24-alpine AS build
 RUN corepack enable && apk add --no-cache openssl
 WORKDIR /app

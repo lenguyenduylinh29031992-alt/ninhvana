@@ -253,7 +253,7 @@ export default function DashboardPage() {
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-[10px] text-muted-foreground">
-        <span>GRAND SUITE · HOSPITALITY OPERATING SYSTEM · V0.2</span>
+        <span>NINHVANA · HOSPITALITY OPERATING SYSTEM · V0.2</span>
         <span>Doanh thu lấy từ sổ nhật ký kép · Bút toán cân bằng được kiểm tra tự động</span>
       </div>
     </div>

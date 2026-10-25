@@ -1,4 +1,4 @@
--- Grand Suite foundation constraints (C7 audit immutability + assignment uniqueness)
+-- NinhVaNa foundation constraints (C7 audit immutability + assignment uniqueness)
 
 CREATE OR REPLACE FUNCTION grand_suite_block_mutation() RETURNS trigger AS $$
 BEGIN

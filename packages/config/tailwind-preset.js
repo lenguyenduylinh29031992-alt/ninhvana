@@ -1,5 +1,5 @@
 /**
- * Grand Suite — Tailwind design tokens.
+ * NinhVaNa — Tailwind design tokens.
  * Palette: warm ivory & deep sea blue; serif display, sans data.
  * All colors are HSL channel triplets so opacity modifiers keep working.
  */

@@ -10,7 +10,7 @@ import { ALL_PERMISSIONS } from '@grand-suite/shared';
 export async function buildSystemActor(
   prisma: PrismaClient,
   orgId: string,
-  displayName = 'Grand Suite · Booking Engine',
+  displayName = 'NinhVaNa · Booking Engine',
 ): Promise<AuthUser> {
   const user = await prisma.user.findFirst({
     where: { orgId, isActive: true, roles: { some: { role: { code: 'SUPER_ADMIN' } } } },

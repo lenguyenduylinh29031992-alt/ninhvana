@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 echo ""
-echo "  GRAND SUITE — thiết lập môi trường phát triển"
+echo "  NINHVANA — thiết lập môi trường phát triển"
 echo "  ─────────────────────────────────────────────"
 
 command -v node >/dev/null || { echo "✖ Cần Node.js >= 22"; exit 1; }
@@ -45,5 +45,5 @@ cat <<'EOF'
   Chạy:      pnpm dev
   API:       http://127.0.0.1:4000/api/v1  ·  Swagger: /api/docs
   Web:       http://localhost:3000
-  Đăng nhập: ceo@grandsuite.vn / GrandSuite@2026 (xem danh sách trong README)
+  Đăng nhập: ceo@ninhvana.vn / NinhVaNa@2026 (xem danh sách trong README)
 EOF

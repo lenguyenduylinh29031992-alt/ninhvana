@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Grand Suite">
-  <rect width="128" height="128" rx="24" fill="#17130F"/>
-  <circle cx="64" cy="64" r="48" fill="none" stroke="#B08D57" stroke-width="1.5" opacity="0.6"/>
-  <text x="64" y="76" text-anchor="middle" font-family="Georgia, serif" font-size="42" letter-spacing="2" fill="#D8B678">GS</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="NinhVaNa">
+  <rect width="128" height="128" rx="24" fill="#0B2239"/>
+  <circle cx="64" cy="64" r="48" fill="none" stroke="#2F7FAE" stroke-width="1.5" opacity="0.6"/>
+  <text x="64" y="76" text-anchor="middle" font-family="Georgia, serif" font-size="42" letter-spacing="2" fill="#F4EBDD">NV</text>
 </svg>

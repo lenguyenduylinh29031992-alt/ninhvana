@@ -12,8 +12,8 @@ async function flow(name, run) {
   catch (error) { results.push({ name, ok: false, error: error.message }); console.info('FAIL', name, error.message); }
 }
 await page.goto(`${base}/login`);
-await page.fill('#email', 'manager.han@grandsuite.vn');
-await page.fill('#password', 'GrandSuite@2026');
+await page.fill('#email', 'manager.hanoi@ninhvana.vn');
+await page.fill('#password', 'NinhVaNa@2026');
 await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
 await page.waitForURL('**/dashboard');
 

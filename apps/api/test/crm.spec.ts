@@ -3,13 +3,13 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { createTestApp } from './test-app';
 
-const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'GrandSuite@2026';
+const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'NinhVaNa@2026';
 
 describe('CRM segments, reviews and campaigns', () => {
   let app: INestApplication; let http: ReturnType<INestApplication['getHttpServer']>; let agent: ReturnType<typeof request.agent>; let csrf: string;
   beforeAll(async () => {
     app = await createTestApp(); http = app.getHttpServer(); agent = request.agent(http);
-    const login = await agent.post('/api/v1/auth/login').set('X-Forwarded-For', '10.97.0.1').send({ email: 'admin@grandsuite.vn', password: PASSWORD }).expect(200);
+    const login = await agent.post('/api/v1/auth/login').set('X-Forwarded-For', '10.97.0.1').send({ email: 'admin@ninhvana.vn', password: PASSWORD }).expect(200);
     csrf = (login.headers['set-cookie'] as unknown as string[]).find((cookie) => cookie.startsWith('gs_csrf='))!.split(';')[0]!.split('=')[1]!;
   }, 90_000);
   afterAll(async () => { await app?.close(); });

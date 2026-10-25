@@ -13,7 +13,7 @@ services:
       NODE_ENV: production
       PUBLIC_WEB_URL: http://localhost:3000
       REDIS_URL: redis://redis:6379
-      SEED_ADMIN_PASSWORD: GrandSuite@2026
+      SEED_ADMIN_PASSWORD: NinhVaNa@2026
       SEED_ON_START: "true"
       SMTP_HOST: mailhog
       SMTP_PORT: "1025"

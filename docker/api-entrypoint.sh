@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-echo "→ Grand Suite API: áp dụng migration…"
+echo "→ NinhVaNa API: áp dụng migration…"
 ./node_modules/.bin/prisma migrate deploy
 
 if [ "${SEED_ON_START:-false}" = "true" ]; then

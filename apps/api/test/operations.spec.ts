@@ -5,7 +5,7 @@ import { addDays, isoToday } from '@grand-suite/shared';
 import { PrismaService } from '../src/common/prisma/prisma.module';
 import { createTestApp, readSetCookie } from './test-app';
 
-const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'GrandSuite@2026';
+const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'NinhVaNa@2026';
 
 type Agent = ReturnType<typeof request.agent>;
 
@@ -39,7 +39,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
     app = await createTestApp();
     http = app.getHttpServer();
     prisma = app.get(PrismaService);
-    const property = await prisma.property.findFirstOrThrow({ where: { code: 'GSL-HAN' } });
+    const property = await prisma.property.findFirstOrThrow({ where: { code: 'NVN-HAN' } });
     propertyId = property.id;
     const outlet = await prisma.outlet.findFirstOrThrow({ where: { propertyId, code: 'NH01' } });
     outletId = outlet.id;
@@ -101,7 +101,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
   });
 
   it('creates a reservation with folio and nightly pricing', async () => {
-    const { agent, csrf } = await login('frontdesk@grandsuite.vn', '10.30.0.1');
+    const { agent, csrf } = await login('frontdesk@ninhvana.vn', '10.30.0.1');
     const response = await agent
       .post('/api/v1/reservations')
       .set('x-csrf-token', csrf)
@@ -128,14 +128,14 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
   });
 
   it('checks in and posts a POS charge to the room', async () => {
-    const front = await login('frontdesk@grandsuite.vn', '10.30.0.2');
+    const front = await login('frontdesk@ninhvana.vn', '10.30.0.2');
     await front.agent
       .post(`/api/v1/reservations/${reservationId}/check-in`)
       .set('x-csrf-token', front.csrf)
       .send({})
       .expect(201);
 
-    const operations = await login('manager.han@grandsuite.vn', '10.30.0.3');
+    const operations = await login('manager.hanoi@ninhvana.vn', '10.30.0.3');
     const order = await operations.agent
       .post('/api/v1/pos/orders')
       .set('x-csrf-token', operations.csrf)
@@ -156,7 +156,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
   });
 
   it('posts room revenue and OTA commission during night audit', async () => {
-    const { agent, csrf } = await login('manager.han@grandsuite.vn', '10.30.0.4');
+    const { agent, csrf } = await login('manager.hanoi@ninhvana.vn', '10.30.0.4');
     const audit = await agent
       .post('/api/v1/night-audit/run')
       .set('x-csrf-token', csrf)
@@ -176,7 +176,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
   });
 
   it('checks out, settles the folio and issues a paid invoice', async () => {
-    const { agent, csrf } = await login('frontdesk@grandsuite.vn', '10.30.0.5');
+    const { agent, csrf } = await login('frontdesk@ninhvana.vn', '10.30.0.5');
     const checkout = await agent
       .post(`/api/v1/reservations/${reservationId}/check-out`)
       .set('x-csrf-token', csrf)
@@ -207,7 +207,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
   });
 
   it('reconciles revenue across departments, channels and the ledger', async () => {
-    const { agent } = await login('ceo@grandsuite.vn', '10.30.0.6');
+    const { agent } = await login('ceo@ninhvana.vn', '10.30.0.6');
     const to = isoToday();
     const response = await agent
       .get(`/api/v1/accounting/reconciliation?propertyId=${propertyId}&from=${flowDate}&to=${to}`)
@@ -248,7 +248,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
       where: { propertyId, businessDate: new Date(`${raceStart}T00:00:00Z`) },
     });
 
-    const { agent, csrf } = await login('frontdesk@grandsuite.vn', '10.30.0.7');
+    const { agent, csrf } = await login('frontdesk@ninhvana.vn', '10.30.0.7');
     const attempts = Array.from({ length: 10 }).map((_, index) =>
       agent
         .post('/api/v1/reservations')
@@ -287,7 +287,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
   }, 120_000);
 
   it('enforces RBAC on operational mutations', async () => {
-    const { agent, csrf } = await login('housekeeping@grandsuite.vn', '10.30.0.8');
+    const { agent, csrf } = await login('housekeeping@ninhvana.vn', '10.30.0.8');
     await agent
       .post('/api/v1/reservations')
       .set('x-csrf-token', csrf)
@@ -303,7 +303,7 @@ describe('PMS, POS, night audit & ledger (integration)', () => {
   });
 
   it('keeps the audit chain valid and invoices printable', async () => {
-    const { agent } = await login('ceo@grandsuite.vn', '10.30.0.9');
+    const { agent } = await login('ceo@ninhvana.vn', '10.30.0.9');
     const verify = await agent.get('/api/v1/audit/verify').expect(200);
     expect(verify.body.valid).toBe(true);
 

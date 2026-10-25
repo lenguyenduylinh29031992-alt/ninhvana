@@ -4,14 +4,14 @@ import request from 'supertest';
 import { createHmac } from 'node:crypto';
 import { createTestApp, readSetCookie } from './test-app';
 
-const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'GrandSuite@2026';
+const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'NinhVaNa@2026';
 
 describe('Channel manager, booking engine & social inbox', () => {
   let app: INestApplication;
   let http: ReturnType<INestApplication['getHttpServer']>;
   let agent: ReturnType<typeof request.agent>;
   let csrf: string;
-  let propertyCode = 'GSL-HAN';
+  let propertyCode = 'NVN-HAN';
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -20,10 +20,10 @@ describe('Channel manager, booking engine & social inbox', () => {
     const login = await agent
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.60.0.1')
-      .send({ email: 'manager.han@grandsuite.vn', password: PASSWORD })
+      .send({ email: 'manager.hanoi@ninhvana.vn', password: PASSWORD })
       .expect(200);
     csrf = readSetCookie(login.headers, 'gs_csrf')!;
-    propertyCode = 'GSL-HAN';
+    propertyCode = 'NVN-HAN';
   }, 90_000);
 
   afterAll(async () => {

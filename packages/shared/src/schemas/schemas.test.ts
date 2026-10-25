@@ -11,8 +11,8 @@ import { taxRateSchema, exchangeRateSchema, upsertSettingSchema } from './settin
 
 describe('login schema', () => {
   it('normalises email casing and trims it', () => {
-    const parsed = loginSchema.parse({ email: '  CEO@GrandSuite.VN ', password: 'x' });
-    expect(parsed.email).toBe('ceo@grandsuite.vn');
+    const parsed = loginSchema.parse({ email: '  CEO@NinhVaNa.VN ', password: 'x' });
+    expect(parsed.email).toBe('ceo@ninhvana.vn');
     expect(parsed.rememberMe).toBe(false);
   });
 
@@ -27,15 +27,15 @@ describe('password policy', () => {
     expect(passwordSchema.safeParse('short1').success).toBe(false);
     expect(passwordSchema.safeParse('allletters').success).toBe(false);
     expect(passwordSchema.safeParse('1234567890').success).toBe(false);
-    expect(passwordSchema.safeParse('GrandSuite@2026').success).toBe(true);
+    expect(passwordSchema.safeParse('NinhVaNa@2026').success).toBe(true);
   });
 });
 
 describe('user creation', () => {
   const base = {
-    email: 'frontdesk@grandsuite.vn',
+    email: 'frontdesk@ninhvana.vn',
     fullName: 'Nguyễn Thị Lễ Tân',
-    password: 'GrandSuite@2026',
+    password: 'NinhVaNa@2026',
     roles: [{ roleCode: 'FRONT_DESK', propertyId: 'prop-1' }],
   };
 
@@ -93,8 +93,8 @@ describe('pagination schema', () => {
 
 describe('property schema', () => {
   const property = {
-    code: 'gsl-han',
-    name: 'Grand Suite Hà Nội',
+    code: 'nvn-han',
+    name: 'Khách sạn NinhVaNa',
     type: 'HOTEL',
     address: '1 Đường Tràng Tiền',
     city: 'Hà Nội',
@@ -102,7 +102,7 @@ describe('property schema', () => {
 
   it('uppercases the code and fills defaults', () => {
     const parsed = createPropertySchema.parse(property);
-    expect(parsed.code).toBe('GSL-HAN');
+    expect(parsed.code).toBe('NVN-HAN');
     expect(parsed.country).toBe('VN');
     expect(parsed.currency).toBe('VND');
     expect(parsed.businessDayCutoff).toBe(6);
@@ -147,7 +147,7 @@ describe('settings schemas', () => {
 describe('channel, booking and finance schemas', () => {
   it('validates a webhook payload and rejects missing room type', () => {
     const payload = {
-      externalId: 'EXT-1', status: 'confirmed', propertyCode: 'GSL-HAN', roomTypeCode: 'DLX-K',
+      externalId: 'EXT-1', status: 'confirmed', propertyCode: 'NVN-HAN', roomTypeCode: 'DLX-K',
       checkIn: '2026-11-10', checkOut: '2026-11-12', guest: { firstName: 'A', lastName: 'B', email: 'a@b.com' }, adults: 2, children: 0,
     };
     expect(channelWebhookSchema.parse(payload).externalId).toBe('EXT-1');
@@ -156,7 +156,7 @@ describe('channel, booking and finance schemas', () => {
 
   it('validates public booking and rejects an inverted stay', () => {
     const base = {
-      propertyCode: 'GSL-HAN', checkIn: '2026-12-10', checkOut: '2026-12-12', roomTypeId: 'rt1', adults: 2, children: 0,
+      propertyCode: 'NVN-HAN', checkIn: '2026-12-10', checkOut: '2026-12-12', roomTypeId: 'rt1', adults: 2, children: 0,
       guest: { firstName: 'Website', lastName: 'Guest', email: 'web@example.com', phone: '+84909123456' },
     };
     expect(publicBookingSchema.parse(base).adults).toBe(2);
@@ -164,7 +164,7 @@ describe('channel, booking and finance schemas', () => {
   });
 
   it('validates availability and report-safe date ranges', () => {
-    expect(bookingAvailabilityQuerySchema.parse({ propertyCode: 'GSL-HAN', checkIn: '2026-12-10', checkOut: '2026-12-12' }).adults).toBe(2);
+    expect(bookingAvailabilityQuerySchema.parse({ propertyCode: 'NVN-HAN', checkIn: '2026-12-10', checkOut: '2026-12-12' }).adults).toBe(2);
     expect(() => channelPushSchema.parse({ days: 0 })).toThrow();
     expect(channelPushSchema.parse({})).toMatchObject({ days: 7, simulateFailure: false });
   });

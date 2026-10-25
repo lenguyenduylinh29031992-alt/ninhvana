@@ -9,10 +9,10 @@ await mkdir(outPath, { recursive: true });
 const browser = await chromium.launch();
 const problems = [];
 
-async function login(page, email = 'ceo@grandsuite.vn') {
+async function login(page, email = 'ceo@ninhvana.vn') {
   await page.goto(`${base}/login`, { waitUntil: 'domcontentloaded' });
   await page.fill('#email', email);
-  await page.fill('#password', 'GrandSuite@2026');
+  await page.fill('#password', 'NinhVaNa@2026');
   await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
   await page.waitForURL('**/dashboard', { timeout: 20000 });
   await page.waitForTimeout(1500);
@@ -62,7 +62,7 @@ async function shot(page, name, fullPage = false) {
   const opsPage = await ops.newPage();
   opsPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
   opsPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
-  await login(opsPage, 'manager.han@grandsuite.vn');
+  await login(opsPage, 'manager.hanoi@ninhvana.vn');
   for (const [path, name] of [
     ['/front-desk', 'front-desk-1920'],
     ['/pos', 'pos-1920'],
@@ -84,7 +84,7 @@ async function shot(page, name, fullPage = false) {
   const financePage = await financeContext.newPage();
   financePage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
   financePage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
-  await login(financePage, 'cfo@grandsuite.vn');
+  await login(financePage, 'cfo@ninhvana.vn');
   for (const [path, name] of [['/finance', 'finance-1920'], ['/costs', 'costs-1920'], ['/payroll', 'payroll-1920'], ['/analytics', 'analytics-1920'], ['/crm', 'crm-1920']]) {
     await financePage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
     await financePage.waitForTimeout(1200);
@@ -108,7 +108,7 @@ async function shot(page, name, fullPage = false) {
 
   const mobileOps = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'vi-VN', isMobile: true, hasTouch: true });
   const mobileOpsPage = await mobileOps.newPage();
-  await login(mobileOpsPage, 'manager.han@grandsuite.vn');
+  await login(mobileOpsPage, 'manager.hanoi@ninhvana.vn');
   await mobileOpsPage.goto(`${base}/front-desk`, { waitUntil: 'domcontentloaded' });
   await mobileOpsPage.waitForTimeout(1200);
   await shot(mobileOpsPage, 'front-desk-390');
@@ -133,7 +133,7 @@ async function shot(page, name, fullPage = false) {
   // Mobile 390 — housekeeping role
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'vi-VN', isMobile: true, hasTouch: true });
   const mobilePage = await mobile.newPage();
-  await login(mobilePage, 'housekeeping@grandsuite.vn');
+  await login(mobilePage, 'housekeeping@ninhvana.vn');
   await shot(mobilePage, 'dashboard-390');
   await mobilePage.getByRole('button', { name: 'Menu', exact: true }).click();
   await mobilePage.waitForTimeout(500);

@@ -1,5 +1,5 @@
 /**
- * Grand Suite — foundation seed (Phase 1).
+ * NinhVaNa — foundation seed (Phase 1).
  *
  * Creates one group with two properties, the full RBAC catalogue, 15 demo users,
  * 250 rooms across 12 room types, 8 rate plans with 12 months of BAR rates,
@@ -38,7 +38,7 @@ for (const candidate of ['../../.env.local', '../../.env', '.env.local', '.env']
 }
 
 const prisma = new PrismaClient();
-const DEMO_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'GrandSuite@2026';
+const DEMO_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'NinhVaNa@2026';
 const TODAY = isoToday();
 
 function chunk<T>(items: T[], size: number): T[][] {
@@ -70,15 +70,15 @@ function weekdayFactor(iso: string): number {
 
 const PROPERTIES = [
   {
-    code: 'GSL-HAN',
-    name: 'Grand Suite Hà Nội',
-    legalName: 'Công ty CP Grand Suite Hà Nội',
+    code: 'NVN-HAN',
+    name: 'Khách sạn NinhVaNa',
+    legalName: 'Công ty CP Khách sạn NinhVaNa',
     type: 'HOTEL' as const,
     starRating: 5,
     address: '1 Đường Tràng Tiền, Hoàn Kiếm',
     city: 'Hà Nội',
     phone: '+84 24 3936 8888',
-    email: 'reservations.han@grandsuite.vn',
+    email: 'reservations.han@ninhvana.vn',
     roomCount: 250,
     taxCode: '0101234567',
     checkInTime: '14:00',
@@ -86,15 +86,15 @@ const PROPERTIES = [
     serviceChargePct: 5,
   },
   {
-    code: 'GSL-DAN',
-    name: 'Le Jardin Đà Nẵng',
-    legalName: 'Công ty CP Grand Suite Đà Nẵng',
+    code: 'NVN-DAN',
+    name: 'NinhVaNa Le Jardin Đà Nẵng',
+    legalName: 'Công ty CP NinhVaNa Đà Nẵng',
     type: 'RESTAURANT' as const,
     starRating: 5,
     address: '68 Bạch Đằng, Hải Châu',
     city: 'Đà Nẵng',
     phone: '+84 236 382 9999',
-    email: 'hello.lejardin@grandsuite.vn',
+    email: 'hello.lejardin@ninhvana.vn',
     roomCount: 0,
     taxCode: '0401234567',
     checkInTime: '11:00',
@@ -104,7 +104,7 @@ const PROPERTIES = [
 ];
 
 const DEPARTMENTS = {
-  'GSL-HAN': [
+  'NVN-HAN': [
     { code: 'ROOMS', name: 'Bộ phận Phòng', nameEn: 'Rooms', group: 'ROOMS' as const, isRevenueCenter: true, sortOrder: 1 },
     { code: 'FNB', name: 'Nhà hàng & Bar', nameEn: 'Food & Beverage', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 2 },
     { code: 'SPA', name: 'Spa & Giải trí', nameEn: 'Spa & Recreation', group: 'OTHER_OPERATED' as const, isRevenueCenter: true, sortOrder: 3 },
@@ -115,7 +115,7 @@ const DEPARTMENTS = {
     { code: 'UTILITIES', name: 'Năng lượng', nameEn: 'Utilities', group: 'UTILITIES' as const, isRevenueCenter: false, sortOrder: 8 },
     { code: 'MAINTENANCE', name: 'Bảo trì', nameEn: 'Maintenance', group: 'MAINTENANCE' as const, isRevenueCenter: false, sortOrder: 9 },
   ],
-  'GSL-DAN': [
+  'NVN-DAN': [
     { code: 'RESTAURANT', name: 'Nhà hàng Le Jardin', nameEn: 'Le Jardin Restaurant', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 1 },
     { code: 'BAR', name: 'Le Jardin Bar', nameEn: 'Le Jardin Bar', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 2 },
     { code: 'ADMIN', name: 'Hành chính', nameEn: 'Administration', group: 'ADMIN' as const, isRevenueCenter: false, sortOrder: 3 },
@@ -230,7 +230,7 @@ const RATE_PLANS = [
 ];
 
 const OUTLETS = {
-  'GSL-HAN': [
+  'NVN-HAN': [
     { code: 'NH01', name: 'Le Grand Restaurant', type: 'RESTAURANT' as const, sc: 5, hours: { open: '06:00', close: '22:30' }, sort: 1 },
     { code: 'BAR01', name: 'The Champagne Bar', type: 'BAR' as const, sc: 5, hours: { open: '16:00', close: '01:00' }, sort: 2 },
     { code: 'RS01', name: 'Room Service', type: 'ROOM_SERVICE' as const, sc: 5, hours: { open: '00:00', close: '23:59' }, sort: 3 },
@@ -238,32 +238,32 @@ const OUTLETS = {
     { code: 'POOL01', name: 'Pool Bar', type: 'POOL' as const, sc: 5, hours: { open: '08:00', close: '19:00' }, sort: 5 },
     { code: 'BAN01', name: 'Grand Ballroom', type: 'BANQUET' as const, sc: 10, hours: null, sort: 6 },
   ],
-  'GSL-DAN': [
+  'NVN-DAN': [
     { code: 'LJ01', name: 'Le Jardin Fine Dining', type: 'RESTAURANT' as const, sc: 5, hours: { open: '11:00', close: '23:00' }, sort: 1 },
     { code: 'LJBAR', name: 'Le Jardin Terrace Bar', type: 'BAR' as const, sc: 5, hours: { open: '16:00', close: '00:00' }, sort: 2 },
   ],
 };
 
 const DEMO_USERS = [
-  { email: 'admin@grandsuite.vn', fullName: 'Quản trị hệ thống', role: 'SUPER_ADMIN', property: null, phone: '+84 90 000 0001' },
-  { email: 'chairman@grandsuite.vn', fullName: 'Lê Hoàng Nam', role: 'CHAIRMAN', property: null, phone: '+84 90 000 0002' },
-  { email: 'ceo@grandsuite.vn', fullName: 'Trần Minh Đức', role: 'CEO', property: null, phone: '+84 90 000 0003' },
-  { email: 'cfo@grandsuite.vn', fullName: 'Nguyễn Thu Hà', role: 'CFO', property: null, phone: '+84 90 000 0004' },
-  { email: 'revenue@grandsuite.vn', fullName: 'Phạm Quốc Bảo', role: 'REVENUE_DIRECTOR', property: null, phone: '+84 90 000 0005' },
-  { email: 'manager.han@grandsuite.vn', fullName: 'Đỗ Thanh Mai', role: 'PROPERTY_MANAGER', property: 'GSL-HAN', phone: '+84 90 000 0006' },
-  { email: 'manager.dan@grandsuite.vn', fullName: 'Vũ Hải Yến', role: 'PROPERTY_MANAGER', property: 'GSL-DAN', phone: '+84 90 000 0007' },
-  { email: 'frontdesk@grandsuite.vn', fullName: 'Nguyễn Thị Lan', role: 'FRONT_DESK', property: 'GSL-HAN', phone: '+84 90 000 0008' },
-  { email: 'housekeeping@grandsuite.vn', fullName: 'Trần Văn Tùng', role: 'HOUSEKEEPING', property: 'GSL-HAN', phone: '+84 90 000 0009' },
-  { email: 'chef@grandsuite.vn', fullName: 'Lê Đình Khôi', role: 'EXEC_CHEF', property: 'GSL-HAN', phone: '+84 90 000 0010' },
-  { email: 'fnb@grandsuite.vn', fullName: 'Hoàng Anh Tuấn', role: 'FNB_MANAGER', property: 'GSL-HAN', phone: '+84 90 000 0011' },
-  { email: 'cashier@grandsuite.vn', fullName: 'Phạm Thị Ngọc', role: 'CASHIER', property: 'GSL-HAN', phone: '+84 90 000 0012' },
-  { email: 'hr@grandsuite.vn', fullName: 'Nguyễn Mai Phương', role: 'HR_MANAGER', property: null, phone: '+84 90 000 0013' },
-  { email: 'warehouse@grandsuite.vn', fullName: 'Bùi Văn Hùng', role: 'WAREHOUSE', property: 'GSL-HAN', phone: '+84 90 000 0014' },
-  { email: 'marketing@grandsuite.vn', fullName: 'Trịnh Thu Trang', role: 'MARKETING', property: null, phone: '+84 90 000 0015' },
+  { email: 'admin@ninhvana.vn', fullName: 'Nguyễn Văn A', role: 'SUPER_ADMIN', property: null, phone: '+84 90 000 0001' },
+  { email: 'chairman@ninhvana.vn', fullName: 'Nguyễn Văn B', role: 'CHAIRMAN', property: null, phone: '+84 90 000 0002' },
+  { email: 'ceo@ninhvana.vn', fullName: 'Nguyễn Văn C', role: 'CEO', property: null, phone: '+84 90 000 0003' },
+  { email: 'cfo@ninhvana.vn', fullName: 'Nguyễn Văn D', role: 'CFO', property: null, phone: '+84 90 000 0004' },
+  { email: 'revenue@ninhvana.vn', fullName: 'Nguyễn Văn E', role: 'REVENUE_DIRECTOR', property: null, phone: '+84 90 000 0005' },
+  { email: 'manager.hanoi@ninhvana.vn', fullName: 'Nguyễn Văn F', role: 'PROPERTY_MANAGER', property: 'NVN-HAN', phone: '+84 90 000 0006' },
+  { email: 'manager.danang@ninhvana.vn', fullName: 'Nguyễn Văn G', role: 'PROPERTY_MANAGER', property: 'NVN-DAN', phone: '+84 90 000 0007' },
+  { email: 'frontdesk@ninhvana.vn', fullName: 'Nguyễn Văn H', role: 'FRONT_DESK', property: 'NVN-HAN', phone: '+84 90 000 0008' },
+  { email: 'housekeeping@ninhvana.vn', fullName: 'Nguyễn Văn I', role: 'HOUSEKEEPING', property: 'NVN-HAN', phone: '+84 90 000 0009' },
+  { email: 'chef@ninhvana.vn', fullName: 'Nguyễn Văn J', role: 'EXEC_CHEF', property: 'NVN-HAN', phone: '+84 90 000 0010' },
+  { email: 'fnb@ninhvana.vn', fullName: 'Nguyễn Văn K', role: 'FNB_MANAGER', property: 'NVN-HAN', phone: '+84 90 000 0011' },
+  { email: 'cashier@ninhvana.vn', fullName: 'Nguyễn Văn L', role: 'CASHIER', property: 'NVN-HAN', phone: '+84 90 000 0012' },
+  { email: 'hr@ninhvana.vn', fullName: 'Nguyễn Văn M', role: 'HR_MANAGER', property: null, phone: '+84 90 000 0013' },
+  { email: 'warehouse@ninhvana.vn', fullName: 'Nguyễn Văn N', role: 'WAREHOUSE', property: 'NVN-HAN', phone: '+84 90 000 0014' },
+  { email: 'marketing@ninhvana.vn', fullName: 'Nguyễn Văn O', role: 'MARKETING', property: null, phone: '+84 90 000 0015' },
 ];
 
 const SETTINGS: Array<{ scope: string; key: string; value: Prisma.InputJsonValue; category: string; description?: string }> = [
-  { scope: 'ORG', key: 'branding.displayName', value: 'Grand Suite', category: 'branding' },
+  { scope: 'ORG', key: 'branding.displayName', value: 'NinhVaNa', category: 'branding' },
   { scope: 'ORG', key: 'branding.accentColor', value: '#B08D57', category: 'branding' },
   { scope: 'ORG', key: 'finance.baseCurrency', value: 'VND', category: 'finance' },
   { scope: 'ORG', key: 'finance.fiscalYearStartMonth', value: 1, category: 'finance' },
@@ -275,14 +275,14 @@ const SETTINGS: Array<{ scope: string; key: string; value: Prisma.InputJsonValue
   { scope: 'ORG', key: 'housekeeping.autoDirtyOnCheckout', value: true, category: 'operations' },
   { scope: 'ORG', key: 'pos.requireTableForDineIn', value: true, category: 'operations' },
   { scope: 'ORG', key: 'notifications.dailyReportEnabled', value: true, category: 'notifications' },
-  { scope: 'ORG', key: 'notifications.recipients', value: ['ceo@grandsuite.vn', 'cfo@grandsuite.vn'], category: 'notifications' },
+  { scope: 'ORG', key: 'notifications.recipients', value: ['ceo@ninhvana.vn', 'cfo@ninhvana.vn'], category: 'notifications' },
   { scope: 'ORG', key: 'loyalty.pointsPerVnd', value: 0.0001, category: 'loyalty' },
-  { scope: 'GSL-HAN', key: 'rooms.checkInTime', value: '14:00', category: 'rooms' },
-  { scope: 'GSL-HAN', key: 'rooms.checkOutTime', value: '12:00', category: 'rooms' },
-  { scope: 'GSL-HAN', key: 'rooms.smokingFloors', value: [2], category: 'rooms' },
-  { scope: 'GSL-HAN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
-  { scope: 'GSL-DAN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
-  { scope: 'GSL-DAN', key: 'pos.turnTimeMinutes', value: 90, category: 'pos' },
+  { scope: 'NVN-HAN', key: 'rooms.checkInTime', value: '14:00', category: 'rooms' },
+  { scope: 'NVN-HAN', key: 'rooms.checkOutTime', value: '12:00', category: 'rooms' },
+  { scope: 'NVN-HAN', key: 'rooms.smokingFloors', value: [2], category: 'rooms' },
+  { scope: 'NVN-HAN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
+  { scope: 'NVN-DAN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
+  { scope: 'NVN-DAN', key: 'pos.turnTimeMinutes', value: 90, category: 'pos' },
 ];
 
 const INTEGRATIONS: Array<[string, string, string]> = [
@@ -326,7 +326,7 @@ td.amount{text-align:right;font-variant-numeric:tabular-nums}
 h1{font-size:26px;margin:8px 0}
 .muted{color:#6e655b;font-size:12px}
 </style></head><body>
-<div class="brand">GRAND SUITE</div>
+<div class="brand">NINHVANA</div>
 <div class="muted">{{property.name}} · {{property.address}} · {{property.phone}}</div>
 <h1>Folio {{folio.number}}</h1>
 <div class="muted">Khách: {{guest.name}} · Phòng: {{room.number}} · Ngày: {{folio.date}}</div>
@@ -336,7 +336,7 @@ h1{font-size:26px;margin:8px 0}
 <tr><td>Phí dịch vụ</td><td class="amount">{{totals.serviceCharge}}</td></tr>
 <tr><td>VAT</td><td class="amount">{{totals.vat}}</td></tr>
 <tr><td><strong>Tổng cộng</strong></td><td class="amount"><strong>{{totals.total}}</strong></td></tr></table>
-<p class="muted">Cảm ơn Quý khách đã lựa chọn Grand Suite. Hoá đơn điện tử có thể tải tại cổng tra cứu.</p>
+<p class="muted">Cảm ơn Quý khách đã lựa chọn NinhVaNa. Hoá đơn điện tử có thể tải tại cổng tra cứu.</p>
 </body></html>`;
 
 const INVOICE_TEMPLATE = `<!doctype html>
@@ -347,7 +347,7 @@ table{width:100%;border-collapse:collapse;margin-top:16px}
 th,td{padding:8px 4px;border-bottom:1px solid #e5dfd4;font-size:12px;text-align:left}
 td.amount{text-align:right;font-variant-numeric:tabular-nums}
 </style></head><body>
-<div class="brand">GRAND SUITE</div>
+<div class="brand">NINHVANA</div>
 <h2>HOÁ ĐƠN GIÁ TRỊ GIA TĂNG</h2>
 <div>Số: {{invoice.number}} · Ngày: {{invoice.issuedAt}}</div>
 <div>Người mua: {{buyer.name}} · MST: {{buyer.taxCode}}</div>
@@ -361,7 +361,7 @@ td.amount{text-align:right;font-variant-numeric:tabular-nums}
 
 async function main(): Promise<void> {
   const startedAt = Date.now();
-  const existing = await prisma.organization.findFirst({ where: { name: 'Grand Suite Group' } });
+  const existing = await prisma.organization.findFirst({ where: { name: 'NinhVaNa Group' } });
   if (existing && process.env.SEED_FORCE !== '1') {
     console.log('• Dữ liệu đã tồn tại — bỏ qua seed (đặt SEED_FORCE=1 để tạo lại).');
     return;
@@ -375,12 +375,12 @@ async function main(): Promise<void> {
 
   const org = await prisma.organization.create({
     data: {
-      name: 'Grand Suite Group',
-      legalName: 'Tập đoàn Khách sạn & Nhà hàng Grand Suite',
+      name: 'NinhVaNa Group',
+      legalName: 'Tập đoàn Khách sạn & Nhà hàng NinhVaNa',
       taxCode: '0100000001',
       address: '1 Đường Tràng Tiền, Hoàn Kiếm, Hà Nội',
       phone: '+84 24 3936 8888',
-      email: 'hello@grandsuite.vn',
+      email: 'hello@ninhvana.vn',
       baseCurrency: 'VND',
       timezone: 'Asia/Ho_Chi_Minh',
     },
@@ -650,7 +650,7 @@ async function main(): Promise<void> {
   }
 
   // Hotel rooms, floors, rate plans
-  const hotelId = propertyIds.get('GSL-HAN')!;
+  const hotelId = propertyIds.get('NVN-HAN')!;
   const floorCapacity = [32, 32, 31, 31, 31, 31, 31, 31];
   const floors: Array<{ id: string; number: number; capacity: number }> = [];
   for (const [index, capacity] of floorCapacity.entries()) {
@@ -843,9 +843,9 @@ async function main(): Promise<void> {
   await prisma.notification.create({
     data: {
       orgId: org.id,
-      userId: userIds.get('admin@grandsuite.vn')!,
+      userId: userIds.get('admin@ninhvana.vn')!,
       type: 'system.welcome',
-      title: 'Grand Suite đã sẵn sàng',
+      title: 'NinhVaNa đã sẵn sàng',
       body: 'Nền tảng đã được khởi tạo với 2 cơ sở, 250 phòng và 15 tài khoản demo.',
       severity: 'SUCCESS',
       link: '/dashboard',
@@ -864,7 +864,7 @@ async function main(): Promise<void> {
   const canonical = {
     orgId: org.id,
     propertyId: null,
-    actorId: userIds.get('admin@grandsuite.vn')!,
+    actorId: userIds.get('admin@ninhvana.vn')!,
     action: 'system.seed',
     entityType: 'System',
     entityId: null,
@@ -881,7 +881,7 @@ async function main(): Promise<void> {
   await prisma.auditLog.create({
     data: {
       orgId: org.id,
-      actorId: userIds.get('admin@grandsuite.vn'),
+      actorId: userIds.get('admin@ninhvana.vn'),
       actorName: 'Quản trị hệ thống',
       actorRole: 'SUPER_ADMIN',
       action: 'system.seed',
@@ -896,7 +896,7 @@ async function main(): Promise<void> {
 
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
   console.log('');
-  console.log('  Grand Suite — seed hoàn tất');
+  console.log('  NinhVaNa — seed hoàn tất');
   console.log(`  Tổ chức      : ${org.name}`);
   console.log(`  Cơ sở        : ${PROPERTIES.map((p) => p.code).join(', ')}`);
   console.log(`  Phòng        : ${roomRows.length} (${ROOM_TYPES.length} hạng)`);

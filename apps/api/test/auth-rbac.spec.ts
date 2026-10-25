@@ -1,27 +1,27 @@
 import type { INestApplication } from '@nestjs/common';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import request from 'supertest';
-import type { LoginResponse, SessionUser } from '@grand-suite/shared';
+import { ALL_PERMISSIONS, type LoginResponse, type SessionUser } from '@grand-suite/shared';
 import { createTestApp, readSetCookie } from './test-app';
 
-const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'GrandSuite@2026';
+const PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'NinhVaNa@2026';
 
 const DEMO_ACCOUNTS = [
-  { email: 'admin@grandsuite.vn', orgWide: true, properties: 2 },
-  { email: 'chairman@grandsuite.vn', orgWide: true, properties: 2 },
-  { email: 'ceo@grandsuite.vn', orgWide: true, properties: 2 },
-  { email: 'cfo@grandsuite.vn', orgWide: true, properties: 2 },
-  { email: 'revenue@grandsuite.vn', orgWide: true, properties: 2 },
-  { email: 'hr@grandsuite.vn', orgWide: true, properties: 2 },
-  { email: 'marketing@grandsuite.vn', orgWide: true, properties: 2 },
-  { email: 'manager.han@grandsuite.vn', orgWide: false, properties: 1 },
-  { email: 'manager.dan@grandsuite.vn', orgWide: false, properties: 1 },
-  { email: 'frontdesk@grandsuite.vn', orgWide: false, properties: 1 },
-  { email: 'housekeeping@grandsuite.vn', orgWide: false, properties: 1 },
-  { email: 'chef@grandsuite.vn', orgWide: false, properties: 1 },
-  { email: 'fnb@grandsuite.vn', orgWide: false, properties: 1 },
-  { email: 'cashier@grandsuite.vn', orgWide: false, properties: 1 },
-  { email: 'warehouse@grandsuite.vn', orgWide: false, properties: 1 },
+  { email: 'admin@ninhvana.vn', orgWide: true, properties: 2 },
+  { email: 'chairman@ninhvana.vn', orgWide: true, properties: 2 },
+  { email: 'ceo@ninhvana.vn', orgWide: true, properties: 2 },
+  { email: 'cfo@ninhvana.vn', orgWide: true, properties: 2 },
+  { email: 'revenue@ninhvana.vn', orgWide: true, properties: 2 },
+  { email: 'hr@ninhvana.vn', orgWide: true, properties: 2 },
+  { email: 'marketing@ninhvana.vn', orgWide: true, properties: 2 },
+  { email: 'manager.hanoi@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'manager.danang@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'frontdesk@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'housekeeping@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'chef@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'fnb@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'cashier@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'warehouse@ninhvana.vn', orgWide: false, properties: 1 },
 ];
 
 describe('Auth, RBAC, CSRF & audit (integration)', () => {
@@ -61,16 +61,26 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
     const response = await request(http)
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.21.0.1')
-      .send({ email: 'ceo@grandsuite.vn', password: 'definitely-wrong-123' })
+      .send({ email: 'ceo@ninhvana.vn', password: 'definitely-wrong-123' })
       .expect(401);
     expect(response.body.code).toBe('INVALID_CREDENTIALS');
 
     const unknown = await request(http)
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.21.0.2')
-      .send({ email: 'nobody@grandsuite.vn', password: 'definitely-wrong-123' })
+      .send({ email: 'nobody@ninhvana.vn', password: 'definitely-wrong-123' })
       .expect(401);
     expect(unknown.body.code).toBe('INVALID_CREDENTIALS');
+  });
+
+  it('grants the dedicated admin every permission', async () => {
+    const response = await request(http)
+      .post('/api/v1/auth/login')
+      .set('X-Forwarded-For', '10.21.0.99')
+      .send({ email: 'admin@ninhvana.vn', password: PASSWORD })
+      .expect(200);
+    expect(response.body.user.email).toBe('admin@ninhvana.vn');
+    expect(new Set(response.body.user.permissions)).toEqual(new Set(ALL_PERMISSIONS));
   });
 
   it('enforces CSRF on cookie-authenticated mutations', async () => {
@@ -78,7 +88,7 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
     const login = await agent
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.22.0.1')
-      .send({ email: 'ceo@grandsuite.vn', password: PASSWORD })
+      .send({ email: 'ceo@ninhvana.vn', password: PASSWORD })
       .expect(200);
 
     await agent.post('/api/v1/notifications/read-all').expect(403);
@@ -95,17 +105,17 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
     const ceo = await request(http)
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.23.0.1')
-      .send({ email: 'ceo@grandsuite.vn', password: PASSWORD })
+      .send({ email: 'ceo@ninhvana.vn', password: PASSWORD })
       .expect(200);
     const ceoUser = ceo.body.user as SessionUser;
-    const otherProperty = ceoUser.properties.find((property) => property.code === 'GSL-DAN');
+    const otherProperty = ceoUser.properties.find((property) => property.code === 'NVN-DAN');
     expect(otherProperty).toBeTruthy();
 
     const agent = request.agent(http);
     await agent
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.23.0.2')
-      .send({ email: 'frontdesk@grandsuite.vn', password: PASSWORD })
+      .send({ email: 'frontdesk@ninhvana.vn', password: PASSWORD })
       .expect(200);
 
     await agent
@@ -126,7 +136,7 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
     await agent
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.24.0.1')
-      .send({ email: 'admin@grandsuite.vn', password: PASSWORD })
+      .send({ email: 'admin@ninhvana.vn', password: PASSWORD })
       .expect(200);
 
     const verify = await agent.get('/api/v1/audit/verify').expect(200);

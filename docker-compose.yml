@@ -57,7 +57,7 @@ services:
       COOKIE_SECRET: ${COOKIE_SECRET:-dev-only-cookie-secret-please-replace-0000000}
       CSRF_SECRET: ${CSRF_SECRET:-dev-only-csrf-secret-please-replace-00000000}
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
-      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-GrandSuite@2026}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-NinhVaNa@2026}
       SEED_ON_START: 'true'
       SMTP_HOST: mailhog
       SMTP_PORT: 1025

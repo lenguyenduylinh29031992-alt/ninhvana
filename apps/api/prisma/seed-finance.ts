@@ -5,24 +5,24 @@ const prisma = new PrismaClient();
 const money = (value: number) => new Prisma.Decimal(value.toFixed(2));
 
 const EMPLOYEES: Array<[string, string, string, string, string, number, number, number]> = [
-  ['EMP-001', 'Nguyễn Văn Minh', 'Tổng quản lý', 'ADMIN', 'GENERAL_MANAGER', 55_000_000, 8_000_000, 2],
-  ['EMP-002', 'Trần Thị Hồng', 'Kế toán trưởng', 'ADMIN', 'FINANCE_MANAGER', 35_000_000, 4_000_000, 1],
-  ['EMP-003', 'Lê Quốc Bảo', 'Trưởng lễ tân', 'ROOMS', 'FRONT_OFFICE_MANAGER', 22_000_000, 2_000_000, 1],
-  ['EMP-004', 'Phạm Thu Trang', 'Lễ tân', 'ROOMS', 'RECEPTIONIST', 12_000_000, 1_000_000, 0],
-  ['EMP-005', 'Hoàng Minh Tuấn', 'Lễ tân', 'ROOMS', 'RECEPTIONIST', 12_000_000, 1_000_000, 0],
-  ['EMP-006', 'Vũ Thị Mai', 'Buồng phòng', 'ROOMS', 'HOUSEKEEPER', 9_000_000, 500_000, 1],
-  ['EMP-007', 'Đỗ Văn Hùng', 'Giám đốc F&B', 'FNB', 'FNB_DIRECTOR', 32_000_000, 3_000_000, 2],
-  ['EMP-008', 'Ngô Thị Lan', 'Bếp trưởng', 'FNB', 'EXECUTIVE_CHEF', 28_000_000, 2_000_000, 1],
-  ['EMP-009', 'Bùi Văn Nam', 'Đầu bếp', 'FNB', 'CHEF_DE_PARTIE', 16_000_000, 1_000_000, 0],
-  ['EMP-010', 'Dương Thị Hạnh', 'Phục vụ', 'FNB', 'WAITER', 9_500_000, 500_000, 0],
-  ['EMP-011', 'Trịnh Văn Sơn', 'Phục vụ', 'FNB', 'WAITER', 9_500_000, 500_000, 0],
-  ['EMP-012', 'Lý Thị Ngọc', 'Barista', 'FNB', 'BARTENDER', 11_000_000, 800_000, 0],
-  ['EMP-013', 'Phan Văn Dũng', 'Kỹ thuật', 'ENGINEERING', 'TECHNICIAN', 14_000_000, 1_000_000, 1],
-  ['EMP-014', 'Đinh Thị Thu', 'Spa therapist', 'SPA', 'THERAPIST', 13_000_000, 1_500_000, 0],
-  ['EMP-015', 'Tạ Văn Long', 'Bảo vệ', 'ADMIN', 'SECURITY', 9_000_000, 500_000, 0],
-  ['EMP-016', 'Nguyễn Thị Hoa', 'Sales manager', 'ADMIN', 'SALES_MANAGER', 26_000_000, 3_000_000, 1],
-  ['EMP-017', 'Trần Văn Kiên', 'Marketing', 'ADMIN', 'MARKETING_EXECUTIVE', 16_000_000, 1_000_000, 0],
-  ['EMP-018', 'Lê Thị Bích', 'Buồng phòng', 'ROOMS', 'HOUSEKEEPER', 8_500_000, 500_000, 1],
+  ['EMP-001', 'Nguyễn Văn A', 'Tổng quản lý', 'ADMIN', 'GENERAL_MANAGER', 55_000_000, 8_000_000, 2],
+  ['EMP-002', 'Nguyễn Văn B', 'Kế toán trưởng', 'ADMIN', 'FINANCE_MANAGER', 35_000_000, 4_000_000, 1],
+  ['EMP-003', 'Nguyễn Văn C', 'Trưởng lễ tân', 'ROOMS', 'FRONT_OFFICE_MANAGER', 22_000_000, 2_000_000, 1],
+  ['EMP-004', 'Nguyễn Văn D', 'Lễ tân', 'ROOMS', 'RECEPTIONIST', 12_000_000, 1_000_000, 0],
+  ['EMP-005', 'Nguyễn Văn E', 'Lễ tân', 'ROOMS', 'RECEPTIONIST', 12_000_000, 1_000_000, 0],
+  ['EMP-006', 'Nguyễn Văn F', 'Buồng phòng', 'ROOMS', 'HOUSEKEEPER', 9_000_000, 500_000, 1],
+  ['EMP-007', 'Nguyễn Văn G', 'Giám đốc F&B', 'FNB', 'FNB_DIRECTOR', 32_000_000, 3_000_000, 2],
+  ['EMP-008', 'Nguyễn Văn H', 'Bếp trưởng', 'FNB', 'EXECUTIVE_CHEF', 28_000_000, 2_000_000, 1],
+  ['EMP-009', 'Nguyễn Văn I', 'Đầu bếp', 'FNB', 'CHEF_DE_PARTIE', 16_000_000, 1_000_000, 0],
+  ['EMP-010', 'Nguyễn Văn J', 'Phục vụ', 'FNB', 'WAITER', 9_500_000, 500_000, 0],
+  ['EMP-011', 'Nguyễn Văn K', 'Phục vụ', 'FNB', 'WAITER', 9_500_000, 500_000, 0],
+  ['EMP-012', 'Nguyễn Văn L', 'Barista', 'FNB', 'BARTENDER', 11_000_000, 800_000, 0],
+  ['EMP-013', 'Nguyễn Văn M', 'Kỹ thuật', 'ENGINEERING', 'TECHNICIAN', 14_000_000, 1_000_000, 1],
+  ['EMP-014', 'Nguyễn Văn N', 'Spa therapist', 'SPA', 'THERAPIST', 13_000_000, 1_500_000, 0],
+  ['EMP-015', 'Nguyễn Văn O', 'Bảo vệ', 'ADMIN', 'SECURITY', 9_000_000, 500_000, 0],
+  ['EMP-016', 'Nguyễn Văn P', 'Sales manager', 'ADMIN', 'SALES_MANAGER', 26_000_000, 3_000_000, 1],
+  ['EMP-017', 'Nguyễn Văn Q', 'Marketing', 'ADMIN', 'MARKETING_EXECUTIVE', 16_000_000, 1_000_000, 0],
+  ['EMP-018', 'Nguyễn Văn R', 'Buồng phòng', 'ROOMS', 'HOUSEKEEPER', 8_500_000, 500_000, 1],
 ];
 
 const SUPPLIERS: Array<[string, string, string, string, string]> = [
@@ -254,12 +254,12 @@ async function main() {
   }
   if ((await prisma.campaign.count({ where: { orgId } })) === 0) {
     for (const [name, segment, subject] of [
-      ['Ưu đãi cuối tuần cho khách VIP', 'VIP', 'Đặc quyền cuối tuần tại Grand Suite'],
+      ['Ưu đãi cuối tuần cho khách VIP', 'VIP', 'Đặc quyền cuối tuần tại NinhVaNa'],
       ['Mời khách quay lại', 'LAPSED', 'Chúng tôi nhớ quý khách'],
       ['Ưu đãi spa tháng 11', 'REPEAT', 'Thư giãn cùng Grand Spa'],
       ['Bản tin sự kiện', 'ALL', 'Sự kiện ẩm thực tháng này'],
     ] as const) {
-      await prisma.campaign.create({ data: { orgId, name, segment, subject, channel: 'EMAIL', body: 'Kính gửi quý khách, Grand Suite trân trọng gửi tới quý khách ưu đãi đặc biệt.', status: 'DRAFT' } });
+      await prisma.campaign.create({ data: { orgId, name, segment, subject, channel: 'EMAIL', body: 'Kính gửi quý khách, NinhVaNa trân trọng gửi tới quý khách ưu đãi đặc biệt.', status: 'DRAFT' } });
     }
   }
 
