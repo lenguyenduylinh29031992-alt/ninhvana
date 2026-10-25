@@ -12,6 +12,7 @@ import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { PrismaClient, type Prisma } from '@prisma/client';
+import { seedOperations } from './seed-operations';
 import { Algorithm, hash } from '@node-rs/argon2';
 import {
   ALL_PERMISSIONS,
@@ -590,6 +591,9 @@ async function main(): Promise<void> {
     ['BEO', 'BEO', 4],
     ['JOURNAL', 'JE', 5],
     ['CASH_SESSION', 'CS', 4],
+    ['GUEST', 'G', 5],
+    ['POS_ORDER', 'POS', 6],
+    ['BILL', 'BILL', 5],
   ];
   for (const [propertyCode, propertyId] of propertyIds) {
     for (const [docType, prefix, padding] of docTypes) {
@@ -804,6 +808,10 @@ async function main(): Promise<void> {
       data: { userId: user.id, roleId, propertyId: propertyId ?? null, isPrimary: true },
     });
   }
+
+  // Channels, companies, guest directory, menus and POS tables
+  const operations = await seedOperations(prisma, org.id, propertyIds);
+  console.log(`  Vận hành    : ${operations.channels} kênh · ${operations.guests} khách · ${operations.menuItems} món · ${operations.tables} bàn`);
 
   // Document templates
   await prisma.documentTemplate.deleteMany({ where: { orgId: org.id } });

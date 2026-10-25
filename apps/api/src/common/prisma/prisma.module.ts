@@ -10,7 +10,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
+    // Date columns are compared as timestamps by PostgreSQL. Pin the session
+    // timezone to UTC so a @db.Date maps to 00:00Z and day filters never shift
+    // by the host timezone (Asia/Ho_Chi_Minh is UTC+7).
+    const url = process.env.DATABASE_URL ?? '';
+    const separator = url.includes('?') ? '&' : '?';
+    const datasourceUrl = /[?&]options=/.test(url)
+      ? url
+      : `${url}${separator}options=-c%20timezone%3DUTC`;
     super({
+      datasources: { db: { url: datasourceUrl } },
       log: [
         { emit: 'event', level: 'warn' },
         { emit: 'event', level: 'error' },

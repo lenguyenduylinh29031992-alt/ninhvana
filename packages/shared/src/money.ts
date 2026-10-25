@@ -44,6 +44,16 @@ export function decimal(value: Numeric): Decimal {
     if (!Number.isFinite(value)) return new Decimal(0);
     return new Decimal(value);
   }
+  if (typeof value === 'object') {
+    // Prisma returns its own Decimal class; normalise through its string form so
+    // duplicate decimal.js instances cannot silently produce a zero.
+    const text = String(value as unknown);
+    try {
+      return new Decimal(text);
+    } catch {
+      return new Decimal(0);
+    }
+  }
   try {
     return new Decimal(value);
   } catch {

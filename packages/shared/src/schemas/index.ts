@@ -3,3 +3,6 @@ export * from './auth';
 export * from './iam';
 export * from './property';
 export * from './settings';
+export * from './reservation';
+export * from './pos';
+export * from './operations';

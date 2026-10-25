@@ -154,19 +154,37 @@ export interface DashboardOverview {
     roomsAvailable: number;
     roomsSold: number;
     occupancy: number;
+    occupancyChangePct: number | null;
     revenueToday: number;
     revenueMonth: number;
+    revenuePrevMonth: number;
+    revenueChangePct: number | null;
     adr: number;
+    adrChangePct: number | null;
     revpar: number;
+    trevpar: number;
+    alos: number;
     inHouseGuests: number;
     arrivalsToday: number;
     departuresToday: number;
     staffOnDuty: number;
   };
-  properties: Array<PropertySummary & { rooms: number; activeUsers: number }>;
-  /** False until the first revenue-bearing transaction exists (Phase 1). */
+  properties: Array<
+    PropertySummary & {
+      rooms: number;
+      activeUsers: number;
+      revenueMonth: number;
+      revenueToday: number;
+      occupancy: number;
+      inHouse: number;
+    }
+  >;
+  byDepartment: Array<{ department: string; amount: number }>;
+  byChannel: Array<{ channelCode: string; channelName: string; amount: number }>;
+  trend: Array<{ date: string; revenue: number }>;
+  /** False until the first revenue-bearing transaction exists. */
   hasRevenueData: boolean;
-  /** False until HR seed/import provides attendance data. */
+  /** False until HR attendance data exists. */
   hasStaffData: boolean;
   activity: RecentActivityItem[];
   health: HealthStatus;

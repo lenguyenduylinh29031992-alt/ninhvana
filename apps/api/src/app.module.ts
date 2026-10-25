@@ -9,6 +9,8 @@ import { AuditModule } from './common/audit/audit.module';
 import { CryptoModule } from './common/crypto/crypto.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { RedisModule } from './common/redis/redis.module';
+import { LockModule } from './common/locks/lock.module';
+import { SequenceModule } from './common/sequence/sequence.module';
 import { CsrfGuard } from './common/auth/csrf.guard';
 import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
 import { PermissionsGuard } from './common/auth/permissions.guard';
@@ -21,6 +23,16 @@ import { PropertiesModule } from './modules/properties/properties.module';
 import { PublicModule } from './modules/public/public.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { AccountingModule } from './modules/accounting/accounting.module';
+import { ReservationsModule } from './modules/reservations/reservations.module';
+import { FoliosModule } from './modules/folios/folios.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
+import { NightAuditModule } from './modules/night-audit/night-audit.module';
+import { PosModule } from './modules/pos/pos.module';
+import { HousekeepingModule } from './modules/housekeeping/housekeeping.module';
+import { GuestsModule } from './modules/guests/guests.module';
+import { RoomsModule } from './modules/rooms/rooms.module';
 
 @Module({
   imports: [
@@ -89,6 +101,8 @@ import { SettingsModule } from './modules/settings/settings.module';
     RedisModule,
     CryptoModule,
     AuditModule,
+    LockModule,
+    SequenceModule,
 
     AuthModule,
     IamModule,
@@ -99,6 +113,17 @@ import { SettingsModule } from './modules/settings/settings.module';
     DashboardModule,
     NotificationsModule,
     RealtimeModule,
+
+    AccountingModule,
+    ReservationsModule,
+    FoliosModule,
+    PaymentsModule,
+    InvoicesModule,
+    NightAuditModule,
+    PosModule,
+    HousekeepingModule,
+    GuestsModule,
+    RoomsModule,
   ],
   providers: [
     // Order matters: rate limit → authentication → CSRF → authorisation.
