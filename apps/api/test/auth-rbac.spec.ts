@@ -115,15 +115,15 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
       .expect(201);
   });
 
-  it('blocks a property user from acting on another property', async () => {
+  it('exposes exactly one NinhVaNa property and blocks user administration', async () => {
     const ceo = await request(http)
       .post('/api/v1/auth/login')
       .set('X-Forwarded-For', '10.23.0.1')
       .send({ email: 'ceo@ninhvana.vn', password: PASSWORD })
       .expect(200);
     const ceoUser = ceo.body.user as SessionUser;
-    const otherProperty = ceoUser.properties.find((property) => property.code === 'NVN-NVT');
-    expect(otherProperty).toBeTruthy();
+    expect(ceoUser.properties).toHaveLength(1);
+    expect(ceoUser.properties[0]?.code).toBe('NVN');
 
     const agent = request.agent(http);
     await agent
@@ -131,11 +131,6 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
       .set('X-Forwarded-For', '10.23.0.2')
       .send({ email: 'frontdesk@ninhvana.vn', password: PASSWORD })
       .expect(200);
-
-    await agent
-      .get('/api/v1/dashboard/overview')
-      .set('x-property-id', otherProperty!.id)
-      .expect(403);
 
     await agent.get('/api/v1/users').expect(403);
   });

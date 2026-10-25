@@ -311,7 +311,7 @@ export async function seedOperations(
 
 
   // Channel room mappings for OTA connectors.
-  const hotel = await prisma.property.findFirst({ where: { code: 'NVN-HAN' } });
+  const hotel = await prisma.property.findFirst({ where: { code: 'NVN' } });
   if (hotel) {
     const roomTypes = await prisma.roomType.findMany({ where: { propertyId: hotel.id, isActive: true } });
     const otaChannels = await prisma.channel.findMany({

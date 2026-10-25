@@ -168,6 +168,8 @@ model PropertyArea {
   description String?
   roomCount   Int      @default(0)
   features    Json?
+  departmentGroups DepartmentGroup[] @default([])
+  departmentCodes  String[]          @default([])
   sortOrder   Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -672,6 +674,7 @@ model Department {
   nameEn          String?
   group           DepartmentGroup
   isRevenueCenter Boolean         @default(false)
+  division        String          @default("SHARED")
   sortOrder       Int             @default(0)
   isActive        Boolean         @default(true)
   createdAt       DateTime        @default(now())

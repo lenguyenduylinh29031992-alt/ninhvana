@@ -34,6 +34,13 @@ export class HrService {
     private readonly audit: AuditService,
   ) {}
 
+  async departments(actor: AuthUser, propertyId?: string) {
+    return this.prisma.department.findMany({
+      where: { property: { orgId: actor.orgId }, ...(propertyId ? { propertyId } : {}) },
+      orderBy: [{ division: 'asc' }, { sortOrder: 'asc' }, { name: 'asc' }],
+    });
+  }
+
   async attendanceRange(actor: AuthUser, propertyId: string, from: string, to: string) {
     assertPropertyAccess(actor, propertyId);
     if (!propertyId || !from || !to) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Thiếu cơ sở hoặc khoảng ngày', 422);

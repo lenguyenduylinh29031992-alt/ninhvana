@@ -238,3 +238,12 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - iOS Simulator runtime 26.5 đã cài; app build/cài/chạy trên iPhone 17 Pro Simulator, ảnh `docs/evidence/ios-simulator-launcher.png`.
 - Build thiết bị thật unsigned thành công (`dist/NinhVaNa-ios-unsigned.ipa`); chưa ký vì máy không có Apple ID/team (0 signing identity).
 - Apple signing identity chưa có vì Xcode chưa đăng nhập Apple ID/team; hướng dẫn tại `docs/IOS-SETUP.md`.
+
+
+## Một cơ sở & cơ cấu bộ phận (2026-10-25)
+
+- Hợp nhất về **Khách sạn NinhVaNa** (`NVN`) tại Ninh Vân, Ninh Hòa, Khánh Hòa; xoá cơ sở thứ hai và chuyển phân quyền người dùng về cơ sở duy nhất.
+- 22 bộ phận thuộc 3 phân khu: khách sạn (9), nhà hàng (4), dùng chung (9); thêm trường `division`.
+- Gắn khu vực A1/A2/A3/B/C/D với nhóm bộ phận và mã bộ phận; thêm trang `/revenue` doanh thu theo khu vực/nhóm bộ phận.
+- API `GET /hr/departments`; trang `/hr` hiển thị cơ cấu bộ phận sẵn sàng phân quyền sau.
+- Reset lại dữ liệu vận hành lần cuối và nạp lại 3 nhân sự Marketing TikTok + 69 bản ghi công; doanh thu 0.

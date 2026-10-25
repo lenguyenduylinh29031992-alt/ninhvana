@@ -12,6 +12,11 @@ import { HrService } from './hr.service';
 export class HrController {
   constructor(private readonly hr: HrService) {}
 
+  @Get('departments') @Permissions(PERMISSIONS.PAYROLL_VIEW)
+  departments(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) {
+    return this.hr.departments(actor, propertyId);
+  }
+
   @Get('attendance') @Permissions(PERMISSIONS.PAYROLL_VIEW)
   attendanceRange(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId: string, @Query('from') from: string, @Query('to') to: string) {
     return this.hr.attendanceRange(actor, propertyId, from, to);

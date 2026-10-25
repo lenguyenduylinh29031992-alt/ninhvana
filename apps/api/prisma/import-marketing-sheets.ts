@@ -46,7 +46,7 @@ const STATUS: Record<string, { status: string; hours: number }> = {
 };
 
 async function main() {
-  const hotel = await prisma.property.findFirstOrThrow({ where: { code: 'NVN-HAN' } });
+  const hotel = await prisma.property.findFirstOrThrow({ where: { code: 'NVN' } });
   const employeeIds = new Map<string, string>();
   for (const member of TEAM) {
     const employee = await prisma.employee.upsert({

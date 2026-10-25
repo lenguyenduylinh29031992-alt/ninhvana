@@ -65,11 +65,11 @@ stats=$(curl -fsS -b "$JAR" "$API/dashboard/stats" 2>/dev/null || echo '{}')
 echo "$stats" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
-ok = d.get('properties',0) >= 2 and d.get('rooms',0) >= 250 and d.get('users',0) >= 15 and d.get('roles',0) >= 14
+ok = d.get('properties',0) == 1 and d.get('users',0) >= 15 and d.get('roles',0) >= 14
 print(f\"  · {d.get('properties')} cơ sở · {d.get('rooms')} phòng · {d.get('users')} tài khoản · {d.get('roles')} vai trò · {d.get('ratePlans')} gói giá\")
 sys.exit(0 if ok else 1)
 " 2>/dev/null
-check "Dữ liệu nền (2 cơ sở, 250 phòng, 15 tài khoản)" $?
+check "Dữ liệu nền (1 cơ sở NinhVaNa, 15 tài khoản)" $?
 
 chain=$(curl -fsS -b "$JAR" "$API/audit/verify" 2>/dev/null || echo '{}')
 echo "$chain" | python3 -c "
@@ -180,7 +180,7 @@ sys.exit(0 if ok else 1)
 " 2>/dev/null
 check "Social Inbox đa kênh" $?
 
-booking=$(curl -fsS "$API/public/booking/availability?propertyCode=NVN-HAN&checkIn=2026-12-28&checkOut=2026-12-30&adults=2" 2>/dev/null || echo '{}')
+booking=$(curl -fsS "$API/public/booking/availability?propertyCode=NVN&checkIn=2026-12-28&checkOut=2026-12-30&adults=2" 2>/dev/null || echo '{}')
 echo "$booking" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)

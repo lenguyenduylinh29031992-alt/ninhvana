@@ -33,7 +33,7 @@ Các mục này **không phải module độc lập**; chức năng đã nằm t
 |---|---|---|
 | `/banquet` — Tiệc & sự kiện | GĐ2 | Trang “đang hoàn thiện”; chưa có hợp đồng tiệc/menu/đặt cọc |
 | `/budgets` — Ngân sách | GĐ4 | Trang “đang hoàn thiện”; chưa có model ngân sách và duyệt điều chỉnh |
-| `/hr` — Nhân sự & chấm công | GĐ4 | **Đã có cho Marketing TikTok**: 3 nhân sự, 69 bản ghi công, lương/tạm ứng. Hồ sơ toàn công ty và chấm công các bộ phận khác vẫn mở rộng sau |
+| `/hr` — Nhân sự & chấm công | GĐ4 | **Đã có**: 22 bộ phận khách sạn/nhà hàng/dùng chung; 3 nhân sự Marketing TikTok, 69 bản ghi công, lương/tạm ứng. Hồ sơ toàn bộ nhân sự và chấm công từng bộ phận sẽ mở rộng sau |
 | `/roster` — Lịch làm việc | GĐ4 | Trang “đang hoàn thiện”; chưa có phân ca/đổi ca |
 | `/assistant` — Trợ lý vận hành | GĐ5 | Trang “đang hoàn thiện”; chưa có backend hỏi đáp dữ liệu |
 

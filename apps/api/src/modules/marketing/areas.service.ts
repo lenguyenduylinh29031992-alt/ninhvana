@@ -14,7 +14,7 @@ export class AreasService {
       items: areas.map((area) => ({
         id: area.id, propertyId: area.propertyId, code: area.code, parentCode: area.parentCode,
         name: area.name, kind: area.kind, floorLabel: area.floorLabel, description: area.description,
-        roomCount: area.roomCount, features: area.features, sortOrder: area.sortOrder,
+        roomCount: area.roomCount, features: area.features, departmentGroups: area.departmentGroups, departmentCodes: area.departmentCodes, sortOrder: area.sortOrder,
       })),
     };
   }

@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 interface Employee { id: string; code: string; fullName: string; position: string; department: string; baseSalary: number; status: string }
 interface Attendance { id: string; employeeId: string; date: string; hours: number; status: string; employee: { id: string; code: string; fullName: string; department: string } }
+interface Department { code: string; name: string; nameEn: string | null; division: string; group: string; isRevenueCenter: boolean; sortOrder: number }
 interface PayrollLine { employeeId: string; employeeCode: string; employeeName: string; gross: number; advanceAmount: number; net: number }
 interface Run { id: string; period: string; status: string; gross: number; net: number; deductions: number; lines: PayrollLine[] }
 
@@ -42,6 +43,7 @@ export default function HrPage() {
   const employees = useQuery<Employee[]>({ queryKey: ['employees', propertyId], queryFn: () => api(`/hr/employees?propertyId=${propertyId}`), enabled });
   const attendance = useQuery<Attendance[]>({ queryKey: ['attendance', propertyId, MONTH_START, MONTH_END], queryFn: () => api(`/hr/attendance?propertyId=${propertyId}&from=${MONTH_START}&to=${MONTH_END}`), enabled });
   const runs = useQuery<Run[]>({ queryKey: ['payroll', propertyId], queryFn: () => api(`/hr/payroll?propertyId=${propertyId}`), enabled });
+  const departments = useQuery<Department[]>({ queryKey: ['departments', propertyId], queryFn: () => api(`/hr/departments?propertyId=${propertyId}`), enabled });
   if (!can('payroll:view')) return <PermissionNotice />;
 
   const marketing = (employees.data ?? []).filter((employee) => employee.department === 'TIKTOK');
@@ -91,6 +93,21 @@ export default function HrPage() {
               {team.length === 0 ? <TableRow><TableCell colSpan={6} className="py-10 text-center text-xs text-muted-foreground">Chưa có nhân sự Marketing TikTok. Chạy script đồng bộ Google Sheet để nạp dữ liệu.</TableCell></TableRow> : null}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-0">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
+            <div><p className="font-display text-lg text-ink">Cơ cấu bộ phận</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">Khách sạn · Nhà hàng · Bộ phận dùng chung — sẵn sàng phân quyền theo bộ phận</p></div>
+            <div className="flex gap-1"><Badge tone="success">{departments.data?.filter((d) => d.division === 'HOTEL').length ?? 0} khách sạn</Badge><Badge tone="brand">{departments.data?.filter((d) => d.division === 'RESTAURANT').length ?? 0} nhà hàng</Badge><Badge tone="outline">{departments.data?.filter((d) => d.division === 'SHARED').length ?? 0} dùng chung</Badge></div>
+          </div>
+          <div className="grid gap-px bg-line sm:grid-cols-2 xl:grid-cols-3">
+            {(departments.data ?? []).map((department) => <div key={department.code} className="flex items-start justify-between gap-3 bg-surface p-3">
+              <div><p className="text-xs font-medium text-ink">{department.name}</p><p className="mt-0.5 font-mono text-[9px] text-muted-foreground">{department.code} · {department.group}</p></div>
+              <div className="flex shrink-0 flex-col items-end gap-1"><Badge tone={department.division === 'RESTAURANT' ? 'brand' : department.division === 'HOTEL' ? 'success' : 'outline'}>{department.division === 'RESTAURANT' ? 'Nhà hàng' : department.division === 'HOTEL' ? 'Khách sạn' : 'Dùng chung'}</Badge>{department.isRevenueCenter ? <span className="text-[9px] text-brand">Trung tâm doanh thu</span> : null}</div>
+            </div>)}
+          </div>
         </CardContent>
       </Card>
 

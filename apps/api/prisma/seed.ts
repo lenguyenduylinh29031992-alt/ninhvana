@@ -1,8 +1,8 @@
 /**
  * NinhVaNa — foundation seed (Phase 1).
  *
- * Creates one group with two properties, the full RBAC catalogue, 15 demo users,
- * 250 rooms across 12 room types, 8 rate plans with 12 months of BAR rates,
+ * Creates one group with one NinhVaNa property, the full RBAC catalogue, 15 demo users,
+ * rooms across room types, 8 rate plans with 12 months of BAR rates,
  * USALI/TT200 chart of accounts, tax rates, currencies + 24 months of FX,
  * outlets, document templates and sandbox integration configs.
  *
@@ -11,7 +11,7 @@
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
-import { PrismaClient, type Prisma } from '@prisma/client';
+import { PrismaClient, type DepartmentGroup, type Prisma } from '@prisma/client';
 import { seedOperations } from './seed-operations';
 import { Algorithm, hash } from '@node-rs/argon2';
 import {
@@ -70,60 +70,48 @@ function weekdayFactor(iso: string): number {
 
 const PROPERTIES = [
   {
-    code: 'NVN-HAN',
+    code: 'NVN',
     name: 'Khách sạn NinhVaNa',
     legalName: 'Công ty CP Khách sạn NinhVaNa',
     type: 'HOTEL' as const,
-    starRating: 5,
-    address: '1 Đường Tràng Tiền, Hoàn Kiếm',
-    city: 'Hà Nội',
-    phone: '+84 24 3936 8888',
-    email: 'reservations.han@ninhvana.vn',
-    roomCount: 250,
-    taxCode: '0101234567',
-    checkInTime: '14:00',
-    checkOutTime: '12:00',
-    serviceChargePct: 5,
-  },
-  {
-    code: 'NVN-NVT',
-    name: 'NinhVaNa Beach Club Ninh Vân',
-    legalName: 'Công ty CP NinhVaNa Ninh Vân',
-    type: 'RESTAURANT' as const,
     starRating: 5,
     address: 'Ninh Vân, Ninh Hòa',
     city: 'Khánh Hòa',
     phone: '+84 258 382 9999',
     email: 'hello.ninhvan@ninhvana.vn',
-    roomCount: 0,
+    roomCount: 27,
     taxCode: '0401234567',
-    checkInTime: '11:00',
-    checkOutTime: '23:30',
+    checkInTime: '14:00',
+    checkOutTime: '12:00',
     serviceChargePct: 5,
   },
 ];
 
-const DEPARTMENTS = {
-  'NVN-HAN': [
-    { code: 'ROOMS', name: 'Bộ phận Phòng', nameEn: 'Rooms', group: 'ROOMS' as const, isRevenueCenter: true, sortOrder: 1 },
-    { code: 'FNB', name: 'Nhà hàng & Bar', nameEn: 'Food & Beverage', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 2 },
-    { code: 'SPA', name: 'Spa & Giải trí', nameEn: 'Spa & Recreation', group: 'OTHER_OPERATED' as const, isRevenueCenter: true, sortOrder: 3 },
-    { code: 'EVENTS', name: 'Tiệc & Hội nghị', nameEn: 'Banquet & Events', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 4 },
-    { code: 'ADMIN', name: 'Hành chính & Nhân sự', nameEn: 'Administration', group: 'ADMIN' as const, isRevenueCenter: false, sortOrder: 5 },
-    { code: 'SALES', name: 'Marketing & Sales', nameEn: 'Sales & Marketing', group: 'SALES' as const, isRevenueCenter: false, sortOrder: 6 },
-    { code: 'TIKTOK', name: 'Marketing TikTok', nameEn: 'TikTok Marketing', group: 'SALES' as const, isRevenueCenter: false, sortOrder: 7 },
-    { code: 'PROPERTY_OPS', name: 'Vận hành cơ sở', nameEn: 'Property Operations', group: 'PROPERTY_OPS' as const, isRevenueCenter: false, sortOrder: 7 },
-    { code: 'UTILITIES', name: 'Năng lượng', nameEn: 'Utilities', group: 'UTILITIES' as const, isRevenueCenter: false, sortOrder: 8 },
-    { code: 'MAINTENANCE', name: 'Bảo trì', nameEn: 'Maintenance', group: 'MAINTENANCE' as const, isRevenueCenter: false, sortOrder: 9 },
-  ],
-  'NVN-NVT': [
-    { code: 'RESTAURANT', name: 'Nhà hàng Le Jardin', nameEn: 'Le Jardin Restaurant', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 1 },
-    { code: 'BAR', name: 'Le Jardin Bar', nameEn: 'Le Jardin Bar', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 2 },
-    { code: 'ADMIN', name: 'Hành chính', nameEn: 'Administration', group: 'ADMIN' as const, isRevenueCenter: false, sortOrder: 3 },
-    { code: 'UTILITIES', name: 'Năng lượng', nameEn: 'Utilities', group: 'UTILITIES' as const, isRevenueCenter: false, sortOrder: 4 },
-    { code: 'MAINTENANCE', name: 'Bảo trì', nameEn: 'Maintenance', group: 'MAINTENANCE' as const, isRevenueCenter: false, sortOrder: 5 },
-  ],
-};
+type DepartmentSeed = { code: string; name: string; nameEn: string; group: 'ROOMS' | 'FNB' | 'OTHER_OPERATED' | 'ADMIN' | 'SALES' | 'PROPERTY_OPS' | 'UTILITIES' | 'MAINTENANCE'; division: 'HOTEL' | 'RESTAURANT' | 'SHARED'; isRevenueCenter: boolean; sortOrder: number };
+const DEPARTMENTS: DepartmentSeed[] = [
+  { code: 'ROOMS', name: 'Bộ phận Phòng', nameEn: 'Rooms', group: 'ROOMS', division: 'HOTEL', isRevenueCenter: true, sortOrder: 1 },
+  { code: 'FRONT_OFFICE', name: 'Lễ tân', nameEn: 'Front Office', group: 'ROOMS', division: 'HOTEL', isRevenueCenter: false, sortOrder: 2 },
+  { code: 'HOUSEKEEPING', name: 'Buồng phòng', nameEn: 'Housekeeping', group: 'ROOMS', division: 'HOTEL', isRevenueCenter: false, sortOrder: 3 },
+  { code: 'RESTAURANT', name: 'Nhà hàng', nameEn: 'Restaurant', group: 'FNB', division: 'RESTAURANT', isRevenueCenter: true, sortOrder: 4 },
+  { code: 'BAR', name: 'Quầy bar', nameEn: 'Bar', group: 'FNB', division: 'RESTAURANT', isRevenueCenter: true, sortOrder: 5 },
+  { code: 'KITCHEN', name: 'Bếp', nameEn: 'Kitchen', group: 'FNB', division: 'RESTAURANT', isRevenueCenter: false, sortOrder: 6 },
+  { code: 'ROOM_SERVICE', name: 'Dịch vụ phòng', nameEn: 'Room Service', group: 'FNB', division: 'HOTEL', isRevenueCenter: true, sortOrder: 7 },
+  { code: 'BAGALOG', name: 'Bagalog', nameEn: 'Bagalog', group: 'OTHER_OPERATED', division: 'HOTEL', isRevenueCenter: true, sortOrder: 8 },
+  { code: 'POOL', name: 'Hồ bơi', nameEn: 'Pool', group: 'OTHER_OPERATED', division: 'HOTEL', isRevenueCenter: true, sortOrder: 9 },
+  { code: 'SPA', name: 'Spa & Giải trí', nameEn: 'Spa & Recreation', group: 'OTHER_OPERATED', division: 'HOTEL', isRevenueCenter: true, sortOrder: 10 },
+  { code: 'EVENTS', name: 'Tiệc & Hội nghị', nameEn: 'Banquet & Events', group: 'FNB', division: 'RESTAURANT', isRevenueCenter: true, sortOrder: 11 },
+  { code: 'FNB', name: 'Ẩm thực & Đồ uống', nameEn: 'Food & Beverage', group: 'FNB', division: 'HOTEL', isRevenueCenter: true, sortOrder: 12 },
+  { code: 'SALES', name: 'Kinh doanh & Tiếp thị', nameEn: 'Sales & Marketing', group: 'SALES', division: 'SHARED', isRevenueCenter: false, sortOrder: 13 },
+  { code: 'TIKTOK', name: 'Marketing TikTok', nameEn: 'TikTok Marketing', group: 'SALES', division: 'SHARED', isRevenueCenter: false, sortOrder: 14 },
+  { code: 'FINANCE', name: 'Tài chính & Kế toán', nameEn: 'Finance & Accounting', group: 'ADMIN', division: 'SHARED', isRevenueCenter: false, sortOrder: 15 },
+  { code: 'HR', name: 'Nhân sự', nameEn: 'Human Resources', group: 'ADMIN', division: 'SHARED', isRevenueCenter: false, sortOrder: 16 },
+  { code: 'PURCHASING', name: 'Mua hàng & Kho', nameEn: 'Purchasing & Store', group: 'ADMIN', division: 'SHARED', isRevenueCenter: false, sortOrder: 17 },
+  { code: 'IT', name: 'Công nghệ thông tin', nameEn: 'Information Technology', group: 'ADMIN', division: 'SHARED', isRevenueCenter: false, sortOrder: 18 },
+  { code: 'ADMIN', name: 'Hành chính', nameEn: 'Administration', group: 'ADMIN', division: 'SHARED', isRevenueCenter: false, sortOrder: 19 },
+  { code: 'MAINTENANCE', name: 'Bảo trì', nameEn: 'Maintenance', group: 'MAINTENANCE', division: 'SHARED', isRevenueCenter: false, sortOrder: 20 },
+  { code: 'UTILITIES', name: 'Năng lượng', nameEn: 'Utilities', group: 'UTILITIES', division: 'SHARED', isRevenueCenter: false, sortOrder: 21 },
+  { code: 'PROPERTY_OPS', name: 'Vận hành cơ sở', nameEn: 'Property Operations', group: 'PROPERTY_OPS', division: 'HOTEL', isRevenueCenter: false, sortOrder: 22 },
+];
 
 type GlSeed = [string, string, string, 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE' | 'COGS', string, string];
 
@@ -231,17 +219,15 @@ const RATE_PLANS = [
 ];
 
 const OUTLETS = {
-  'NVN-HAN': [
+  'NVN': [
     { code: 'NH01', name: 'Le Grand Restaurant', type: 'RESTAURANT' as const, sc: 5, hours: { open: '06:00', close: '22:30' }, sort: 1 },
     { code: 'BAR01', name: 'The Champagne Bar', type: 'BAR' as const, sc: 5, hours: { open: '16:00', close: '01:00' }, sort: 2 },
     { code: 'RS01', name: 'Room Service', type: 'ROOM_SERVICE' as const, sc: 5, hours: { open: '00:00', close: '23:59' }, sort: 3 },
     { code: 'SPA01', name: 'Grand Spa', type: 'SPA' as const, sc: 5, hours: { open: '09:00', close: '21:00' }, sort: 4 },
     { code: 'POOL01', name: 'Pool Bar', type: 'POOL' as const, sc: 5, hours: { open: '08:00', close: '19:00' }, sort: 5 },
     { code: 'BAN01', name: 'Grand Ballroom', type: 'BANQUET' as const, sc: 10, hours: null, sort: 6 },
-  ],
-  'NVN-NVT': [
-    { code: 'LJ01', name: 'Le Jardin Fine Dining', type: 'RESTAURANT' as const, sc: 5, hours: { open: '11:00', close: '23:00' }, sort: 1 },
-    { code: 'LJBAR', name: 'Le Jardin Terrace Bar', type: 'BAR' as const, sc: 5, hours: { open: '16:00', close: '00:00' }, sort: 2 },
+    { code: 'LJ01', name: 'Le Jardin Fine Dining', type: 'RESTAURANT' as const, sc: 5, hours: { open: '11:00', close: '23:00' }, sort: 7 },
+    { code: 'LJBAR', name: 'Le Jardin Terrace Bar', type: 'BAR' as const, sc: 5, hours: { open: '16:00', close: '00:00' }, sort: 8 },
   ],
 };
 
@@ -251,15 +237,15 @@ const DEMO_USERS = [
   { email: 'ceo@ninhvana.vn', fullName: 'Nguyễn Văn C', role: 'CEO', property: null, phone: '+84 90 000 0003' },
   { email: 'cfo@ninhvana.vn', fullName: 'Nguyễn Văn D', role: 'CFO', property: null, phone: '+84 90 000 0004' },
   { email: 'revenue@ninhvana.vn', fullName: 'Nguyễn Văn E', role: 'REVENUE_DIRECTOR', property: null, phone: '+84 90 000 0005' },
-  { email: 'manager.hanoi@ninhvana.vn', fullName: 'Nguyễn Văn F', role: 'PROPERTY_MANAGER', property: 'NVN-HAN', phone: '+84 90 000 0006' },
-  { email: 'manager.ninhvan@ninhvana.vn', fullName: 'Nguyễn Văn G', role: 'PROPERTY_MANAGER', property: 'NVN-NVT', phone: '+84 90 000 0007' },
-  { email: 'frontdesk@ninhvana.vn', fullName: 'Nguyễn Văn H', role: 'FRONT_DESK', property: 'NVN-HAN', phone: '+84 90 000 0008' },
-  { email: 'housekeeping@ninhvana.vn', fullName: 'Nguyễn Văn I', role: 'HOUSEKEEPING', property: 'NVN-HAN', phone: '+84 90 000 0009' },
-  { email: 'chef@ninhvana.vn', fullName: 'Nguyễn Văn J', role: 'EXEC_CHEF', property: 'NVN-HAN', phone: '+84 90 000 0010' },
-  { email: 'fnb@ninhvana.vn', fullName: 'Nguyễn Văn K', role: 'FNB_MANAGER', property: 'NVN-HAN', phone: '+84 90 000 0011' },
-  { email: 'cashier@ninhvana.vn', fullName: 'Nguyễn Văn L', role: 'CASHIER', property: 'NVN-HAN', phone: '+84 90 000 0012' },
+  { email: 'manager.hanoi@ninhvana.vn', fullName: 'Nguyễn Văn F', role: 'PROPERTY_MANAGER', property: 'NVN', phone: '+84 90 000 0006' },
+  { email: 'manager.ninhvan@ninhvana.vn', fullName: 'Nguyễn Văn G', role: 'PROPERTY_MANAGER', property: 'NVN', phone: '+84 90 000 0007' },
+  { email: 'frontdesk@ninhvana.vn', fullName: 'Nguyễn Văn H', role: 'FRONT_DESK', property: 'NVN', phone: '+84 90 000 0008' },
+  { email: 'housekeeping@ninhvana.vn', fullName: 'Nguyễn Văn I', role: 'HOUSEKEEPING', property: 'NVN', phone: '+84 90 000 0009' },
+  { email: 'chef@ninhvana.vn', fullName: 'Nguyễn Văn J', role: 'EXEC_CHEF', property: 'NVN', phone: '+84 90 000 0010' },
+  { email: 'fnb@ninhvana.vn', fullName: 'Nguyễn Văn K', role: 'FNB_MANAGER', property: 'NVN', phone: '+84 90 000 0011' },
+  { email: 'cashier@ninhvana.vn', fullName: 'Nguyễn Văn L', role: 'CASHIER', property: 'NVN', phone: '+84 90 000 0012' },
   { email: 'hr@ninhvana.vn', fullName: 'Nguyễn Văn M', role: 'HR_MANAGER', property: null, phone: '+84 90 000 0013' },
-  { email: 'warehouse@ninhvana.vn', fullName: 'Nguyễn Văn N', role: 'WAREHOUSE', property: 'NVN-HAN', phone: '+84 90 000 0014' },
+  { email: 'warehouse@ninhvana.vn', fullName: 'Nguyễn Văn N', role: 'WAREHOUSE', property: 'NVN', phone: '+84 90 000 0014' },
   { email: 'marketing@ninhvana.vn', fullName: 'Nguyễn Văn O', role: 'MARKETING', property: null, phone: '+84 90 000 0015' },
 ];
 
@@ -278,12 +264,11 @@ const SETTINGS: Array<{ scope: string; key: string; value: Prisma.InputJsonValue
   { scope: 'ORG', key: 'notifications.dailyReportEnabled', value: true, category: 'notifications' },
   { scope: 'ORG', key: 'notifications.recipients', value: ['ceo@ninhvana.vn', 'cfo@ninhvana.vn'], category: 'notifications' },
   { scope: 'ORG', key: 'loyalty.pointsPerVnd', value: 0.0001, category: 'loyalty' },
-  { scope: 'NVN-HAN', key: 'rooms.checkInTime', value: '14:00', category: 'rooms' },
-  { scope: 'NVN-HAN', key: 'rooms.checkOutTime', value: '12:00', category: 'rooms' },
-  { scope: 'NVN-HAN', key: 'rooms.smokingFloors', value: [2], category: 'rooms' },
-  { scope: 'NVN-HAN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
-  { scope: 'NVN-NVT', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
-  { scope: 'NVN-NVT', key: 'pos.turnTimeMinutes', value: 90, category: 'pos' },
+  { scope: 'NVN', key: 'rooms.checkInTime', value: '14:00', category: 'rooms' },
+  { scope: 'NVN', key: 'rooms.checkOutTime', value: '12:00', category: 'rooms' },
+  { scope: 'NVN', key: 'rooms.smokingFloors', value: [2], category: 'rooms' },
+  { scope: 'NVN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
+  { scope: 'NVN', key: 'pos.turnTimeMinutes', value: 90, category: 'pos' },
 ];
 
 const INTEGRATIONS: Array<[string, string, string]> = [
@@ -551,16 +536,16 @@ async function main(): Promise<void> {
 
 
   // Property map: zones A–D and floors A1–A3.
-  const centralPropertyId = propertyIds.get('NVN-HAN');
+  const centralPropertyId = propertyIds.get('NVN');
   if (centralPropertyId) {
     const areas = [
-      { code: 'A', parentCode: null, name: 'Khu A — Nhà chính trung tâm', nameEn: 'Zone A — Central House', kind: 'BUILDING', floorLabel: null, roomCount: 27, sortOrder: 1, description: 'Nhà chính của NinhVaNa: đón khách, lưu trú và kết nối ra hồ bơi, view biển.', features: { gate: 'Cổng đón khách', lobby: 'Quầy lễ tân', pool: 'Hồ bơi', seaView: 'View biển' } },
-      { code: 'A1', parentCode: 'A', name: 'A1 — Tầng trệt', nameEn: 'A1 — Ground floor', kind: 'FLOOR', floorLabel: 'Tầng trệt', roomCount: 6, sortOrder: 2, description: 'Trước là cổng đón khách; quầy lễ tân đón khách; 6 phòng dormitory giường tầng; phía sau là hồ bơi và view biển.', features: { dormRooms: 6, reception: true, gate: true, pool: true, seaView: true } },
-      { code: 'A2', parentCode: 'A', name: 'A2 — Tầng 2', nameEn: 'A2 — Second floor', kind: 'FLOOR', floorLabel: 'Tầng 2', roomCount: 9, sortOrder: 3, description: '6 phòng dormitory giường tầng, 2 phòng view trước và 1 phòng Connecting room.', features: { dormRooms: 6, viewRooms: 2, connectingRooms: 1 } },
-      { code: 'A3', parentCode: 'A', name: 'A3 — Tầng 3', nameEn: 'A3 — Third floor', kind: 'FLOOR', floorLabel: 'Tầng 3', roomCount: 12, sortOrder: 4, description: '10 phòng đôi, 2 phòng gia đình có gác lửng và 1 sảnh chung.', features: { doubleRooms: 10, familyMezzanineRooms: 2, commonHall: 1 } },
-      { code: 'B', parentCode: null, name: 'Khu B — Bagalog', nameEn: 'Zone B — Bagalog', kind: 'BUILDING', floorLabel: null, roomCount: 0, sortOrder: 5, description: 'Khu Bagalog trong khuôn viên NinhVaNa.', features: {} },
-      { code: 'C', parentCode: null, name: 'Khu C — Bếp & Quầy Bar', nameEn: 'Zone C — Kitchen & Bar', kind: 'FNB', floorLabel: null, roomCount: 0, sortOrder: 6, description: 'Khu bếp vận hành và quầy bar phục vụ khách.', features: {} },
-      { code: 'D', parentCode: null, name: 'Khu D — Hồ Bơi', nameEn: 'Zone D — Swimming Pool', kind: 'POOL', floorLabel: null, roomCount: 0, sortOrder: 7, description: 'Hồ bơi và khu vực thư giãn ngoài trời.', features: {} },
+      { code: 'A', parentCode: null, name: 'Khu A — Nhà chính trung tâm', nameEn: 'Zone A — Central House', kind: 'BUILDING', floorLabel: null, roomCount: 27, sortOrder: 1, description: 'Nhà chính của NinhVaNa: đón khách, lưu trú và kết nối ra hồ bơi, view biển.', features: { gate: 'Cổng đón khách', lobby: 'Quầy lễ tân', pool: 'Hồ bơi', seaView: 'View biển' }, departmentGroups: ['ROOMS'] as DepartmentGroup[], departmentCodes: ['ROOMS'] as string[] },
+      { code: 'A1', parentCode: 'A', name: 'A1 — Tầng trệt', nameEn: 'A1 — Ground floor', kind: 'FLOOR', floorLabel: 'Tầng trệt', roomCount: 6, sortOrder: 2, description: 'Trước là cổng đón khách; quầy lễ tân đón khách; 6 phòng dormitory giường tầng; phía sau là hồ bơi và view biển.', features: { dormRooms: 6, reception: true, gate: true, pool: true, seaView: true }, departmentGroups: ['ROOMS'] as DepartmentGroup[], departmentCodes: ['ROOMS', 'FRONT_OFFICE'] as string[] },
+      { code: 'A2', parentCode: 'A', name: 'A2 — Tầng 2', nameEn: 'A2 — Second floor', kind: 'FLOOR', floorLabel: 'Tầng 2', roomCount: 9, sortOrder: 3, description: '6 phòng dormitory giường tầng, 2 phòng view trước và 1 phòng Connecting room.', features: { dormRooms: 6, viewRooms: 2, connectingRooms: 1 }, departmentGroups: ['ROOMS'] as DepartmentGroup[], departmentCodes: ['ROOMS', 'FRONT_OFFICE'] as string[] },
+      { code: 'A3', parentCode: 'A', name: 'A3 — Tầng 3', nameEn: 'A3 — Third floor', kind: 'FLOOR', floorLabel: 'Tầng 3', roomCount: 12, sortOrder: 4, description: '10 phòng đôi, 2 phòng gia đình có gác lửng và 1 sảnh chung.', features: { doubleRooms: 10, familyMezzanineRooms: 2, commonHall: 1 }, departmentGroups: ['ROOMS'] as DepartmentGroup[], departmentCodes: ['ROOMS', 'FRONT_OFFICE'] as string[] },
+      { code: 'B', parentCode: null, name: 'Khu B — Bagalog', nameEn: 'Zone B — Bagalog', kind: 'BUILDING', floorLabel: null, roomCount: 0, sortOrder: 5, description: 'Khu Bagalog trong khuôn viên NinhVaNa.', features: {}, departmentGroups: ['OTHER_OPERATED'] as DepartmentGroup[], departmentCodes: ['BAGALOG'] as string[] },
+      { code: 'C', parentCode: null, name: 'Khu C — Bếp & Quầy Bar', nameEn: 'Zone C — Kitchen & Bar', kind: 'FNB', floorLabel: null, roomCount: 0, sortOrder: 6, description: 'Khu bếp vận hành và quầy bar phục vụ khách.', features: {}, departmentGroups: ['FNB'] as DepartmentGroup[], departmentCodes: ['RESTAURANT', 'BAR', 'KITCHEN'] as string[] },
+      { code: 'D', parentCode: null, name: 'Khu D — Hồ Bơi', nameEn: 'Zone D — Swimming Pool', kind: 'POOL', floorLabel: null, roomCount: 0, sortOrder: 7, description: 'Hồ bơi và khu vực thư giãn ngoài trời.', features: {}, departmentGroups: ['OTHER_OPERATED'] as DepartmentGroup[], departmentCodes: ['POOL'] as string[] },
     ] as const;
     for (const area of areas) {
       await prisma.propertyArea.upsert({
@@ -605,14 +590,14 @@ async function main(): Promise<void> {
     });
   }
 
-  // Departments
-  for (const [propertyCode, departments] of Object.entries(DEPARTMENTS)) {
+  // Departments — one property, hotel + restaurant + shared services
+  for (const [propertyCode, departments] of Object.entries({ NVN: DEPARTMENTS })) {
     const propertyId = propertyIds.get(propertyCode);
     if (!propertyId) continue;
     for (const department of departments) {
       await prisma.department.upsert({
         where: { propertyId_code: { propertyId, code: department.code } },
-        update: { name: department.name, nameEn: department.nameEn, group: department.group },
+        update: { name: department.name, nameEn: department.nameEn, group: department.group, division: department.division, isRevenueCenter: department.isRevenueCenter, sortOrder: department.sortOrder },
         create: { propertyId, ...department },
       });
     }
@@ -691,7 +676,7 @@ async function main(): Promise<void> {
   }
 
   // Hotel rooms, floors, rate plans
-  const hotelId = propertyIds.get('NVN-HAN')!;
+  const hotelId = propertyIds.get('NVN')!;
   const floorCapacity = [32, 32, 31, 31, 31, 31, 31, 31];
   const floors: Array<{ id: string; number: number; capacity: number }> = [];
   for (const [index, capacity] of floorCapacity.entries()) {
