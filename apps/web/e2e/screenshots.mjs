@@ -57,6 +57,12 @@ async function shot(page, name, fullPage = false) {
   await page.waitForTimeout(500);
   await shot(page, 'dashboard-1920-dark', true);
 
+  await page.goto(`${base}/reservations`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(1000);
+  await page.evaluate(() => document.documentElement.classList.add('dark'));
+  await page.waitForTimeout(300);
+  await shot(page, 'reservations-1920-dark');
+
   // Operations screens — property manager
   const ops = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
   const opsPage = await ops.newPage();

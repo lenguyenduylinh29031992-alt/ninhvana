@@ -59,6 +59,39 @@
     --sidebar-line: 210 15% 13%;
   }
 
+  .dark {
+    color-scheme: dark;
+  }
+
+  /* Native selects, date pickers and autofill must follow the dark canvas. */
+  .dark select option {
+    background-color: hsl(var(--surface));
+    color: hsl(var(--ink));
+  }
+
+  .dark input:not([type='checkbox']):not([type='radio']),
+  .dark textarea,
+  .dark select {
+    color-scheme: dark;
+    color: hsl(var(--ink));
+    background-color: hsl(var(--surface));
+    caret-color: hsl(var(--ink));
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: hsl(var(--muted-foreground) / 0.72);
+  }
+
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark textarea:-webkit-autofill {
+    -webkit-text-fill-color: hsl(var(--ink));
+    -webkit-box-shadow: 0 0 0 1000px hsl(var(--surface)) inset;
+    caret-color: hsl(var(--ink));
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;

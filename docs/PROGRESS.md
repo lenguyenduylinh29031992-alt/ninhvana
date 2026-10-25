@@ -275,3 +275,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Nhấp thẻ bộ phận ở `/hr` để xem danh sách nhân viên, vị trí, trạng thái và lương cơ bản tương ứng.
 - Chuyển 18 nhân sự demo sang mã bộ phận chi tiết: Lễ tân, Buồng phòng, Bếp, Nhà hàng, Bar, Kế toán, Kinh doanh, Bảo trì, Spa…
 - Bảng bảo trì dùng chung cho web, iOS, Android và desktop Electron; desktop setup có đồng hồ chạy và thử lại.
+
+
+## Sửa chọn phòng & dark mode (2026-10-25)
+
+- Chọn phòng ở trang đặt phòng công khai và hộp thoại đặt phòng giờ có viền xanh, nền xanh nhạt, ring và nhãn **Đã chọn**.
+- Dark mode: bật `color-scheme: dark`, đặt nền input/select/textarea theo `surface`, chữ theo `ink`, xử lý placeholder/autofill và option của select.
+- Ảnh kiểm chứng: `docs/evidence/reservations-1920-dark.png`.

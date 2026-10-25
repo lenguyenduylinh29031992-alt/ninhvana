@@ -153,9 +153,10 @@ export function BookingDialog({
                 type="button"
                 disabled={room.available === 0}
                 onClick={() => setSelected(room.roomTypeId)}
+                aria-pressed={selected === room.roomTypeId}
                 className={cn(
-                  'flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-colors',
-                  selected === room.roomTypeId ? 'border-brand bg-brand-soft/60' : 'border-line hover:border-brand/40',
+                  'flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-all',
+                  selected === room.roomTypeId ? 'border-2 border-brand bg-brand-soft/80 ring-2 ring-brand/25 shadow-sm' : 'border-line hover:border-brand/40',
                   room.available === 0 && 'cursor-not-allowed opacity-40',
                 )}
               >

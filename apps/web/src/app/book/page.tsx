@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { FieldError, Input, NativeSelect } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface PublicProperty {
   code: string;
@@ -205,8 +206,10 @@ export default function BookingEnginePage() {
               <h2 className="font-display text-2xl text-ink">Phòng dành cho quý khách</h2>
               <span className="text-[10px] text-muted-foreground">{availability.data.rooms.length} hạng phòng còn trống</span>
             </div>
-            {availability.data.rooms.map((room) => (
-              <Card key={room.roomTypeId} className="overflow-hidden">
+            {availability.data.rooms.map((room) => {
+              const isSelected = selected?.roomTypeId === room.roomTypeId;
+              return (
+              <Card key={room.roomTypeId} className={cn('overflow-hidden transition-all', isSelected && 'border-2 border-brand ring-2 ring-brand/25 shadow-md')}>
                 <CardContent className="grid gap-4 p-4 md:grid-cols-[180px_1fr_auto] md:items-center">
                   <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-brand-soft to-muted">
                     <BedDouble className="size-8 text-brand" />
@@ -225,11 +228,12 @@ export default function BookingEnginePage() {
                     <p className="text-[9px] text-muted-foreground">Từ</p>
                     <p className="font-display text-2xl text-ink">{formatMoney(room.averageRate)}</p>
                     <p className="text-[9px] text-muted-foreground">/đêm · tổng {formatMoney(room.total)}</p>
-                    <Button className="mt-2" size="sm" onClick={() => { setSelected(room); setError(null); }}>Chọn phòng</Button>
+                    <Button className="mt-2" size="sm" variant={isSelected ? 'primary' : 'secondary'} aria-pressed={isSelected} onClick={() => { setSelected(room); setError(null); }}>{isSelected ? <><Check className="size-3.5" /> Đã chọn</> : 'Chọn phòng'}</Button>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
             {availability.data.rooms.length === 0 ? <p className="rounded-xl border border-line bg-surface p-8 text-center text-xs text-muted-foreground">Không còn phòng cho khoảng ngày này. Vui lòng chọn ngày khác.</p> : null}
           </div>
         ) : null}
