@@ -585,6 +585,7 @@ async function main(): Promise<void> {
     ['PAYMENT', 'PAY', 5],
     ['RECEIPT', 'RCP', 5],
     ['EXPENSE', 'EXP', 4],
+    ['PURCHASE_REQUEST', 'PR', 4],
     ['PURCHASE_ORDER', 'PO', 4],
     ['GOODS_RECEIPT', 'GRN', 4],
     ['PAYSLIP', 'PSL', 4],

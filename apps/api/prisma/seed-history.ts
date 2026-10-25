@@ -451,7 +451,7 @@ async function main() {
               credit: line.credit,
               department: line.department ?? null,
               channelId: line.channelId ?? null,
-            })),
+            })) as Prisma.JournalLineCreateManyInput[],
           }),
           prisma.journalEntry.create({
             data: {

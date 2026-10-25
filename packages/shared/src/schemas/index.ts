@@ -7,3 +7,4 @@ export * from './reservation';
 export * from './pos';
 export * from './operations';
 export * from './channel';
+export * from './finance';

@@ -1948,3 +1948,334 @@ model ConversationMessage {
   @@unique([conversationId, externalId])
   @@index([conversationId, sentAt])
 }
+
+// ───────────────────────── Cost, procurement & inventory ─────────────────────────
+
+enum PurchaseStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  ORDERED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+enum PayrollStatus {
+  DRAFT
+  POSTED
+  PAID
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  orgId     String
+  code      String
+  name      String
+  taxCode   String?
+  email     String?
+  phone     String?
+  address   String?
+  category  String   @default("GENERAL")
+  termsDays Int      @default(30)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  orders   PurchaseOrder[]
+  invoices SupplierInvoice[]
+  payments SupplierPayment[]
+
+  @@unique([orgId, code])
+  @@index([orgId, isActive])
+}
+
+model PurchaseRequest {
+  id            String         @id @default(cuid())
+  orgId         String
+  propertyId    String
+  number        String
+  department    String         @default("ADMIN")
+  status        PurchaseStatus @default(DRAFT)
+  neededBy      DateTime?      @db.Date
+  notes         String?
+  lines         Json
+  total         Decimal        @default(0) @db.Decimal(18, 2)
+  requestedById String?
+  approvedById  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([propertyId, number])
+  @@index([propertyId, status, createdAt])
+}
+
+model PurchaseOrder {
+  id           String         @id @default(cuid())
+  orgId        String
+  propertyId   String
+  supplierId   String
+  number       String
+  status       PurchaseStatus @default(DRAFT)
+  orderDate    DateTime       @db.Date
+  expectedDate DateTime?      @db.Date
+  currency     String         @default("VND")
+  subtotal     Decimal        @default(0) @db.Decimal(18, 2)
+  vatAmount    Decimal        @default(0) @db.Decimal(18, 2)
+  total        Decimal        @default(0) @db.Decimal(18, 2)
+  notes        String?
+  createdById  String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  supplier Supplier            @relation(fields: [supplierId], references: [id])
+  lines    PurchaseOrderLine[]
+  receipts GoodsReceipt[]
+
+  @@unique([propertyId, number])
+  @@index([propertyId, status, orderDate])
+}
+
+model PurchaseOrderLine {
+  id              String  @id @default(cuid())
+  purchaseOrderId String
+  itemId          String?
+  description     String
+  quantity        Decimal @db.Decimal(12, 3)
+  unitCost        Decimal @db.Decimal(18, 2)
+  total           Decimal @db.Decimal(18, 2)
+  receivedQty     Decimal @default(0) @db.Decimal(12, 3)
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+}
+
+model GoodsReceipt {
+  id              String   @id @default(cuid())
+  orgId           String
+  propertyId      String
+  purchaseOrderId String?
+  number          String
+  receivedAt      DateTime @default(now())
+  businessDate    DateTime @db.Date
+  total           Decimal  @default(0) @db.Decimal(18, 2)
+  notes           String?
+  createdById     String?
+  createdAt       DateTime @default(now())
+
+  purchaseOrder PurchaseOrder?     @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
+  lines         GoodsReceiptLine[]
+
+  @@unique([propertyId, number])
+}
+
+model GoodsReceiptLine {
+  id             String  @id @default(cuid())
+  goodsReceiptId String
+  itemId         String?
+  description    String
+  quantity       Decimal @db.Decimal(12, 3)
+  unitCost       Decimal @db.Decimal(18, 2)
+  total          Decimal @db.Decimal(18, 2)
+
+  goodsReceipt GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+}
+
+model SupplierInvoice {
+  id          String   @id @default(cuid())
+  orgId       String
+  propertyId  String
+  supplierId  String
+  number      String
+  invoiceDate DateTime @db.Date
+  dueDate     DateTime @db.Date
+  subtotal    Decimal  @default(0) @db.Decimal(18, 2)
+  vatAmount   Decimal  @default(0) @db.Decimal(18, 2)
+  total       Decimal  @default(0) @db.Decimal(18, 2)
+  paidAmount  Decimal  @default(0) @db.Decimal(18, 2)
+  balance     Decimal  @default(0) @db.Decimal(18, 2)
+  currency    String   @default("VND")
+  status      String   @default("OPEN")
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  supplier Supplier          @relation(fields: [supplierId], references: [id])
+  payments SupplierPayment[]
+
+  @@unique([supplierId, number])
+  @@index([propertyId, status, dueDate])
+}
+
+model SupplierPayment {
+  id                String   @id @default(cuid())
+  orgId             String
+  propertyId        String
+  supplierId        String
+  supplierInvoiceId String?
+  amount            Decimal  @db.Decimal(18, 2)
+  method            String   @default("BANK_TRANSFER")
+  reference         String?
+  paidAt            DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  supplier        Supplier         @relation(fields: [supplierId], references: [id])
+  supplierInvoice SupplierInvoice? @relation(fields: [supplierInvoiceId], references: [id], onDelete: SetNull)
+}
+
+model InventoryItem {
+  id        String   @id @default(cuid())
+  orgId     String
+  code      String
+  name      String
+  unit      String   @default("kg")
+  category  String   @default("FOOD")
+  minStock  Decimal  @default(0) @db.Decimal(12, 3)
+  unitCost  Decimal  @default(0) @db.Decimal(18, 2)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@unique([orgId, code])
+}
+
+model StockBalance {
+  id         String   @id @default(cuid())
+  propertyId String
+  itemId     String
+  quantity   Decimal  @default(0) @db.Decimal(14, 3)
+  value      Decimal  @default(0) @db.Decimal(18, 2)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([propertyId, itemId])
+}
+
+model StockMovement {
+  id            String   @id @default(cuid())
+  orgId         String
+  propertyId    String
+  itemId        String
+  type          String
+  quantity      Decimal  @db.Decimal(14, 3)
+  unitCost      Decimal  @db.Decimal(18, 2)
+  value         Decimal  @db.Decimal(18, 2)
+  referenceType String?
+  referenceId   String?
+  businessDate  DateTime @db.Date
+  notes         String?
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  @@index([propertyId, businessDate])
+  @@index([itemId])
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  orgId         String
+  propertyId    String
+  number        String
+  accountCode   String
+  department    String   @default("ADMIN")
+  supplierId    String?
+  description   String
+  amount        Decimal  @db.Decimal(18, 2)
+  vatAmount     Decimal  @default(0) @db.Decimal(18, 2)
+  total         Decimal  @db.Decimal(18, 2)
+  status        String   @default("APPROVED")
+  expenseDate   DateTime @db.Date
+  paymentMethod String?
+  notes         String?
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  @@unique([propertyId, number])
+  @@index([propertyId, expenseDate])
+  @@index([propertyId, department])
+}
+
+// ───────────────────────── HR & payroll ─────────────────────────
+
+model Employee {
+  id          String   @id @default(cuid())
+  orgId       String
+  propertyId  String?
+  code        String
+  fullName    String
+  email       String?
+  phone       String?
+  position    String
+  department  String
+  hireDate    DateTime @db.Date
+  status      String   @default("ACTIVE")
+  baseSalary  Decimal  @db.Decimal(18, 2)
+  allowances  Decimal  @default(0) @db.Decimal(18, 2)
+  dependents  Int      @default(0)
+  bankAccount String?
+  createdAt   DateTime @default(now())
+
+  attendance   Attendance[]
+  payrollLines PayrollLine[]
+
+  @@unique([orgId, code])
+  @@index([orgId, department, status])
+}
+
+model Attendance {
+  id            String   @id @default(cuid())
+  employeeId    String
+  date          DateTime @db.Date
+  checkIn       String?
+  checkOut      String?
+  hours         Decimal  @default(8) @db.Decimal(6, 2)
+  overtimeHours Decimal  @default(0) @db.Decimal(6, 2)
+  status        String   @default("PRESENT")
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date])
+  @@index([date])
+}
+
+model PayrollRun {
+  id            String        @id @default(cuid())
+  orgId         String
+  propertyId    String
+  period        String
+  status        PayrollStatus @default(DRAFT)
+  gross         Decimal       @default(0) @db.Decimal(18, 2)
+  employeeCost  Decimal       @default(0) @db.Decimal(18, 2)
+  deductions    Decimal       @default(0) @db.Decimal(18, 2)
+  net           Decimal       @default(0) @db.Decimal(18, 2)
+  postedEntryId String?
+  postedAt      DateTime?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+
+  lines PayrollLine[]
+
+  @@unique([propertyId, period])
+  @@index([orgId, period])
+}
+
+model PayrollLine {
+  id                String  @id @default(cuid())
+  payrollRunId      String
+  employeeId        String
+  employeeCode      String
+  employeeName      String
+  department        String
+  baseSalary        Decimal @db.Decimal(18, 2)
+  allowances        Decimal @default(0) @db.Decimal(18, 2)
+  overtimePay       Decimal @default(0) @db.Decimal(18, 2)
+  gross             Decimal @default(0) @db.Decimal(18, 2)
+  insuranceEmployee Decimal @default(0) @db.Decimal(18, 2)
+  unionFee          Decimal @default(0) @db.Decimal(18, 2)
+  tax               Decimal @default(0) @db.Decimal(18, 2)
+  net               Decimal @default(0) @db.Decimal(18, 2)
+  insuranceEmployer Decimal @default(0) @db.Decimal(18, 2)
+  totalCost         Decimal @default(0) @db.Decimal(18, 2)
+
+  payrollRun PayrollRun @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
+  employee   Employee   @relation(fields: [employeeId], references: [id])
+
+  @@index([payrollRunId])
+}
