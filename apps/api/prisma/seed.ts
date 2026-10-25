@@ -111,6 +111,7 @@ const DEPARTMENTS = {
     { code: 'EVENTS', name: 'Tiệc & Hội nghị', nameEn: 'Banquet & Events', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 4 },
     { code: 'ADMIN', name: 'Hành chính & Nhân sự', nameEn: 'Administration', group: 'ADMIN' as const, isRevenueCenter: false, sortOrder: 5 },
     { code: 'SALES', name: 'Marketing & Sales', nameEn: 'Sales & Marketing', group: 'SALES' as const, isRevenueCenter: false, sortOrder: 6 },
+    { code: 'TIKTOK', name: 'Marketing TikTok', nameEn: 'TikTok Marketing', group: 'SALES' as const, isRevenueCenter: false, sortOrder: 7 },
     { code: 'PROPERTY_OPS', name: 'Vận hành cơ sở', nameEn: 'Property Operations', group: 'PROPERTY_OPS' as const, isRevenueCenter: false, sortOrder: 7 },
     { code: 'UTILITIES', name: 'Năng lượng', nameEn: 'Utilities', group: 'UTILITIES' as const, isRevenueCenter: false, sortOrder: 8 },
     { code: 'MAINTENANCE', name: 'Bảo trì', nameEn: 'Maintenance', group: 'MAINTENANCE' as const, isRevenueCenter: false, sortOrder: 9 },
@@ -572,17 +573,18 @@ async function main(): Promise<void> {
 
   // Marketing workspace: default pillars, each with sub-items.
   if ((await prisma.marketingItem.count({ where: { orgId: org.id } })) === 0) {
-    const pillars = [
+    const pillars: Array<{ title: string; description: string; status: string; channel?: string; children: string[] }> = [
       { title: 'Chiến dịch', description: 'Kế hoạch khuyến mãi, ưu đãi theo mùa và theo phân khúc.', status: 'IN_PROGRESS', children: ['Ưu đãi cuối năm', 'Gói Ninh Vân 2N1Đ', 'Tiếp thị lại khách đã ở'] },
       { title: 'Nội dung & thương hiệu', description: 'Lịch nội dung, hình ảnh, câu chuyện thương hiệu NinhVaNa.', status: 'IN_PROGRESS', children: ['Lịch nội dung tháng 11', 'Bộ ảnh Ninh Vân', 'Nhận diện logo & màu sắc'] },
       { title: 'Kênh & đối tác', description: 'OTA, KOL/KOC, báo chí và đối tác phân phối.', status: 'PLANNED', children: ['Booking.com', 'Đánh giá từ KOL Ninh Vân', 'Hợp tác đại lý du lịch'] },
       { title: 'Ngân sách & ROI', description: 'Theo dõi chi phí, hiệu quả và attribution theo kênh.', status: 'PLANNED', children: ['Ngân sách Q4', 'Báo cáo ROI tháng'] },
       { title: 'Chăm sóc khách hàng', description: 'Email, SMS và chương trình khách quay lại.', status: 'PLANNED', children: ['Thư điện tử sau lưu trú', 'Ưu đãi sinh nhật'] },
+      { title: 'Kênh TikTok', description: 'Kênh TikTok: lịch đăng, video ngắn, TikTok Shop và hợp tác KOL.', status: 'IN_PROGRESS', channel: 'TikTok', children: ['Lịch đăng TikTok', 'Video ngắn', 'TikTok Shop', 'KOL TikTok'] },
     ];
     for (const [index, pillar] of pillars.entries()) {
-      const root = await prisma.marketingItem.create({ data: { orgId: org.id, title: pillar.title, description: pillar.description, status: pillar.status, sortOrder: index + 1 } });
+      const root = await prisma.marketingItem.create({ data: { orgId: org.id, title: pillar.title, description: pillar.description, status: pillar.status, channel: pillar.channel ?? null, sortOrder: index + 1 } });
       for (const [childIndex, title] of pillar.children.entries()) {
-        await prisma.marketingItem.create({ data: { orgId: org.id, parentId: root.id, title, status: 'PLANNED', sortOrder: childIndex + 1 } });
+        await prisma.marketingItem.create({ data: { orgId: org.id, parentId: root.id, title, status: 'PLANNED', channel: pillar.channel ?? null, sortOrder: childIndex + 1 } });
       }
     }
   }

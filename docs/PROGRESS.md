@@ -131,7 +131,7 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - **CRM**: 2 bảng mới `GuestReview`, `Campaign`; phân khúc ALL/VIP/REPEAT/LAPSED, top khách theo lifetime value; đánh giá 5 tiêu chí, phản hồi + audit; chiến dịch email theo phân khúc, gửi mock đếm người nhận. UI `/crm` 3 tab.
 - **Seed CRM**: 24 đánh giá, 4 chiến dịch mẫu, idempotent.
 - **Browser e2e**: `apps/web/e2e/flows.mjs` — 5/5 luồng PASS, 0 console error: dashboard KPI, dialog đặt phòng, POS mở bàn + thêm món, cập nhật buồng phòng, chạy Report Builder.
-- **Test**: 78 unit shared + **42 integration API** (thêm 3 CRM) + **38 kiểm tra acceptance**.
+- **Test**: 78 unit shared + **43 integration API** (thêm 3 CRM) + **38 kiểm tra acceptance**.
 - **Build/lint/typecheck**: xanh.
 
 ### Còn lại trước khi đóng Giai đoạn 6
@@ -153,7 +153,7 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - **PWA**: `public/sw.js` cache shell, network-first cho navigation, cache-first cho asset, fallback `/offline`; đăng ký service worker ở production.
 - **E2E**: `apps/web/e2e/flows.mjs` 5/5 PASS, 0 console error.
 - **Docker Compose**: `docker-compose config` PASS (CLI 5.6.1) — cấu hình 6 service hợp lệ.
-- **Acceptance**: 39 kiểm tra (thêm PWA); 82 unit shared + 42 integration API.
+- **Acceptance**: 39 kiểm tra (thêm PWA); 82 unit shared + 43 integration API.
 
 ### Docker runtime — đã xác minh
 
@@ -181,7 +181,7 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - 15 tài khoản đổi sang **Nguyễn Văn A → O**, giữ nguyên chức vụ/vai trò và phạm vi cơ sở. Tên nhân sự trong HRM cũng được ẩn danh A → R, giữ phòng ban/chức danh.
 - Tài khoản **Admin riêng**: `admin@ninhvana.vn` / `NinhVaNa@2026`, họ tên Nguyễn Văn A, vai trò **SUPER_ADMIN** với **toàn bộ 102 quyền** — quản lý người dùng, vai trò, cấu hình, tích hợp, audit và mọi nghiệp vụ. Có integration test riêng xác nhận đủ quyền.
 - Dữ liệu khách hàng demo (guest) vẫn giữ tên hư cấu để minh hoạ nghiệp vụ; không phải tài khoản đăng nhập.
-- Đã reset database Docker và seed lại; 39/39 acceptance, 42 integration API, 5/5 browser flows.
+- Đã reset database Docker và seed lại; 39/39 acceptance, 43 integration API, 5/5 browser flows.
 
 
 ---
@@ -202,7 +202,7 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - **Marketing workspace**: bảng `MarketingItem` cây cha–con, seed 5 mục lớn + 13 mục con; API tree/create/update/delete với audit; UI `/marketing` có cây danh mục, nút **+** thêm mục lớn/mục con, trạng thái, kênh, ngân sách, ghi chú.
 - **Sơ đồ khu vực**: bảng `PropertyArea`; seed Khu A (A1/A2/A3) theo đúng mô tả Ninh Vân, Khu B Bagalog, Khu C Bếp & Quầy Bar, Khu D Hồ Bơi; UI `/property-map`.
 - **Xuất dữ liệu** (`/api/v1/exports/:dataset`): ExcelJS `.xlsx`, docx `.docx`, CSV, TSV; Google Sheets bằng cách sao chép TSV và mở `sheets.new`. Đã gắn vào marketing, sơ đồ, đặt phòng, khách, buồng phòng, CRM, lương, kênh, tài chính, chi phí và tài khoản.
-- **Test**: 82 unit shared + **42 integration API** (thêm 4 marketing/export) + 39 acceptance; lint/typecheck/build xanh; 36 ảnh evidence.
+- **Test**: 82 unit shared + **43 integration API** (thêm 4 marketing/export) + 39 acceptance; lint/typecheck/build xanh; 36 ảnh evidence.
 
 
 ## Chuẩn hóa ngôn ngữ & quyền đổi tên (2026-10-25)
@@ -210,7 +210,7 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Rà soát tiêu đề/nhãn giao diện Việt: loại bỏ tiêu đề tiếng Anh (`Marketing Workspace`, `Guest Experience`, `Channel Manager`, `Night Audit`, `HR & Payroll`, `Finance & P&L`, `Report Builder`, `Cost Control`, `Tape chart`, `Social Commerce Inbox`, `Realtime`…), thay bằng tiếng Việt tương ứng.
 - Nhãn thương hiệu/sidebar/footer dùng i18n; các thuật ngữ chuyên ngành giữ nguyên (P&L, GOP, OTA, OTB, KOL, ROI…).
 - **Chỉ SUPER_ADMIN được đổi tên**: họ tên hồ sơ, tên người dùng trong quản trị và tên thương hiệu trong cấu hình. Các vai trò khác nhận 403; ô họ tên trên hồ sơ bị khoá kèm giải thích.
-- Thêm test xác nhận CEO không đổi được tên, Admin đổi và khôi phục được; 42 integration test.
+- Thêm test xác nhận CEO không đổi được tên, Admin đổi và khôi phục được; 43 integration test.
 
 
 ## Reset dữ liệu vận hành (2026-10-25)
@@ -219,3 +219,12 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Đã chạy trên database local: **khách=0, phòng=0, đặt phòng=0, bút toán=0, POS=0**; dashboard doanh thu/công suất/ADR/GOPPAR = 0.
 - Giữ 15 tài khoản, 18 mục marketing, 7 khu vực, cấu hình, kênh, menu, nhà cung cấp, nhân sự và mặt hàng.
 - Khôi phục mẫu bằng `pnpm db:reset` rồi các seed history/finance/long. Không chạy acceptance/test integration trên DB trống; bộ test cần seed demo.
+
+
+## Rà soát module & TikTok (2026-10-25)
+
+- Thêm **Kênh TikTok** (4 mục con) vào Marketing Workspace và bộ phận **Marketing TikTok** trong danh mục bộ phận.
+- `/reviews` giờ chuyển tới tab Đánh giá của CRM; bỏ nhãn giai đoạn.
+- Toàn bộ href menu đã có trang; các mục chưa xây dựng có trang lộ trình rõ ràng: Banquet (GĐ2), Budgets/HR/Roster (GĐ4), Assistant (GĐ5).
+- Purchasing/Inventory/Revenue/Reviews là màn hình gộp/chuyển hướng, không phải module độc lập.
+- Chi tiết: `docs/ROADMAP-AUDIT.md`. Marketing test 4/4 pass trên DB rỗng; full test/acceptance cần seed.

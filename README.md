@@ -22,6 +22,8 @@
 
 Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TEST.md`](docs/HUONG-DAN-TEST.md).
 
+**Rà soát module & giai đoạn:** [`docs/ROADMAP-AUDIT.md`](docs/ROADMAP-AUDIT.md).
+
 **Bộ cài đặt desktop/mobile:** [`docs/CAI-DAT-APP.md`](docs/CAI-DAT-APP.md) · `dist/`.
 
 Kế hoạch đầy đủ: [`docs/PLAN.md`](docs/PLAN.md) · Tiến độ & bằng chứng: [`docs/PROGRESS.md`](docs/PROGRESS.md).
@@ -260,7 +262,7 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 ## Kiểm thử
 
 - **82 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
-- **42 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
+- **43 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
 - `bash scripts/check-acceptance.sh` chạy **39 kiểm tra** Gate 1–6.
 - Ảnh chụp 1920 / 768 / 390 px (32 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 

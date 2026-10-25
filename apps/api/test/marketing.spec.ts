@@ -29,6 +29,14 @@ describe('Marketing workspace, property map and exports', () => {
     expect(items.find((item: { code: string }) => item.code === 'A3').features.familyMezzanineRooms).toBe(2);
   });
 
+  it('includes the TikTok marketing department', async () => {
+    const tree = await agent.get('/api/v1/marketing/tree').expect(200);
+    const tiktok = tree.body.roots.find((item: { title: string }) => item.title === 'Kênh TikTok');
+    expect(tiktok).toBeTruthy();
+    expect(tiktok.channel).toBe('TikTok');
+    expect(tiktok.children).toHaveLength(4);
+  });
+
   it('creates a marketing root and a detailed child, then removes them', async () => {
     const root = await agent.post('/api/v1/marketing/items').set('x-csrf-token', csrf).send({ title: `Test pillar ${Date.now()}`, description: 'Kiểm thử mục lớn' }).expect(201);
     rootId = root.body.id;

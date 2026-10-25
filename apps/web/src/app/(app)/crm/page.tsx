@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Mail, MessageSquare, Star, Users } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,7 +26,8 @@ interface Campaign { id: string; name: string; channel: string; segment: string;
 
 export default function CrmPage() {
   const { can } = useAccess(); const queryClient = useQueryClient();
-  const [tab, setTab] = useState<'SEGMENTS' | 'REVIEWS' | 'CAMPAIGNS'>('SEGMENTS');
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<'SEGMENTS' | 'REVIEWS' | 'CAMPAIGNS'>(searchParams.get('tab') === 'REVIEWS' ? 'REVIEWS' : 'SEGMENTS');
   const [replyTo, setReplyTo] = useState<Review | null>(null); const [reply, setReply] = useState('');
   const [campaignOpen, setCampaignOpen] = useState(false);
   const segments = useQuery<Segments>({ queryKey: ['crm-segments'], queryFn: () => api('/crm/segments'), enabled: can('crm:view') });

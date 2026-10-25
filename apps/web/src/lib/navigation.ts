@@ -88,7 +88,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/inbox', labelKey: 'nav.inbox', icon: Inbox, permission: 'inbox:view' },
       { href: '/crm', labelKey: 'nav.crm', icon: Gem, permission: 'crm:view' },
       { href: '/marketing', labelKey: 'nav.marketing', icon: Megaphone, permission: 'marketing:view' },
-      { href: '/reviews', labelKey: 'nav.reviews', icon: Star, permission: 'review:view', phase: 4 },
+      { href: '/reviews', labelKey: 'nav.reviews', icon: Star, permission: 'review:view' },
     ],
   },
   {
