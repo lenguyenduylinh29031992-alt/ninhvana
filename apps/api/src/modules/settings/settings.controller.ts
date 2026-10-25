@@ -28,8 +28,8 @@ const taxRateUpdateSchema = taxRateSchema
 const integrationPatchSchema = z.object({
   displayName: z.string().trim().min(2).max(120).optional(),
   status: z.enum(['DISABLED', 'SANDBOX', 'ACTIVE', 'ERROR']).optional(),
-  credentials: z.record(z.string().max(2000)).optional(),
-  settings: z.record(z.unknown()).optional(),
+  credentials: z.record(z.string(), z.string().max(2000)).optional(),
+  settings: z.record(z.string(), z.unknown()).optional(),
 });
 
 @ApiTags('settings')

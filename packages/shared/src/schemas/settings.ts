@@ -64,6 +64,6 @@ export const integrationConfigSchema = z.object({
   category: z.enum(['OTA', 'SOCIAL', 'PAYMENT', 'EINVOICE', 'EMAIL', 'OCR', 'LOCK', 'OTHER']),
   displayName: z.string().trim().min(2).max(120),
   status: z.enum(['DISABLED', 'SANDBOX', 'ACTIVE', 'ERROR']).default('SANDBOX'),
-  credentials: z.record(z.string().max(2000)).optional(),
-  settings: z.record(z.unknown()).optional(),
+  credentials: z.record(z.string(), z.string().max(2000)).optional(),
+  settings: z.record(z.string(), z.unknown()).optional(),
 });

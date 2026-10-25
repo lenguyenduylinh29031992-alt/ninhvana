@@ -1,4 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import {
+  bookingAvailabilityQuerySchema, channelPushSchema, channelWebhookSchema, expenseCreateSchema,
+  inboxReplySchema, payrollRunSchema, publicBookingSchema, purchaseRequestSchema, supplierInvoiceSchema,
+} from './index';
 import { loginSchema, passwordSchema } from './auth';
 import { createUserSchema } from './iam';
 import { paginationSchema } from './common';
@@ -137,5 +141,40 @@ describe('settings schemas', () => {
   it('accepts namespaced setting keys only', () => {
     expect(upsertSettingSchema.safeParse({ key: 'branding.accent', value: 'gold' }).success).toBe(true);
     expect(upsertSettingSchema.safeParse({ key: 'branding accent', value: 'gold' }).success).toBe(false);
+  });
+});
+
+describe('channel, booking and finance schemas', () => {
+  it('validates a webhook payload and rejects missing room type', () => {
+    const payload = {
+      externalId: 'EXT-1', status: 'confirmed', propertyCode: 'GSL-HAN', roomTypeCode: 'DLX-K',
+      checkIn: '2026-11-10', checkOut: '2026-11-12', guest: { firstName: 'A', lastName: 'B', email: 'a@b.com' }, adults: 2, children: 0,
+    };
+    expect(channelWebhookSchema.parse(payload).externalId).toBe('EXT-1');
+    expect(() => channelWebhookSchema.parse({ ...payload, roomTypeCode: '' })).toThrow();
+  });
+
+  it('validates public booking and rejects an inverted stay', () => {
+    const base = {
+      propertyCode: 'GSL-HAN', checkIn: '2026-12-10', checkOut: '2026-12-12', roomTypeId: 'rt1', adults: 2, children: 0,
+      guest: { firstName: 'Website', lastName: 'Guest', email: 'web@example.com', phone: '+84909123456' },
+    };
+    expect(publicBookingSchema.parse(base).adults).toBe(2);
+    expect(() => publicBookingSchema.parse({ ...base, checkOut: '2026-12-09' })).toThrow();
+  });
+
+  it('validates availability and report-safe date ranges', () => {
+    expect(bookingAvailabilityQuerySchema.parse({ propertyCode: 'GSL-HAN', checkIn: '2026-12-10', checkOut: '2026-12-12' }).adults).toBe(2);
+    expect(() => channelPushSchema.parse({ days: 0 })).toThrow();
+    expect(channelPushSchema.parse({})).toMatchObject({ days: 7, simulateFailure: false });
+  });
+
+  it('validates supplier invoice, expense and payroll inputs', () => {
+    expect(supplierInvoiceSchema.parse({ propertyId: 'p1', supplierId: 's1', number: 'SI-1', invoiceDate: '2026-10-01', dueDate: '2026-10-31', subtotal: 100, vatAmount: 8, accountCode: '6100', description: 'Điện' }).vatAmount).toBe(8);
+    expect(expenseCreateSchema.parse({ propertyId: 'p1', accountCode: '6900', department: 'ADMIN', description: 'Khác', amount: 10 })).toMatchObject({ vatAmount: 0, paymentMethod: 'BANK_TRANSFER' });
+    expect(payrollRunSchema.parse({ propertyId: 'p1', period: '2026-10' }).period).toBe('2026-10');
+    expect(() => payrollRunSchema.parse({ propertyId: 'p1', period: '2026/10' })).toThrow();
+    expect(() => purchaseRequestSchema.parse({ propertyId: 'p1', department: 'FNB', lines: [] })).toThrow();
+    expect(inboxReplySchema.parse({ body: 'Xin chào' }).body).toBe('Xin chào');
   });
 });
