@@ -218,4 +218,4 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Thêm `apps/api/prisma/reset-operations.ts` + `pnpm db:clear` (yêu cầu `RESET_CONFIRM=YES`).
 - Đã chạy trên database local: **khách=0, phòng=0, đặt phòng=0, bút toán=0, POS=0**; dashboard doanh thu/công suất/ADR/GOPPAR = 0.
 - Giữ 15 tài khoản, 18 mục marketing, 7 khu vực, cấu hình, kênh, menu, nhà cung cấp, nhân sự và mặt hàng.
-- Không chạy acceptance/test integration trên DB trống; bộ test cần seed demo.
+- Khôi phục mẫu bằng `pnpm db:reset` rồi các seed history/finance/long. Không chạy acceptance/test integration trên DB trống; bộ test cần seed demo.

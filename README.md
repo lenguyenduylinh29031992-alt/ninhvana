@@ -179,7 +179,7 @@ Bằng chứng: `docs/evidence/docker-compose-stack.txt`, `docker-seed-log.txt`,
 RESET_CONFIRM=YES pnpm --filter @grand-suite/api db:clear
 ```
 
-Lệnh này xoá khách hàng, phòng, đặt phòng, folio, POS, hoá đơn, thanh toán, bút toán, lương, buồng phòng và audit; đặt số phòng + bộ đếm chứng từ về 0. **Giữ nguyên** tài khoản, vai trò, cấu hình, marketing, sơ đồ khu vực, kênh, menu, nhà cung cấp và mặt hàng. Seed lại bằng `pnpm db:demo` nếu cần dữ liệu mẫu.
+Lệnh này xoá khách hàng, phòng, đặt phòng, folio, POS, hoá đơn, thanh toán, bút toán, lương, buồng phòng và audit; đặt số phòng + bộ đếm chứng từ về 0. **Giữ nguyên** tài khoản, vai trò, cấu hình, marketing, sơ đồ khu vực, kênh, menu, nhà cung cấp và mặt hàng. Khôi phục dữ liệu mẫu: `pnpm db:reset && pnpm db:seed:history && pnpm db:seed:finance && pnpm db:seed:long`.
 
 ## Tài khoản demo
 
