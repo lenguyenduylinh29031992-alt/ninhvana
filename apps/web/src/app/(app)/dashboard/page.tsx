@@ -156,7 +156,10 @@ export default function DashboardPage() {
                       {data.byChannel.slice(0, 6).map((channel) => (
                         <div key={channel.channelCode} className="flex items-center justify-between text-[11px]">
                           <span className="truncate text-muted-foreground">{channel.channelName}</span>
-                          <span className="tabular text-ink">{formatMoney(channel.amount)}</span>
+                          <span className="tabular text-ink">
+                            {formatMoney(channel.netAmount ?? channel.amount)}
+                            <span className="ml-1 text-[9px] text-muted-foreground">{channel.bookings ?? 0} booking</span>
+                          </span>
                         </div>
                       ))}
                       {data.byChannel.length === 0 ? <p className="text-[10px] text-muted-foreground">Chưa có doanh thu theo kênh.</p> : null}

@@ -82,8 +82,8 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/revenue', labelKey: 'nav.revenue', icon: TrendingUp, permission: 'rate:view', phase: 2 },
       { href: '/night-audit', labelKey: 'nav.nightAudit', icon: ClipboardCheck, permission: 'night-audit:view' },
-      { href: '/channels', labelKey: 'nav.channels', icon: Radio, permission: 'channel:view', phase: 3 },
-      { href: '/inbox', labelKey: 'nav.inbox', icon: Inbox, permission: 'inbox:view', phase: 3 },
+      { href: '/channels', labelKey: 'nav.channels', icon: Radio, permission: 'channel:view' },
+      { href: '/inbox', labelKey: 'nav.inbox', icon: Inbox, permission: 'inbox:view' },
       { href: '/crm', labelKey: 'nav.crm', icon: Gem, permission: 'crm:view', phase: 4 },
       { href: '/reviews', labelKey: 'nav.reviews', icon: Star, permission: 'review:view', phase: 4 },
     ],

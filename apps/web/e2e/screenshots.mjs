@@ -72,11 +72,22 @@ async function shot(page, name, fullPage = false) {
     ['/tape-chart', 'tape-chart-1920'],
     ['/reservations', 'reservations-1920'],
     ['/guests', 'guests-1920'],
+    ['/channels', 'channels-1920'],
+    ['/inbox', 'inbox-1920'],
   ]) {
     await opsPage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
     await opsPage.waitForTimeout(1200);
     await shot(opsPage, name);
   }
+
+  const publicContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
+  const publicPage = await publicContext.newPage();
+  publicPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  publicPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
+  await publicPage.goto(`${base}/book`, { waitUntil: 'domcontentloaded' });
+  await publicPage.waitForTimeout(1500);
+  await shot(publicPage, 'booking-engine-1920');
+  await publicContext.close();
 
   const mobileOps = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'vi-VN', isMobile: true, hasTouch: true });
   const mobileOpsPage = await mobileOps.newPage();
