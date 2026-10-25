@@ -125,7 +125,7 @@ export class DashboardService {
         propertyIds.map((propertyId) => this.accounting.revenueSummary(propertyId, from, to)),
       );
       const departmentTotals = new Map<string, number>();
-      const channelTotals = new Map<string, { channelId: string | null; channelCode: string; channelName: string; amount: number }>();
+      const channelTotals = new Map<string, { channelId: string | null; channelCode: string; channelName: string; amount: number; commission: number; netAmount: number }>();
       let total = 0;
       let taxes = 0;
       let serviceCharge = 0;
@@ -139,8 +139,10 @@ export class DashboardService {
           departmentTotals.set(row.department, (departmentTotals.get(row.department) ?? 0) + row.amount);
         }
         for (const row of summary.byChannel) {
-          const current = channelTotals.get(row.channelCode) ?? { ...row, amount: 0 };
+          const current = channelTotals.get(row.channelCode) ?? { ...row, amount: 0, commission: 0, netAmount: 0 };
           current.amount += row.amount;
+          current.commission += row.commission;
+          current.netAmount += row.netAmount;
           channelTotals.set(row.channelCode, current);
         }
       }
@@ -201,16 +203,37 @@ export class DashboardService {
     for (const row of monthForScope.byDepartment) {
       departmentMap.set(row.department, (departmentMap.get(row.department) ?? 0) + row.amount);
     }
-    const channelMap = new Map<string, { channelCode: string; channelName: string; amount: number }>();
+    const channelMap = new Map<
+      string,
+      { channelId: string | null; channelCode: string; channelName: string; amount: number; commission: number; netAmount: number }
+    >();
     for (const row of monthForScope.byChannel) {
       const current = channelMap.get(row.channelCode) ?? {
+        channelId: row.channelId,
         channelCode: row.channelCode,
         channelName: row.channelName,
         amount: 0,
+        commission: 0,
+        netAmount: 0,
       };
       current.amount += row.amount;
+      current.commission += row.commission;
+      current.netAmount += row.netAmount;
       channelMap.set(row.channelCode, current);
     }
+
+    const channelBookingRows = await this.prisma.reservation.groupBy({
+      by: ['channelId'],
+      where: {
+        propertyId: { in: propertyIds },
+        checkIn: { gte: parseIsoDate(monthStart), lte: parseIsoDate(businessDate) },
+        status: { not: 'CANCELLED' },
+      },
+      _count: { _all: true },
+    });
+    const bookingCountByChannel = new Map(
+      channelBookingRows.map((row) => [row.channelId ?? 'none', row._count._all]),
+    );
 
     const propertyCards = await Promise.all(
       properties.map(async (property) => {
@@ -325,7 +348,13 @@ export class DashboardService {
         .map(([department, amount]) => ({ department, amount: Number(amount.toFixed(2)) }))
         .sort((a, b) => b.amount - a.amount),
       byChannel: [...channelMap.values()]
-        .map((row) => ({ ...row, amount: Number(row.amount.toFixed(2)) }))
+        .map((row) => ({
+          ...row,
+          amount: Number(row.amount.toFixed(2)),
+          commission: Number((row.commission ?? 0).toFixed(2)),
+          netAmount: Number((row.netAmount ?? row.amount).toFixed(2)),
+          bookings: bookingCountByChannel.get(row.channelId ?? 'none') ?? 0,
+        }))
         .sort((a, b) => b.amount - a.amount),
       trend: trend.map((point) => ({ date: point.date, revenue: point.amount })),
       hasRevenueData: monthForScope.total > 0 || todayForScope.total > 0,

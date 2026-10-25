@@ -685,11 +685,12 @@ model RoomType {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  property         Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  rooms            Room[]
-  amenities        RoomTypeAmenity[]
-  rates            RatePlanRate[]
-  reservationRooms ReservationRoom[]
+  property            Property             @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  rooms               Room[]
+  amenities           RoomTypeAmenity[]
+  rates               RatePlanRate[]
+  reservationRooms    ReservationRoom[]
+  channelRoomMappings ChannelRoomMapping[]
 
   @@unique([propertyId, code])
   @@index([propertyId, isActive])
@@ -836,9 +837,14 @@ model Channel {
   settings        Json?
   createdAt       DateTime    @default(now())
 
-  reservations Reservation[]
-  folioItems   FolioItem[]
-  journalLines JournalLine[]
+  reservations         Reservation[]
+  folioItems           FolioItem[]
+  journalLines         JournalLine[]
+  roomMappings         ChannelRoomMapping[]
+  syncJobs             ChannelSyncJob[]
+  syncLogs             ChannelSyncLog[]
+  externalReservations ExternalReservation[]
+  conversations        Conversation[]
 
   @@unique([orgId, code])
   @@index([orgId, type])
@@ -996,16 +1002,17 @@ model Reservation {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
-  property        Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  channel         Channel?          @relation(fields: [channelId], references: [id], onDelete: SetNull)
-  company         Company?          @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  primaryGuest    Guest             @relation(fields: [primaryGuestId], references: [id], onDelete: Restrict)
-  ratePlan        RatePlan?         @relation(fields: [ratePlanId], references: [id], onDelete: SetNull)
-  rooms           ReservationRoom[]
-  folios          Folio[]
-  payments        Payment[]
-  invoices        Invoice[]
-  serviceRequests ServiceRequest[]
+  property             Property              @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  channel              Channel?              @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  company              Company?              @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  primaryGuest         Guest                 @relation(fields: [primaryGuestId], references: [id], onDelete: Restrict)
+  ratePlan             RatePlan?             @relation(fields: [ratePlanId], references: [id], onDelete: SetNull)
+  rooms                ReservationRoom[]
+  folios               Folio[]
+  payments             Payment[]
+  invoices             Invoice[]
+  serviceRequests      ServiceRequest[]
+  externalReservations ExternalReservation[]
 
   @@unique([propertyId, code])
   @@index([propertyId, status, checkIn])
@@ -1217,7 +1224,7 @@ model Payment {
   currency        String        @default("VND")
   exchangeRate    Decimal       @default(1) @db.Decimal(18, 8)
   amountVnd       Decimal       @db.Decimal(18, 2)
-  businessDate    DateTime        @db.Date
+  businessDate    DateTime      @db.Date
   reference       String?
   gatewayTxnId    String?
   gatewayResponse Json?
@@ -1785,4 +1792,159 @@ model JournalLine {
   @@index([accountCode])
   @@index([department])
   @@index([channelId])
+}
+
+// ───────────────────────── Channel distribution ─────────────────────────
+
+enum ChannelSyncKind {
+  AVAILABILITY
+  RATES
+  RESERVATION_PULL
+  INVENTORY
+}
+
+enum ChannelJobStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  DLQ
+}
+
+enum ChannelDirection {
+  PUSH
+  PULL
+  WEBHOOK
+}
+
+model ChannelRoomMapping {
+  id                 String   @id @default(cuid())
+  channelId          String
+  roomTypeId         String
+  externalRoomTypeId String
+  externalRatePlanId String?
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+
+  channel  Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, roomTypeId])
+  @@index([channelId, isActive])
+}
+
+model ChannelSyncJob {
+  id             String           @id @default(cuid())
+  orgId          String
+  propertyId     String
+  channelId      String
+  kind           ChannelSyncKind
+  status         ChannelJobStatus @default(PENDING)
+  payload        Json
+  idempotencyKey String
+  attempts       Int              @default(0)
+  maxAttempts    Int              @default(3)
+  nextAttemptAt  DateTime?
+  lastError      String?
+  result         Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, idempotencyKey])
+  @@index([status, nextAttemptAt])
+  @@index([orgId, propertyId, createdAt])
+}
+
+model ChannelSyncLog {
+  id         String           @id @default(cuid())
+  channelId  String
+  jobId      String?
+  direction  ChannelDirection
+  kind       String
+  status     String
+  request    Json?
+  response   Json?
+  error      String?
+  durationMs Int?
+  createdAt  DateTime         @default(now())
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([channelId, createdAt])
+  @@index([status, createdAt])
+}
+
+model ExternalReservation {
+  id            String   @id @default(cuid())
+  channelId     String
+  externalId    String
+  reservationId String?
+  status        String
+  raw           Json
+  createdAt     DateTime @default(now())
+
+  channel     Channel      @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  reservation Reservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+
+  @@unique([channelId, externalId])
+  @@index([reservationId])
+}
+
+// ───────────────────────── Social inbox ─────────────────────────
+
+enum ConversationStatus {
+  OPEN
+  PENDING
+  CLOSED
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model Conversation {
+  id               String             @id @default(cuid())
+  orgId            String
+  propertyId       String?
+  channelId        String
+  externalThreadId String
+  guestName        String
+  guestHandle      String?
+  guestId          String?
+  reservationId    String?
+  subject          String?
+  status           ConversationStatus @default(OPEN)
+  priority         Int                @default(2)
+  assignedToId     String?
+  unreadCount      Int                @default(0)
+  lastMessageAt    DateTime           @default(now())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  channel  Channel               @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  messages ConversationMessage[]
+
+  @@unique([channelId, externalThreadId])
+  @@index([orgId, status, lastMessageAt])
+}
+
+model ConversationMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  direction      MessageDirection
+  externalId     String?
+  senderName     String
+  body           String
+  attachments    Json?
+  status         String           @default("SENT")
+  sentAt         DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, externalId])
+  @@index([conversationId, sentAt])
 }

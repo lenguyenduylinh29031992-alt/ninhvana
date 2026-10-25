@@ -180,7 +180,15 @@ export interface DashboardOverview {
     }
   >;
   byDepartment: Array<{ department: string; amount: number }>;
-  byChannel: Array<{ channelCode: string; channelName: string; amount: number }>;
+  byChannel: Array<{
+    channelId?: string | null;
+    channelCode: string;
+    channelName: string;
+    amount: number;
+    commission?: number;
+    netAmount?: number;
+    bookings?: number;
+  }>;
   trend: Array<{ date: string; revenue: number }>;
   /** False until the first revenue-bearing transaction exists. */
   hasRevenueData: boolean;

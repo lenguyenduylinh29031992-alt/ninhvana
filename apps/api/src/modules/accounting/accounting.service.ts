@@ -16,7 +16,14 @@ export interface RevenueSummary {
   to: string;
   total: number;
   byDepartment: Array<{ department: string; amount: number }>;
-  byChannel: Array<{ channelId: string | null; channelCode: string; channelName: string; amount: number }>;
+  byChannel: Array<{
+    channelId: string | null;
+    channelCode: string;
+    channelName: string;
+    amount: number;
+    commission: number;
+    netAmount: number;
+  }>;
   taxes: number;
   serviceCharge: number;
   netAfterCommission: number;
@@ -90,6 +97,20 @@ export class AccountingService {
       byChannelMap.set(key, existing);
     }
 
+    const commissionRows = await this.prisma.$queryRaw<Array<{ channelId: string | null; amount: Prisma.Decimal }>>`
+      SELECT jl."channelId" AS "channelId", SUM(jl."debit" - jl."credit") AS amount
+        FROM "JournalLine" jl
+        JOIN "JournalEntry" je ON je."id" = jl."entryId"
+       WHERE je."propertyId" = ${propertyId}
+         AND je."businessDate" >= ${from}::date
+         AND je."businessDate" <= ${to}::date
+         AND jl."accountCode" = '6210'
+       GROUP BY jl."channelId"
+    `;
+    const commissionMap = new Map(
+      commissionRows.map((row) => [row.channelId ?? 'none', moneyToJson(row.amount)]),
+    );
+
     const summary = totals[0];
     const revenue = moneyToJson(summary?.revenue ?? 0);
     const vat = moneyToJson(summary?.vat ?? 0);
@@ -103,8 +124,16 @@ export class AccountingService {
       byDepartment: [...byDepartmentMap.entries()]
         .map(([department, amount]) => ({ department, amount: Number(amount.toFixed(2)) }))
         .sort((a, b) => b.amount - a.amount),
-      byChannel: [...byChannelMap.values()]
-        .map((row) => ({ ...row, amount: Number(row.amount.toFixed(2)) }))
+      byChannel: [...byChannelMap.entries()]
+        .map(([key, row]) => {
+          const commission = commissionMap.get(key) ?? 0;
+          return {
+            ...row,
+            amount: Number(row.amount.toFixed(2)),
+            commission: Number(commission.toFixed(2)),
+            netAmount: Number((row.amount - commission).toFixed(2)),
+          };
+        })
         .sort((a, b) => b.amount - a.amount),
       taxes: Number(vat.toFixed(2)),
       serviceCharge: Number(sc.toFixed(2)),

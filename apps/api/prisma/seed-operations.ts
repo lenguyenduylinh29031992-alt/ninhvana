@@ -309,5 +309,92 @@ export async function seedOperations(
     }
   }
 
+
+  // Channel room mappings for OTA connectors.
+  const hotel = await prisma.property.findFirst({ where: { code: 'GSL-HAN' } });
+  if (hotel) {
+    const roomTypes = await prisma.roomType.findMany({ where: { propertyId: hotel.id, isActive: true } });
+    const otaChannels = await prisma.channel.findMany({
+      where: { orgId, type: 'OTA' },
+    });
+    for (const channel of otaChannels) {
+      for (const roomType of roomTypes) {
+        await prisma.channelRoomMapping.upsert({
+          where: { channelId_roomTypeId: { channelId: channel.id, roomTypeId: roomType.id } },
+          update: { isActive: true },
+          create: {
+            channelId: channel.id,
+            roomTypeId: roomType.id,
+            externalRoomTypeId: `${channel.code}-${roomType.code}`,
+            externalRatePlanId: `${channel.code}-BAR`,
+          },
+        });
+      }
+    }
+  }
+
+  // Social commerce conversations across every supported messaging channel.
+  const conversationCount = await prisma.conversation.count({ where: { orgId } });
+  if (conversationCount === 0) {
+    const socialChannels = await prisma.channel.findMany({
+      where: { orgId, code: { in: ['FACEBOOK', 'INSTAGRAM', 'ZALO', 'TIKTOK', 'WHATSAPP', 'TELEGRAM', 'LINE', 'KAKAOTALK', 'WECHAT'] } },
+    });
+    const guestsData = [
+      { name: 'Nguyễn Thu Hà', handle: '@thuha.travel', subject: 'Hỏi phòng Deluxe cuối tuần' },
+      { name: 'Emma Wilson', handle: '@emma.w', subject: 'Airport transfer request' },
+      { name: 'Trần Minh Quân', handle: 'Zalo 0903 221 118', subject: 'Đặt tiệc sinh nhật 20 khách' },
+      { name: 'Lê Ngọc Anh', handle: '@ngocanh.le', subject: 'Combo spa & stay 2 đêm' },
+      { name: 'Phạm Đức Long', handle: '+84 912 338 776', subject: 'Hỏi chính sách huỷ phòng' },
+      { name: 'Sofia Garcia', handle: '@sofia.g', subject: 'Late check-out on Sunday' },
+      { name: 'Hiroshi Tanaka', handle: 'LINE h.tanaka', subject: 'Room upgrade availability' },
+      { name: 'Kim Min-jun', handle: 'Kakao minjun.k', subject: 'Group booking for 8 rooms' },
+      { name: 'Chen Wei', handle: 'WeChat chenwei88', subject: 'Restaurant reservation for 6' },
+    ];
+    for (const [index, channel] of socialChannels.entries()) {
+      const guest = guestsData[index % guestsData.length]!;
+      const createdAt = new Date(Date.now() - (index + 1) * 3600_000);
+      await prisma.conversation.create({
+        data: {
+          orgId,
+          propertyId: hotel?.id ?? null,
+          channelId: channel.id,
+          externalThreadId: `${channel.code}-THREAD-${String(index + 1).padStart(3, '0')}`,
+          guestName: guest.name,
+          guestHandle: guest.handle,
+          subject: guest.subject,
+          status: index % 4 === 0 ? 'PENDING' : 'OPEN',
+          priority: index % 3 === 0 ? 1 : 2,
+          unreadCount: (index % 3) + 1,
+          lastMessageAt: new Date(Date.now() - index * 900_000),
+          messages: {
+            create: [
+              {
+                direction: 'INBOUND',
+                externalId: `${channel.code}-MSG-${index}-1`,
+                senderName: guest.name,
+                body: `Xin chào, ${guest.subject.toLowerCase()}. Bên mình còn phòng không ạ?`,
+                sentAt: createdAt,
+              },
+              {
+                direction: 'OUTBOUND',
+                externalId: `${channel.code}-MSG-${index}-2`,
+                senderName: 'Lễ tân Grand Suite',
+                body: 'Chào anh/chị, Grand Suite rất vui được hỗ trợ. Anh/chị cho em xin ngày dự kiến và số khách để kiểm tra phòng tốt nhất ạ.',
+                sentAt: new Date(createdAt.getTime() + 600_000),
+              },
+              {
+                direction: 'INBOUND',
+                externalId: `${channel.code}-MSG-${index}-3`,
+                senderName: guest.name,
+                body: 'Mình dự kiến cuối tuần này, 2 người lớn. Có ưu đãi gì không?',
+                sentAt: new Date(createdAt.getTime() + 1_200_000),
+              },
+            ],
+          },
+        },
+      });
+    }
+  }
+
   return { channels: CHANNELS.length, guests: await prisma.guest.count({ where: { orgId } }), menuItems, tables };
 }

@@ -33,6 +33,9 @@ import { PosModule } from './modules/pos/pos.module';
 import { HousekeepingModule } from './modules/housekeeping/housekeeping.module';
 import { GuestsModule } from './modules/guests/guests.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
+import { ChannelsModule } from './modules/channels/channels.module';
+import { BookingModule } from './modules/booking/booking.module';
+import { InboxModule } from './modules/inbox/inbox.module';
 
 @Module({
   imports: [
@@ -124,6 +127,9 @@ import { RoomsModule } from './modules/rooms/rooms.module';
     HousekeepingModule,
     GuestsModule,
     RoomsModule,
+    ChannelsModule,
+    BookingModule,
+    InboxModule,
   ],
   providers: [
     // Order matters: rate limit → authentication → CSRF → authorisation.

@@ -6,3 +6,4 @@ export * from './settings';
 export * from './reservation';
 export * from './pos';
 export * from './operations';
+export * from './channel';
