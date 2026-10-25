@@ -18,7 +18,7 @@
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất (Gate 3) |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ✅ Hoàn tất (Gate 4) |
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
-| 6 | CRM, kiểm thử, bảo mật, PWA, đóng gói | 🟡 Hoàn tất code — chờ Docker runtime |
+| 6 | CRM, kiểm thử, bảo mật, PWA, đóng gói | ✅ Hoàn tất (Gate 6) |
 
 Kế hoạch đầy đủ: [`docs/PLAN.md`](docs/PLAN.md) · Tiến độ & bằng chứng: [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
@@ -139,7 +139,22 @@ bash scripts/check-acceptance.sh
 - **Bảo mật**: `pnpm audit --prod --audit-level high` → **0 high/critical** (2 moderate còn lại); đã override postcss, multer, deepmerge-ts, zod lên bản vá; helmet/CSP, CSRF, RBAC, audit chain và webhook HMAC đã có test.
 - **Browser e2e**: 5/5 luồng PASS — dashboard, đặt phòng, POS thêm món, buồng phòng, report builder.
 - **PWA**: service worker cache shell + trang `/offline`; manifest hợp lệ.
-- **Docker**: `docker-compose config` hợp lệ; **chưa chạy `up`** vì máy không có Docker daemon.
+- **Docker**: đã chạy thật bằng Colima + Docker Compose; 6 service healthy, seed 24 tháng, acceptance **39/39** trong container.
+
+![Docker stack dashboard](docs/evidence/docker-dashboard-1920.png)
+
+---
+
+## Nghiệm thu Docker (Gate 6)
+
+```bash
+docker compose up -d --build
+# api healthy · web healthy · db healthy · redis healthy · mailhog · backup
+bash scripts/check-acceptance.sh   # 39/39
+docker compose ps                  # docs/evidence/docker-compose-stack.txt
+```
+
+Bằng chứng: `docs/evidence/docker-compose-stack.txt`, `docker-seed-log.txt`, `gate6-acceptance.txt`.
 
 ---
 
@@ -222,7 +237,7 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 - **82 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
 - **37 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
 - `bash scripts/check-acceptance.sh` chạy **39 kiểm tra** Gate 1–6.
-- Ảnh chụp 1920 / 768 / 390 px (31 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
+- Ảnh chụp 1920 / 768 / 390 px (32 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
 ---
 

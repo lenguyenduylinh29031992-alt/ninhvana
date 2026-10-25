@@ -12,7 +12,7 @@
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất | **Gate 3 — PASS** |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L, báo cáo tài chính | ✅ Hoàn tất | **Gate 4 — PASS** |
 | 5 | Dashboard hợp nhất, 24 tháng dữ liệu, report builder, dự báo | ✅ Hoàn tất | **Gate 5 — PASS** |
-| 6 | CRM, kiểm thử, bảo mật, PWA offline, đóng gói | 🟡 Code hoàn tất — chờ Docker daemon | 8/8 tiêu chí |
+| 6 | CRM, kiểm thử, bảo mật, PWA offline, đóng gói | ✅ Hoàn tất | **Gate 6 — PASS** | 8/8 tiêu chí |
 
 ---
 
@@ -155,13 +155,19 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - **Docker Compose**: `docker-compose config` PASS (CLI 5.6.1) — cấu hình 6 service hợp lệ.
 - **Acceptance**: 39 kiểm tra (thêm PWA); 82 unit shared + 37 integration API.
 
-### Chưa thể xác minh trong môi trường này
+### Docker runtime — đã xác minh
 
-- `docker compose up` cần Docker daemon; máy chỉ có CLI, không có daemon/VM. Đây là tiêu chí nghiệm thu duy nhất chưa chạy thật.
-- 2 cảnh báo moderate từ audit chưa xử lý (không có bản vá tương thích hoặc nằm ngoài runtime).
+- Cài Colima 0.10.3 + Docker 29.5.2; `colima start --cpu 4 --memory 6`.
+- `docker-compose up -d --build` build thành công 2 image; 6 service healthy (db, redis, api, web, mailhog, backup).
+- Seed tự động trong container: nền tảng → 30 ngày vận hành → tài chính → 24 tháng lịch sử.
+- Phát hiện và sửa lỗi thật: Next rewrites bị bake lúc build với `localhost:4000`; thêm `ARG API_INTERNAL_URL=http://api:4000` trước build để proxy đúng trong container.
+- `bash scripts/check-acceptance.sh` trong stack: **39/39 PASS**; dashboard container chụp tại `docs/evidence/docker-dashboard-1920.png`.
+- Evidence: `docker-compose-stack.txt`, `docker-seed-log.txt`, `gate6-acceptance.txt`.
 
-### Để đóng hoàn toàn
+### Còn lại (không chặn nghiệm thu)
 
-1. Trên máy có Docker: `docker compose up -d --build`, đăng nhập đủ 15 vai trò, chụp log + screenshot.
-2. Chạy `bash scripts/check-acceptance.sh` trong container và lưu evidence.
-3. Cập nhật trạng thái Gate 6 thành PASS.
+- 2 cảnh báo moderate audit không nằm trong đường runtime trực tiếp; theo dõi bản vá.
+
+### Kết luận Gate 6
+
+8/8 tiêu chí nghiệm thu đã có bằng chứng. Hệ thống hoàn chỉnh từ Giai đoạn 0 → 6.

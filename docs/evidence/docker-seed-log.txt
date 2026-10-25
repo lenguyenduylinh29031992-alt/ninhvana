@@ -1,0 +1,4 @@
+  Grand Suite — seed hoàn tất
+finance seed complete {
+long history seeded {
+{"level":30,"time":1792904769378,"pid":7,"hostname":"3f8b74f400b3","context":"NestApplication","msg":"Nest application successfully started"}

@@ -1,0 +1,7 @@
+NAME                    IMAGE                    COMMAND                  SERVICE   CREATED          STATUS                   PORTS
+grand-suite-api-1       grand-suite-api          "/sbin/tini -- /usr/…"   api       4 minutes ago    Up 4 minutes (healthy)   0.0.0.0:4000->4000/tcp, [::]:4000->4000/tcp
+grand-suite-backup-1    postgres:16-alpine       "/bin/sh -c 'while t…"   backup    4 minutes ago    Up 4 minutes             5432/tcp
+grand-suite-db-1        postgres:16-alpine       "docker-entrypoint.s…"   db        4 minutes ago    Up 4 minutes (healthy)   127.0.0.1:55432->5432/tcp
+grand-suite-mailhog-1   mailhog/mailhog:v1.0.1   "MailHog"                mailhog   4 minutes ago    Up 4 minutes             127.0.0.1:1025->1025/tcp, 127.0.0.1:8025->8025/tcp
+grand-suite-redis-1     redis:7-alpine           "docker-entrypoint.s…"   redis     4 minutes ago    Up 4 minutes (healthy)   127.0.0.1:56379->6379/tcp
+grand-suite-web-1       grand-suite-web          "/sbin/tini -- node …"   web       26 seconds ago   Up 25 seconds            0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp

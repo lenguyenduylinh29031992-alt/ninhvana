@@ -1,0 +1,67 @@
+
+  GRAND SUITE — kiểm tra nghiệm thu (Gate 1)
+  ────────────────────────────────────────────
+  ✔ API health endpoint
+  ✔ PostgreSQL + Redis healthy
+  ✔ Đăng nhập admin@grandsuite.vn
+  ✔ Đăng nhập chairman@grandsuite.vn
+  ✔ Đăng nhập ceo@grandsuite.vn
+  ✔ Đăng nhập cfo@grandsuite.vn
+  ✔ Đăng nhập revenue@grandsuite.vn
+  ✔ Đăng nhập hr@grandsuite.vn
+  ✔ Đăng nhập marketing@grandsuite.vn
+  ✔ Đăng nhập manager.han@grandsuite.vn
+  ✔ Đăng nhập manager.dan@grandsuite.vn
+  ✔ Đăng nhập frontdesk@grandsuite.vn
+  ✔ Đăng nhập housekeeping@grandsuite.vn
+  ✔ Đăng nhập chef@grandsuite.vn
+  ✔ Đăng nhập fnb@grandsuite.vn
+  ✔ Đăng nhập cashier@grandsuite.vn
+  ✔ Đăng nhập warehouse@grandsuite.vn
+  · 2 cơ sở · 250 phòng · 15 tài khoản · 14 vai trò · 8 gói giá
+  ✔ Dữ liệu nền (2 cơ sở, 250 phòng, 15 tài khoản)
+  · Chuỗi băm: 54 bản ghi, hợp lệ=True
+  ✔ Nhật ký kiểm toán toàn vẹn
+  · Lễ tân: 20 đến · 120 đang ở · 40 trả phòng
+  ✔ Bàn lễ tân trả về danh sách đến/ở/đi
+  · Tồn phòng: 12 hạng phòng
+  ✔ Kiểm tra tồn phòng theo ngày
+  · POS: 6 outlet
+  ✔ POS outlets & sơ đồ bàn
+  · Buồng phòng: 12 công việc
+  ✔ Bảng công việc buồng phòng
+  · Doanh thu 33,784,360,000 ₫ · bộ phận 33,784,360,000 ₫ · kênh 33,784,360,000 ₫ · khớp=True
+  ✔ Đối soát Dashboard = bộ phận = kênh = sổ cái
+  · Night audit: 14 ngày đã khoá sổ
+  ✔ Lịch sử Night Audit
+  · Kênh: 25 · OTA 8 · social 9 · mapping 96 · DLQ 0
+  ✔ Channel Manager: 8 OTA + 9 social + mapping
+  · Inbox: 9 hội thoại · 6 đang mở
+  ✔ Social Inbox đa kênh
+  · Booking engine: 12 hạng phòng còn trống
+  ✔ Booking engine công khai trả phòng trống
+  · P&L: doanh thu 28,022,350,000 ₫ · lương 456,465,866 ₫ · GOP 24,398,132,636 ₫ · GOPPAR 3,903,701 ₫
+  ✔ P&L / GOP / GOPPAR từ sổ cái
+  · Cân đối: tài sản 1,559,307,196,862 ₫ · nợ 204,810,385,658 ₫ · vốn 1,354,496,811,203 ₫ · lệch 0.16 ₫
+  ✔ Bảng cân đối kế toán cân bằng
+  · Công nợ NCC: 458,000,000 ₫ · 6 hoá đơn
+  ✔ Tuổi nợ phải trả nhà cung cấp
+  · Bảng lương: 2 kỳ · 2026-10
+  ✔ Bảng lương đã hạch toán
+  · Kho: 10 mặt hàng · giá trị 932,500,000 ₫
+  ✔ Tồn kho & giá vốn
+  · Hợp nhất: 24 tháng · doanh thu 28,022,350,000 ₫ · GOP 24,398,132,636 ₫ · dự báo 6 tháng · MAPE 19.7% · 123 ms
+  ✔ Dashboard hợp nhất 24 tháng + dự báo + <2s
+  · Report builder: 6 mẫu báo cáo
+  ✔ Report builder templates
+  · CSV header: ﻿"Bộ phận","Doanh thu","Chi phí","Lợi nhuận","Biên"
+  ✔ Xuất CSV báo cáo
+  · CRM: 180 khách · 4 phân khúc
+  ✔ CRM phân khúc khách hàng
+  · Đánh giá: 24 · trung bình 4.38 sao
+  ✔ CRM đánh giá & phản hồi
+  · PWA: sw.js=200 · manifest=200
+  ✔ PWA service worker & manifest
+
+  Kết quả: 39 đạt · 0 lỗi
+

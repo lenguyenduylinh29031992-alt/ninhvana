@@ -1,0 +1,200 @@
+name: grand-suite
+services:
+  api:
+    restart: unless-stopped
+    environment:
+      API_PORT: "4000"
+      APP_ENCRYPTION_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+      COOKIE_SECRET: dev-only-cookie-secret-please-replace-0000000
+      CSRF_SECRET: dev-only-csrf-secret-please-replace-00000000
+      DATABASE_URL: postgresql://grandsuite:grandsuite@db:5432/grandsuite?schema=public
+      JWT_ACCESS_SECRET: dev-only-access-secret-please-replace-000000
+      JWT_REFRESH_SECRET: dev-only-refresh-secret-please-replace-000000
+      NODE_ENV: production
+      PUBLIC_WEB_URL: http://localhost:3000
+      REDIS_URL: redis://redis:6379
+      SEED_ADMIN_PASSWORD: GrandSuite@2026
+      SEED_ON_START: "true"
+      SMTP_HOST: mailhog
+      SMTP_PORT: "1025"
+      STORAGE_LOCAL_DIR: /app/uploads
+      TZ: Asia/Ho_Chi_Minh
+    networks:
+      default: null
+    volumes:
+      - type: volume
+        source: uploads
+        target: /app/uploads
+        volume: {}
+    build:
+      context: /Users/tt/Documents/deepseek-harness/QLDN NINHVANA
+      dockerfile: docker/Dockerfile.api
+    depends_on:
+      db:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -fsS
+        - http://127.0.0.1:4000/api/v1/health/live
+      timeout: 5s
+      interval: 10s
+      retries: 12
+      start_period: 40s
+    ports:
+      - mode: ingress
+        target: 4000
+        published: "4000"
+        protocol: tcp
+  backup:
+    restart: unless-stopped
+    command:
+      - |
+        while true; do
+          stamp=$$(date +%Y%m%d-%H%M)
+          tmp="/backups/grandsuite-$$stamp.sql.tmp"
+          if pg_dump --no-owner --clean --if-exists -f "$$tmp"; then
+            mv "$$tmp" "/backups/grandsuite-$$stamp.sql"
+            echo "backup ok: $$stamp"
+          else
+            echo "backup failed: $$stamp" >&2
+          fi
+          find /backups -name 'grandsuite-*.sql' -mtime +$${BACKUP_RETENTION_DAYS} -delete
+          sleep 86400
+        done
+    entrypoint:
+      - /bin/sh
+      - -c
+    environment:
+      BACKUP_RETENTION_DAYS: "7"
+      PGDATABASE: grandsuite
+      PGHOST: db
+      PGPASSWORD: grandsuite
+      PGUSER: grandsuite
+    image: postgres:16-alpine
+    networks:
+      default: null
+    volumes:
+      - type: volume
+        source: backups
+        target: /backups
+        volume: {}
+    depends_on:
+      db:
+        condition: service_healthy
+        required: true
+  db:
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: grandsuite
+      POSTGRES_PASSWORD: grandsuite
+      POSTGRES_USER: grandsuite
+      TZ: Asia/Ho_Chi_Minh
+    image: postgres:16-alpine
+    networks:
+      default: null
+    volumes:
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
+        volume: {}
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U grandsuite -d grandsuite
+      timeout: 3s
+      interval: 5s
+      retries: 20
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 5432
+        published: "55432"
+        protocol: tcp
+  mailhog:
+    restart: unless-stopped
+    image: mailhog/mailhog:v1.0.1
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 8025
+        published: "8025"
+        protocol: tcp
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 1025
+        published: "1025"
+        protocol: tcp
+  redis:
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - 'yes'
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+    image: redis:7-alpine
+    networks:
+      default: null
+    volumes:
+      - type: volume
+        source: redisdata
+        target: /data
+        volume: {}
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      timeout: 3s
+      interval: 5s
+      retries: 20
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 6379
+        published: "56379"
+        protocol: tcp
+  web:
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:4000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_WS_URL: http://localhost:4000
+      NODE_ENV: production
+      TZ: Asia/Ho_Chi_Minh
+    networks:
+      default: null
+    build:
+      context: /Users/tt/Documents/deepseek-harness/QLDN NINHVANA
+      dockerfile: docker/Dockerfile.web
+    depends_on:
+      api:
+        condition: service_healthy
+        required: true
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+networks:
+  default:
+    name: grand-suite_default
+volumes:
+  backups:
+    name: grand-suite_backups
+  pgdata:
+    name: grand-suite_pgdata
+  redisdata:
+    name: grand-suite_redisdata
+  uploads:
+    name: grand-suite_uploads
