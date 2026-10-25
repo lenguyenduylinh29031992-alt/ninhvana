@@ -263,3 +263,8 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Mobile bottom bar đổi icon/nhãn theo bộ phận: TikTok, Bếp, Buồng phòng, Lễ tân, Kế toán, Nhân sự, Mua hàng…
 - Admin gán bộ phận khi tạo tài khoản hoặc đổi trực tiếp trong danh sách người dùng.
 - Ảnh: `docs/evidence/marketing-dept-390.png`.
+
+
+## Cố định nút Trung tâm (2026-10-25)
+
+- Thanh mobile dùng hai cột trái/phải cân bằng; nút Trung tâm luôn ở giữa tuyệt đối dù icon bộ phận ít/nhiều hoặc bị ẩn do quyền.

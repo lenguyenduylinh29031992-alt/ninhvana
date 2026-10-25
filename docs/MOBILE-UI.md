@@ -13,7 +13,7 @@ Trên màn hình `< 1024px`, thanh icon cố định ở đáy gồm 5 mục:
 | 5 | Tài chính | `/finance` | Ví |
 
 - Mục đang chọn có nền xanh nhạt, icon và nhãn màu xanh thương hiệu.
-- Nút tròn giữa luôn nổi cao hơn; khi ở Trung tâm điều hành, nút chuyển màu xanh đậm và có vòng sáng.
+- Nút tròn giữa **luôn cố định ở chính giữa** bằng hai cột trái/phải cân bằng, bất kể bộ phận có ít hay nhiều icon. Khi ở Trung tâm điều hành, nút chuyển màu xanh đậm và có vòng sáng.
 - Mục không có quyền sẽ tự ẩn; nút giữa vẫn hiện nếu có `dashboard:view`.
 - **Icon thay đổi theo bộ phận của tài khoản** (`User.departmentCode`):
   - Lễ tân → Lễ tân; Buồng phòng → Buồng phòng; Bộ phận Phòng → Sơ đồ phòng.
