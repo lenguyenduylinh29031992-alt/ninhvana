@@ -11,106 +11,113 @@
 | 2 | PMS, Folio, POS, Night Audit, sổ cái kép | ✅ Hoàn tất | **Gate 2 — PASS** |
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất | **Gate 3 — PASS** |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L, báo cáo tài chính | ✅ Hoàn tất | **Gate 4 — PASS** |
-| 5 | Dashboard đầy đủ, report builder, AI, dự báo, seed 24 tháng | ⏳ Tiếp theo | <2s, số liệu khớp 3 chiều |
-| 6 | Kiểm thử, bảo mật, hiệu năng, PWA offline, tài liệu | ⬜ Chưa | 8/8 tiêu chí |
+| 5 | Dashboard hợp nhất, 24 tháng dữ liệu, report builder, dự báo | ✅ Hoàn tất | **Gate 5 — PASS** |
+| 6 | CRM, kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⏳ Tiếp theo | 8/8 tiêu chí |
 
 ---
 
 ## Giai đoạn 2 — Vận hành (tóm tắt)
 
-29 model PMS/POS; chống overbooking 3 lớp (Redis lock → advisory lock → `EXCLUDE USING gist`); luồng booking → check-in → POS ghi nợ → night audit → checkout → thanh toán → hoá đơn; sổ cái kép là nguồn sự thật; 10 request đồng thời chỉ 1 thành công; seed 30 ngày (3.638 stays, 7.251 room-nights, 2.457 POS orders). Gate 2: 78 unit + 15 integration test, 25 kiểm tra.
+29 model PMS/POS; chống overbooking 3 lớp; luồng booking → check-in → POS ghi nợ → night audit → checkout → thanh toán → hoá đơn; sổ cái kép là nguồn sự thật; seed 30 ngày; Gate 2: 78 unit + 15 integration, 25 kiểm tra.
 
 ## Giai đoạn 3 — Kênh bán (tóm tắt)
 
-17 adapter mock (8 OTA + 9 social); ARI idempotent với retry/backoff/DLQ; webhook HMAC chống replay; pull booking thật vào PMS; booking engine công khai `/book`; inbox 9 kênh; doanh thu net sau hoa hồng theo kênh. Gate 3: 23 integration test, 28 kiểm tra.
+17 adapter mock (8 OTA + 9 social); ARI retry/backoff/DLQ; webhook HMAC chống replay; booking engine công khai; inbox 9 kênh; net revenue theo kênh. Gate 3: 23 integration, 28 kiểm tra.
+
+## Giai đoạn 4 — Tài chính (tóm tắt)
+
+Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/GOPPAR, cân đối kế toán, dòng tiền, AR/AP aging; 16 bảng mới; Gate 4: 29 integration, 33 kiểm tra.
 
 ---
 
-## Giai đoạn 4 — Chi phí, HRM và báo cáo tài chính (hoàn tất)
+## Giai đoạn 5 — Dashboard, 24 tháng, Report Builder & Forecast (hoàn tất)
 
-### Mô hình dữ liệu (1 migration, 16 bảng)
+### Dữ liệu 24 tháng
 
-- **Mua hàng**: `Supplier`, `PurchaseRequest`, `PurchaseOrder`/`Line`, `GoodsReceipt`/`Line`, `SupplierInvoice`, `SupplierPayment`.
-- **Kho**: `InventoryItem`, `StockBalance`, `StockMovement` (IN/OUT/OPENING), định mức tối thiểu.
-- **Chi phí**: `Expense` theo tài khoản/bộ phận, thanh toán ngay hoặc qua AP.
-- **HRM/payroll**: `Employee`, `Attendance`, `PayrollRun`, `PayrollLine`.
-- **Sổ cái**: mọi chứng từ đều sinh bút toán qua `PostingService`; không có đường ghi tắt.
+- `seed-long-history.ts`: 730 ngày × 2 cơ sở, mỗi ngày một bút toán doanh thu phòng/F&B/đồ uống + hoa hồng OTA; mỗi tháng một bút toán chi phí cố định, tiện ích, marketing và payroll.
+- Mùa vụ theo tháng (thấp 0,82 – cao 1,25), cuối tuần +16%, nhiễu xác định bằng LCG để rebuild cho cùng kết quả.
+- Idempotent: xoá và tạo lại mọi entry có `sourceId` bắt đầu `long-`; chạy ~1,6 giây.
+- Tổng cộng sau seed: **24 tháng** dữ liệu tài chính liên tục, bao trùm 30 ngày vận hành chi tiết.
 
-### Nghiệp vụ đã chạy thật
+### Dashboard hợp nhất
 
-1. **PR → PO → GRN**: yêu cầu mua có dòng hàng, duyệt tạo đơn theo nhà cung cấp, nhận hàng cập nhật tồn kho + bút toán `Dr 1520 / Cr 3310`.
-2. **Hoá đơn NCC**: ghi nhận chi phí + VAT đầu vào + AP; thanh toán `Dr 3310 / Cr 1120`, cập nhật tuổi nợ.
-3. **Xuất kho**: trừ tồn theo giá bình quân, `Dr 5000/5200 / Cr 1520`, ghi COGS F&B.
-4. **Chi phí**: ghi nhận và hạch toán ngay `Dr chi phí + VAT / Cr tiền`, ảnh hưởng P&L tức thì.
-5. **Payroll**: tính từ hợp đồng + chấm công + tăng ca; khấu trừ BHXH/BHYT/BHTN/KPCĐ, thuế TNCN lũy tiến; hạch toán `Dr 6000/6010 / Cr 3340/3380/3335`; chi trả `Dr 3340 / Cr 1120`.
-6. **P&L USALI**: doanh thu, COGS, lương, chi phí vận hành, chi phí cố định, **GOP**, **GOPPAR**, **RevPAR**, lợi nhuận sau thuế, lợi nhuận từng bộ phận.
-7. **Bảng cân đối**: tài sản/nợ/vốn + lợi nhuận giữ lại tính từ sổ; kiểm tra cân bằng tự động.
-8. **Lưu chuyển tiền tệ**: phân loại kinh doanh/đầu tư/tài chính từ các entry có tiền mặt/ngân hàng.
-9. **Tuổi nợ AR/AP**: bucket trong hạn/1–30/31–60/61–90/>90 theo ngày đến hạn.
+`GET /api/v1/dashboard/consolidated?propertyId=` trả về:
 
-### UI mới
+- Doanh thu, GOP, GOPPAR, RevPAR, ADR, công suất, phòng bán, AR/AP của tháng hiện tại.
+- Chuỗi 24 tháng doanh thu + GOP cho biểu đồ.
+- So sánh từng cơ sở: doanh thu, GOP, công suất, số phòng.
+- Cơ cấu doanh thu theo kênh.
+- Forecast 6 tháng kèm khoảng tin cậy và MAPE backtest.
+- Cache in-memory 60 giây theo org/cơ sở; đo `tookMs` thực tế (~150 ms khi nguội).
 
-- `/finance`: 5 tab P&L, cân đối kế toán, dòng tiền, phải thu, phải trả.
-- `/costs`: chi phí, tồn kho, công nợ NCC; dialog ghi chi phí.
-- `/payroll`: nhân sự, kỳ lương, tính/hạch toán/chi trả.
-- `/purchasing`, `/inventory` chuyển hướng vào Cost Control (một màn hình vận hành).
+### Dự báo
 
-### Seed tài chính
+- Hồi quy tuyến tính trên 18 tháng gần nhất + hệ số mùa vụ theo tháng (giới hạn 0,65–1,45).
+- **Backtest cuộn**: với 6 tháng cuối, huấn luyện trên dữ liệu trước đó rồi dự báo đúng tháng đó; MAPE hiện tại **19,7%**.
+- Trả về `method`, `backtestMonths`, `mape`, 6 điểm dự báo + low/high ±16%.
 
-- 18 nhân viên/cơ sở, chấm công 22 ngày, 2 kỳ lương (kỳ trước PAID, kỳ hiện tại POSTED).
-- 8 nhà cung cấp, 10 mặt hàng, tồn kho đầu kỳ + 4 tuần xuất kho COGS.
-- Hoá đơn điện/nước/vệ sinh/marketing/bảo trì 2 tháng, thanh toán kỳ trước; thuê mặt bằng + bảo hiểm cố định.
-- Chạy lại: `pnpm db:seed:finance` (idempotent).
+### Report Builder
 
-### Bằng chứng Gate 4
+- 6 mẫu: P&L, hiệu quả bộ phận, doanh thu kênh (gross/commission/net/share), công suất & ADR, bảng lương, tuổi nợ AP.
+- `GET /reports/templates`, `/reports/run`, `/reports/export.csv`.
+- CSV UTF-8 có BOM, header tiếng Việt, mở trực tiếp bằng Excel.
+- Mỗi lần chạy ghi audit `report.generated`.
+
+### UI
+
+- `/analytics`: KPI hợp nhất, biểu đồ 24 tháng + 6 tháng dự báo, bảng theo cơ sở, kênh, AR/AP, MAPE.
+- `/reports`: chọn mẫu, ngày, chạy xem trước, tải CSV.
+- `/revenue` chuyển hướng `/analytics`; menu Báo cáo đã mở.
+
+### Bằng chứng Gate 5
 
 | Hạng mục | Kết quả |
 |---|---|
 | `pnpm lint` · `typecheck` · `build` | ✅ 0 lỗi |
 | Unit test shared | ✅ **78/78** |
-| Integration API | ✅ **29/29** (thêm 6 test tài chính) |
-| P&L tháng hiện tại (GSL-HAN) | ✅ Doanh thu ~27,6 tỷ · lương 456,5 triệu · **GOP 24,06 tỷ** · **GOPPAR 3,08 triệu/phòng-đêm** |
-| Bảng cân đối | ✅ Tài sản = Nợ + Vốn; **lệch 0 ₫** |
-| Payroll | ✅ Chạy → hạch toán → chi trả; trạng thái PAID; bút toán cân bằng |
-| Mua hàng | ✅ PR → duyệt → nhận hàng làm tăng tồn kho, sinh AP |
-| Chi phí | ✅ Ghi chi phí làm tăng P&L đúng một lần |
-| AR/AP aging | ✅ AP 458 triệu, 6 hoá đơn, bucket đúng hạn |
-| Acceptance script | ✅ **33/33** |
-| Audit chain | ✅ Hợp lệ sau toàn bộ giao dịch tài chính |
+| Integration API | ✅ **34/34** (thêm 5 test dashboard/forecast/report) |
+| Dashboard | ✅ 24 tháng · doanh thu 27,65 tỷ · GOP 24,06 tỷ · GOPPAR 3,18 triệu · **146 ms** |
+| Đối soát 3 chiều | ✅ Tổng công ty = tổng cơ sở; P&L = sổ cái; kênh = tổng doanh thu |
+| Forecast | ✅ 6 điểm · backtest 6 tháng · **MAPE 19,7%** |
+| Report Builder | ✅ 6 mẫu · P&L 7 dòng · CSV UTF-8 có header |
+| Cache | ✅ Request thứ hai trả `cached=true` |
+| Acceptance script | ✅ **36/36** |
+| Audit chain | ✅ Hợp lệ sau khi chạy báo cáo |
 
 ### Giới hạn có chủ ý
 
-- Báo cáo P&L hiện theo **một cơ sở** mỗi lần; hợp nhất tập đoàn sẽ ở Phase 5 (dashboard).
-- AR aging dựa trên `Invoice` của PMS; các khoản phải thu nội bộ chỉ có trong sổ cái.
-- Chưa có màn hình duyệt PR/PO đầy đủ (backend + seed đã có); UI hiện tập trung chi phí/kho/AP.
-- Giá vốn món ăn dùng xuất kho định kỳ, chưa chạy recipe costing theo từng order POS.
-- Bảng lương dùng bảng thuế TNCN rút gọn 7 bậc, chưa có giảm trừ người phụ thuộc theo đăng ký thực tế.
-- Docker vẫn chưa chạy được trên máy này; entrypoint đã bổ sung seed tài chính.
+- Dữ liệu 24 tháng là **bút toán tổng hợp theo ngày** cho tài chính/dự báo; dữ liệu vận hành chi tiết (reservation, POS) vẫn 30 ngày. Muốn occupancy lịch sử 24 tháng cần generator reservation riêng (Phase 6 nếu cần).
+- Dashboard hợp nhất hiện tính P&L tháng hiện tại; bảng P&L 24 tháng đã có trong báo cáo nhưng chưa vẽ sparkline GOP.
+- Cache in-memory theo process; production nên chuyển sang Redis để chia sẻ giữa instance.
+- Forecast là mô hình thống kê, chưa dùng ML; chưa có scenario what-if.
+- Report Builder chưa lưu mẫu tuỳ chỉnh/lịch gửi email (permission đã có).
+- AR hiện 0 ₫ trong demo vì mọi hoá đơn PMS đã thanh toán; AP 458 triệu.
 
 ---
 
-## Giai đoạn 5 — Kế hoạch kế tiếp
+## Giai đoạn 6 — Kế hoạch kế tiếp
 
-1. **Dashboard hợp nhất**: doanh thu, GOP, GOPPAR, RevPAR theo cơ sở/kênh/bộ phận; P&L mini; công nợ; công suất; ADR; ALOS; so sánh MoM/YoY.
-2. **Seed 24 tháng** bằng generator hiện tại + mùa vụ, lạm phát, tỷ giá; đủ dữ liệu cho forecast.
-3. **Report builder**: lưu báo cáo, tham số, xuất PDF/Excel; lịch gửi email.
-4. **AI/forecast**: dự báo công suất/doanh thu, phát hiện bất thường chi phí, gợi ý giá.
-5. **Realtime & hiệu năng**: WebSocket cho KPI, cache Redis, mục tiêu dashboard <2s.
-6. Gate 5: dashboard khớp 3 chiều (tổng = bộ phận = kênh = sổ), 24 tháng dữ liệu, xuất báo cáo, forecast có backtest.
+1. **CRM hoàn chỉnh**: hồ sơ 360°, phân hạng, điểm trung thành, voucher, chiến dịch email/SMS, đánh giá & NPS, phản hồi.
+2. **Kiểm thử toàn diện**: bổ sung e2e browser cho 5 luồng, test bảo mật (OWASP), test tải dashboard/report, coverage ≥70% lõi.
+3. **Bảo mật**: rà soát IDOR, rate limit endpoint công khai, CSP, secrets, dependency audit; xử lý webhook cancel hai chiều.
+4. **PWA offline**: cache shell, hàng đợi thao tác POS/housekeeping, đồng bộ khi online.
+5. **Vận hành**: Docker Compose chạy thật, CI đầy đủ, backup/restore diễn tập, tài liệu API/người dùng, seed 24 tháng trong entrypoint.
+6. Gate 6: 8/8 tiêu chí nghiệm thu, 5 e2e flow, coverage ≥70%, không lỗ hổng nghiêm trọng, compose up + demo login.
 
 ## Rủi ro đang mở
 
-1. **Docker chưa kiểm chứng** trên môi trường có Docker.
-2. **Lịch sử 30 ngày** — cần 24 tháng trước báo cáo MoM/YoY.
-3. **UI mua hàng** chưa đầy đủ; backend đã sẵn sàng.
-4. **Đối soát liên công ty** (intercompany) chưa làm; sổ cái có tài khoản 1360 nhưng chưa tự động.
-5. **Recipe costing** cần nối POS order → định lượng → trừ kho.
+1. Docker chưa chạy trên máy này.
+2. Chi tiết vận hành chỉ 30 ngày; báo cáo occupancy dài hạn cần seed reservation.
+3. AR demo bằng 0; cần hoá đơn công ty quá hạn để minh hoạ.
+4. Chưa có e2e browser tự động cho 5 luồng.
+5. CRM/reviews/voucher chưa triển khai.
 
 ## Nhật ký quyết định
 
-- 2026-10-25: GL là nguồn sự thật duy nhất cho mọi báo cáo tài chính (ADR-02).
-- 2026-10-25: Pin PostgreSQL UTC để `@db.Date` đúng.
-- 2026-10-25: Kênh dùng adapter + idempotency key; webhook HMAC.
-- 2026-10-25: Booking engine gọi lại `ReservationsService` để giữ khoá/exclusion.
-- 2026-10-25: Payroll và chi phí đều đi qua `PostingService`; không có bút toán ngoài sổ.
-- 2026-10-25: Bảng cân đối tính lợi nhuận giữ lại từ P&L lũy kế thay vì bắt buộc kết chuyển 4210, nhờ vậy luôn cân bằng mà không cần bút toán khoá sổ.
+- 2026-10-25: GL là nguồn sự thật duy nhất (ADR-02).
+- 2026-10-25: Pin PostgreSQL UTC cho `@db.Date`.
+- 2026-10-25: Adapter kênh + idempotency key; webhook HMAC.
+- 2026-10-25: Booking engine dùng lại `ReservationsService`.
+- 2026-10-25: Mọi chi phí/lương qua `PostingService`.
+- 2026-10-25: Dashboard hợp nhất cache 60 giây, forecast có backtest cuộn thay vì chỉ số in-sample.
+- 2026-10-25: Seed dài dùng bút toán tổng hợp theo ngày thay vì nhân bản reservation 24 tháng — giữ thời gian seed <2 giây và đủ cho báo cáo tài chính/dự báo.

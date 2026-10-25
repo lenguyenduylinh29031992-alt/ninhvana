@@ -243,6 +243,32 @@ sys.exit(0 if ok else 1)
 " 2>/dev/null
 check "Tồn kho & giá vốn" $?
 
+
+consolidated=$(curl -fsS -b "$MGR_JAR" "$API/dashboard/consolidated" 2>/dev/null || echo '{}')
+echo "$consolidated" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+m=d.get('metrics',{}); f=d.get('forecast',{})
+ok = len(d.get('monthly',[]))>=24 and m.get('revenue',0)>0 and m.get('gop',0)>0 and m.get('gopPar',0)>0 and len(f.get('points',[]))==6 and d.get('tookMs',9999)<2000
+print(f\"  · Hợp nhất: {len(d.get('monthly',[]))} tháng · doanh thu {m.get('revenue',0):,.0f} ₫ · GOP {m.get('gop',0):,.0f} ₫ · dự báo {len(f.get('points',[]))} tháng · MAPE {f.get('mape')}% · {d.get('tookMs')} ms\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Dashboard hợp nhất 24 tháng + dự báo + <2s" $?
+
+reports=$(curl -fsS -b "$MGR_JAR" "$API/reports/templates" 2>/dev/null || echo '[]')
+echo "$reports" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print(f\"  · Report builder: {len(d)} mẫu báo cáo\")
+sys.exit(0 if len(d)>=6 else 1)
+" 2>/dev/null
+check "Report builder templates" $?
+
+csv=$(curl -fsS -b "$MGR_JAR" "$API/reports/export.csv?template=department&propertyId=$PROP&from=2026-10-01&to=$TODAY" 2>/dev/null | head -c 120)
+echo "$csv" | grep -q "Bộ phận" && CSV_OK=0 || CSV_OK=1
+echo "  · CSV header: $(echo "$csv" | head -1 | cut -c1-60)"
+check "Xuất CSV báo cáo" $CSV_OK
+
 rm -f "$MGR_JAR"
 
 echo ""

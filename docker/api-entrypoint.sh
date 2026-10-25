@@ -28,4 +28,10 @@ if [ "${SEED_FINANCE_ON_START:-true}" = "true" ]; then
     echo "⚠ Không sinh được dữ liệu tài chính — API vẫn khởi động."
 fi
 
+if [ "${SEED_LONG_ON_START:-true}" = "true" ]; then
+  echo "→ Bổ sung 24 tháng lịch sử tài chính (idempotent)…"
+  ./node_modules/.bin/tsx prisma/seed-long-history.ts || \
+    echo "⚠ Không sinh được lịch sử dài — API vẫn khởi động."
+fi
+
 exec "$@"

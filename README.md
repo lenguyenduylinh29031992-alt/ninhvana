@@ -18,7 +18,7 @@
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất (Gate 3) |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ✅ Hoàn tất (Gate 4) |
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
-| 6 | Kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⬜ |
+| 6 | Kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⏳ Tiếp theo |
 
 Kế hoạch đầy đủ: [`docs/PLAN.md`](docs/PLAN.md) · Tiến độ & bằng chứng: [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
@@ -108,6 +108,20 @@ bash scripts/check-acceptance.sh
 
 ---
 
+## Năng lực Giai đoạn 5
+
+- **Dashboard hợp nhất**: doanh thu, GOP, GOPPAR, RevPAR, công suất, ADR, AR/AP theo toàn tập đoàn hoặc từng cơ sở; phản hồi **~150 ms** và cache 60 giây.
+- **24 tháng dữ liệu**: 1.460 bút toán doanh thu theo ngày với mùa vụ + cuối tuần, 48 bút toán chi phí/tháng, đủ cho MoM/YoY và dự báo.
+- **Dự báo AI**: hồi quy xu hướng + hệ số mùa vụ theo tháng, **backtest cuộn 6 tháng**, MAPE ~19,7%, khoảng tin cậy ±16%.
+- **Report Builder**: 6 mẫu (P&L, bộ phận, kênh, công suất/ADR, bảng lương, tuổi nợ AP), chạy theo ngày/cơ sở, xem trước và **xuất CSV UTF-8** mở trực tiếp bằng Excel.
+- **Realtime**: dashboard và các màn hình vận hành tự làm mới; WebSocket phát sự kiện booking/POS/kênh.
+
+![Group Performance](docs/evidence/analytics-1920.png)
+
+![Report Builder](docs/evidence/reports-1920.png)
+
+---
+
 ## Tài khoản demo
 
 Mật khẩu chung: **`GrandSuite@2026`** (đổi qua `SEED_ADMIN_PASSWORD` trước khi seed).
@@ -185,9 +199,9 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 ## Kiểm thử
 
 - **78 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
-- **29 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối kế toán, payroll và mua hàng.
-- `bash scripts/check-acceptance.sh` chạy **33 kiểm tra** Gate 1–4.
-- Ảnh chụp 1920 / 768 / 390 px (28 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
+- **34 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
+- `bash scripts/check-acceptance.sh` chạy **36 kiểm tra** Gate 1–5.
+- Ảnh chụp 1920 / 768 / 390 px (30 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
 ---
 

@@ -33,8 +33,9 @@
     "db:status": "bash scripts/dev-db.sh status",
     "db:seed:ops": "pnpm --filter @grand-suite/api exec tsx prisma/seed-operations-run.ts",
     "db:seed:history": "pnpm --filter @grand-suite/api exec tsx prisma/seed-history.ts",
-    "db:demo": "pnpm db:seed && pnpm db:seed:history && pnpm db:seed:finance",
-    "db:seed:finance": "pnpm --filter @grand-suite/api exec tsx prisma/seed-finance.ts"
+    "db:demo": "pnpm db:seed && pnpm db:seed:history && pnpm db:seed:finance && pnpm db:seed:long",
+    "db:seed:finance": "pnpm --filter @grand-suite/api exec tsx prisma/seed-finance.ts",
+    "db:seed:long": "pnpm --filter @grand-suite/api exec tsx prisma/seed-long-history.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
