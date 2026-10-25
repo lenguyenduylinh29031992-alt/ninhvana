@@ -190,7 +190,7 @@ export default function SettingsPage() {
                             </code>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">
-                            <Badge tone={setting.scope === 'ORG' ? 'champagne' : 'outline'}>
+                            <Badge tone={setting.scope === 'ORG' ? 'brand' : 'outline'}>
                               {setting.scope === 'ORG' ? 'Tập đoàn' : setting.scope}
                             </Badge>
                           </TableCell>
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                       <TableCell className="text-[12px]">{template.name}</TableCell>
                       <TableCell className="text-[11px] uppercase">{template.locale}</TableCell>
                       <TableCell className="hidden md:table-cell">
-                        {template.isDefault ? <Badge tone="champagne">Mặc định</Badge> : '—'}
+                        {template.isDefault ? <Badge tone="brand">Mặc định</Badge> : '—'}
                       </TableCell>
                       <TableCell className="pr-5 text-[10px] text-muted-foreground">
                         {formatDateTime(template.updatedAt)}

@@ -105,7 +105,7 @@ export default function RolesPage() {
         title="Vai trò & quyền"
         description="Ma trận quyền dùng chung cho API và giao diện. Thay đổi có hiệu lực với phiên đăng nhập mới và luôn kèm lý do kiểm toán."
         actions={
-          <Badge tone="champagne">
+          <Badge tone="brand">
             <ShieldCheck className="size-3" />
             {rolesQuery.data?.length ?? 0} vai trò
           </Badge>
@@ -126,7 +126,7 @@ export default function RolesPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-lg">{roleName(role.code, locale)}</CardTitle>
-                    <Badge tone={role.scope === 'ORG' ? 'champagne' : 'outline'}>
+                    <Badge tone={role.scope === 'ORG' ? 'brand' : 'outline'}>
                       {role.scope === 'ORG' ? 'Tập đoàn' : 'Cơ sở'}
                     </Badge>
                   </div>
@@ -155,7 +155,7 @@ export default function RolesPage() {
                 </p>
                 <div className="flex items-center gap-4 border-t border-line/70 pt-3 text-[11px] text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <ShieldCheck className="size-3.5 text-champagne" />
+                    <ShieldCheck className="size-3.5 text-brand" />
                     {role.permissions.length} quyền
                   </span>
                   <span className="flex items-center gap-1.5">
@@ -198,13 +198,13 @@ export default function RolesPage() {
                         className={cn(
                           'flex cursor-pointer items-start gap-2 rounded-lg border px-2.5 py-2 text-[11px] transition-colors',
                           checked
-                            ? 'border-champagne/40 bg-champagne-soft/40 text-ink'
+                            ? 'border-brand/40 bg-brand-soft/40 text-ink'
                             : 'border-line text-muted-foreground hover:bg-muted/50',
                         )}
                       >
                         <input
                           type="checkbox"
-                          className="mt-0.5 size-3.5 accent-[hsl(var(--champagne))]"
+                          className="mt-0.5 size-3.5 accent-[hsl(var(--brand))]"
                           checked={checked}
                           onChange={() => {
                             const next = new Set(selected);

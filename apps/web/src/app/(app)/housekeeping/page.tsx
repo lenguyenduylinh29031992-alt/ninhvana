@@ -73,7 +73,7 @@ export default function HousekeepingPage() {
       />
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Mini label="Chờ dọn" value={board.data?.counts.pending ?? 0} tone="champagne" />
+        <Mini label="Chờ dọn" value={board.data?.counts.pending ?? 0} tone="brand" />
         <Mini label="Đang dọn" value={board.data?.counts.inProgress ?? 0} tone="warning" />
         <Mini label="Hoàn tất" value={board.data?.counts.done ?? 0} tone="success" />
         <Mini label="Báo hỏng" value={board.data?.counts.blocked ?? 0} tone="danger" />
@@ -96,7 +96,7 @@ export default function HousekeepingPage() {
                       <p className="font-display text-2xl text-ink">Phòng {task.room.number}</p>
                       <p className="text-[10px] text-muted-foreground">{task.room.roomType} · {task.room.floor ?? '—'}</p>
                     </div>
-                    <Badge tone={task.status === 'PENDING' ? 'champagne' : task.status === 'IN_PROGRESS' ? 'warning' : task.status === 'BLOCKED' ? 'danger' : 'success'}>
+                    <Badge tone={task.status === 'PENDING' ? 'brand' : task.status === 'IN_PROGRESS' ? 'warning' : task.status === 'BLOCKED' ? 'danger' : 'success'}>
                       {STATUS_LABEL[task.status] ?? task.status}
                     </Badge>
                   </div>
@@ -111,7 +111,7 @@ export default function HousekeepingPage() {
                       <span>{done}/{total}</span>
                     </div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-champagne transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+                      <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
@@ -139,7 +139,7 @@ export default function HousekeepingPage() {
 }
 
 function Mini({ label, value, tone }: { label: string; value: number; tone: string }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-forest' : tone === 'warning' ? 'text-warning' : 'text-champagne';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-forest' : tone === 'warning' ? 'text-warning' : 'text-brand';
   return (
     <Card className="p-3">
       <p className="label-xs">{label}</p>

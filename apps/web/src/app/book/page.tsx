@@ -151,20 +151,20 @@ export default function BookingEnginePage() {
     <main className="min-h-screen bg-canvas">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         <Link href="/book" className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-full border border-champagne/40 font-display text-sm text-champagne">GS</span>
+          <span className="flex size-9 items-center justify-center rounded-full border border-brand/40 font-display text-sm text-brand">GS</span>
           <span><span className="block font-display text-lg tracking-wide text-ink">GRAND SUITE</span><span className="block text-[8px] uppercase tracking-[0.3em] text-muted-foreground">Hospitality</span></span>
         </Link>
         <div className="flex items-center gap-3 text-[11px]">
           <Link href="/login" className="text-muted-foreground hover:text-ink">Đăng nhập</Link>
-          <Badge tone="champagne"><Sparkles className="size-3" /> Đặt trực tiếp, giá tốt nhất</Badge>
+          <Badge tone="brand"><Sparkles className="size-3" /> Đặt trực tiếp, giá tốt nhất</Badge>
         </div>
       </header>
 
-      <section className="relative overflow-hidden border-y border-line bg-gradient-to-br from-champagne-soft/70 via-canvas to-canvas">
+      <section className="relative overflow-hidden border-y border-line bg-gradient-to-br from-brand-soft/70 via-canvas to-canvas">
         <div className="mx-auto max-w-6xl px-5 py-14">
           <p className="label-xs">Bộ sưu tập khách sạn 5 sao</p>
           <h1 className="mt-2 max-w-2xl font-display text-5xl leading-[1.1] text-ink md:text-6xl">
-            Nghỉ dưỡng tại nơi <em className="text-champagne">tĩnh lặng</em> giữa lòng thành phố.
+            Nghỉ dưỡng tại nơi <em className="text-brand">tĩnh lặng</em> giữa lòng thành phố.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
             Đặt phòng trực tiếp với Grand Suite — xác nhận tức thì, miễn phí huỷ trước 48 giờ, đưa đón sân bay và đặc quyền ẩm thực.
@@ -208,8 +208,8 @@ export default function BookingEnginePage() {
             {availability.data.rooms.map((room) => (
               <Card key={room.roomTypeId} className="overflow-hidden">
                 <CardContent className="grid gap-4 p-4 md:grid-cols-[180px_1fr_auto] md:items-center">
-                  <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-champagne-soft to-muted">
-                    <BedDouble className="size-8 text-champagne" />
+                  <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-brand-soft to-muted">
+                    <BedDouble className="size-8 text-brand" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2"><h3 className="font-display text-xl text-ink">{room.name}</h3><Badge tone="outline">Tối đa {room.maxOccupancy} khách</Badge></div>
@@ -238,7 +238,7 @@ export default function BookingEnginePage() {
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[{ icon: ShieldCheck, title: 'Xác nhận tức thì', text: 'Hệ thống giữ phòng và xác nhận ngay khi đặt.' }, { icon: Sparkles, title: 'Đặc quyền trực tiếp', text: 'Nâng hạng khi còn phòng, late check-out 14:00.' }, { icon: MapPin, title: 'Vị trí trung tâm', text: 'Hồ Hoàn Kiếm và phố cổ trong bán kính 1 km.' }].map((item) => (
               <div key={item.title} className="rounded-xl border border-line bg-surface p-4">
-                <item.icon className="size-4 text-champagne" />
+                <item.icon className="size-4 text-brand" />
                 <p className="mt-2 font-display text-lg text-ink">{item.title}</p>
                 <p className="mt-1 text-[11px] text-muted-foreground">{item.text}</p>
               </div>

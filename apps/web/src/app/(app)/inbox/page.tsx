@@ -106,7 +106,7 @@ export default function InboxPage() {
         eyebrow="Thương mại · Hộp thư đa kênh"
         title="Social Commerce Inbox"
         description="Facebook, Instagram, Zalo, WhatsApp, TikTok, Telegram, LINE, KakaoTalk, WeChat trong một hộp thư."
-        actions={<Badge tone="champagne"><MessageCircle className="size-3" /> {inbox.data?.counts.open ?? 0} hội thoại mở</Badge>}
+        actions={<Badge tone="brand"><MessageCircle className="size-3" /> {inbox.data?.counts.open ?? 0} hội thoại mở</Badge>}
       />
 
       <Card className="overflow-hidden">
@@ -131,7 +131,7 @@ export default function InboxPage() {
                   key={conversation.id}
                   type="button"
                   onClick={() => setSelected(conversation.id)}
-                  className={cn('flex w-full flex-col gap-1 border-b border-line/60 px-3 py-3 text-left transition-colors hover:bg-muted/50', selected === conversation.id && 'bg-champagne-soft/50')}
+                  className={cn('flex w-full flex-col gap-1 border-b border-line/60 px-3 py-3 text-left transition-colors hover:bg-muted/50', selected === conversation.id && 'bg-brand-soft/50')}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-medium text-ink">{conversation.guestName}</span>

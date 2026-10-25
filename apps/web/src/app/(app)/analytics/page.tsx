@@ -55,16 +55,16 @@ export default function AnalyticsPage() {
       </div>
 
       <Card><CardContent className="p-4">
-        <div className="flex flex-wrap items-end justify-between gap-2"><div><p className="font-display text-xl text-ink">Doanh thu 24 tháng & dự báo 6 tháng</p><p className="text-[10px] text-muted-foreground">Cột đặc = thực tế · cột nhạt = dự báo · phương pháp {data.forecast.method}</p></div><Badge tone="champagne"><Sparkles className="size-3" /> MAPE {data.forecast.mape ?? '—'}%</Badge></div>
+        <div className="flex flex-wrap items-end justify-between gap-2"><div><p className="font-display text-xl text-ink">Doanh thu 24 tháng & dự báo 6 tháng</p><p className="text-[10px] text-muted-foreground">Cột đặc = thực tế · cột nhạt = dự báo · phương pháp {data.forecast.method}</p></div><Badge tone="brand"><Sparkles className="size-3" /> MAPE {data.forecast.mape ?? '—'}%</Badge></div>
         <div className="mt-4 flex h-52 items-end gap-1">
           {data.monthly.map((point) => (
             <div key={point.month} className="group relative flex h-full flex-1 flex-col items-center justify-end" title={`${point.month}: ${formatMoney(point.revenue)}`}>
-              <div className="w-full rounded-t bg-champagne/80 transition-all group-hover:bg-champagne" style={{ height: `${(point.revenue / max) * 100}%` }} />
+              <div className="w-full rounded-t bg-brand/80 transition-all group-hover:bg-brand" style={{ height: `${(point.revenue / max) * 100}%` }} />
             </div>
           ))}
           {data.forecast.points.map((point) => (
             <div key={point.month} className="group relative flex h-full flex-1 flex-col items-center justify-end" title={`Dự báo ${point.month}: ${formatMoney(point.revenue)} (${formatMoney(point.low)} – ${formatMoney(point.high)})`}>
-              <div className="w-full rounded-t border border-dashed border-champagne bg-champagne-soft" style={{ height: `${(point.revenue / max) * 100}%` }} />
+              <div className="w-full rounded-t border border-dashed border-brand bg-brand-soft" style={{ height: `${(point.revenue / max) * 100}%` }} />
             </div>
           ))}
         </div>
@@ -79,7 +79,7 @@ export default function AnalyticsPage() {
         <Card><CardContent className="p-4"><p className="font-display text-lg text-ink">Kênh bán & công nợ</p>
           <div className="mt-2 space-y-1.5">{data.channels.slice(0, 7).map((channel) => <div key={channel.code} className="flex justify-between border-b border-line/60 py-1 text-[11px]"><span className="text-muted-foreground">{channel.name}</span><span className="tabular">{formatMoney(channel.amount)}</span></div>)}</div>
           <div className="mt-3 grid grid-cols-2 gap-2"><div className="rounded-lg border border-line p-2"><p className="label-xs">Phải thu</p><p className="tabular text-sm">{formatMoney(data.metrics.ar)}</p></div><div className="rounded-lg border border-line p-2"><p className="label-xs">Phải trả</p><p className="tabular text-sm">{formatMoney(data.metrics.ap)}</p></div></div>
-          <div className="mt-3 rounded-lg bg-champagne-soft/50 p-2 text-[10px] text-muted-foreground"><ArrowUpRight className="mr-1 inline size-3" />Dự báo kỳ tới {formatMoney(data.forecast.points[1]?.revenue ?? 0)} · lợi nhuận sau thuế {formatMoney(data.metrics.netProfit)}</div>
+          <div className="mt-3 rounded-lg bg-brand-soft/50 p-2 text-[10px] text-muted-foreground"><ArrowUpRight className="mr-1 inline size-3" />Dự báo kỳ tới {formatMoney(data.forecast.points[1]?.revenue ?? 0)} · lợi nhuận sau thuế {formatMoney(data.metrics.netProfit)}</div>
         </CardContent></Card>
       </div>
     </div>
@@ -87,5 +87,5 @@ export default function AnalyticsPage() {
 }
 
 function Kpi({ icon: Icon, label, value, hint }: { icon: typeof Wallet; label: string; value: string; hint: string }) {
-  return <Card className="p-4"><div className="flex justify-between"><p className="label-xs">{label}</p><Icon className="size-4 text-champagne" /></div><p className="mt-2 font-display text-3xl text-ink">{value}</p><p className="text-[9px] text-muted-foreground">{hint}</p></Card>;
+  return <Card className="p-4"><div className="flex justify-between"><p className="label-xs">{label}</p><Icon className="size-4 text-brand" /></div><p className="mt-2 font-display text-3xl text-ink">{value}</p><p className="text-[9px] text-muted-foreground">{hint}</p></Card>;
 }

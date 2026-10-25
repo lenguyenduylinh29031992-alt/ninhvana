@@ -1,6 +1,6 @@
 /**
  * Grand Suite — Tailwind design tokens.
- * Palette: ivory & espresso with champagne accents; serif display, sans data.
+ * Palette: warm ivory & deep forest green; serif display, sans data.
  * All colors are HSL channel triplets so opacity modifiers keep working.
  */
 /** @type {import('tailwindcss').Config} */
@@ -18,10 +18,10 @@ module.exports = {
           foreground: 'hsl(var(--muted-foreground) / <alpha-value>)',
         },
         line: 'hsl(var(--line) / <alpha-value>)',
-        champagne: {
-          DEFAULT: 'hsl(var(--champagne) / <alpha-value>)',
-          soft: 'hsl(var(--champagne-soft) / <alpha-value>)',
-          foreground: 'hsl(var(--champagne-foreground) / <alpha-value>)',
+        brand: {
+          DEFAULT: 'hsl(var(--brand) / <alpha-value>)',
+          soft: 'hsl(var(--brand-soft) / <alpha-value>)',
+          foreground: 'hsl(var(--brand-foreground) / <alpha-value>)',
         },
         forest: {
           DEFAULT: 'hsl(var(--forest) / <alpha-value>)',

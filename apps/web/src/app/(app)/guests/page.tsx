@@ -77,7 +77,7 @@ export default function GuestsPage() {
                   <TableRow key={guest.id} className="cursor-pointer" onClick={() => setSelected(guest.id)}>
                     <TableCell><span className="text-xs font-medium">{guest.fullName}</span><span className="block font-mono text-[9px] text-muted-foreground">{guest.code}</span></TableCell>
                     <TableCell className="text-[10px] text-muted-foreground">{guest.phone ?? '—'}<span className="block">{guest.email ?? ''}</span></TableCell>
-                    <TableCell>{guest.vipLevel > 0 ? <Badge tone="champagne"><Star className="size-3" /> VIP {guest.vipLevel}</Badge> : <Badge tone="neutral">Thường</Badge>}</TableCell>
+                    <TableCell>{guest.vipLevel > 0 ? <Badge tone="brand"><Star className="size-3" /> VIP {guest.vipLevel}</Badge> : <Badge tone="neutral">Thường</Badge>}</TableCell>
                     <TableCell className="text-right text-[11px]">{guest.totalStays} lần · {guest.totalNights} đêm</TableCell>
                     <TableCell className="tabular text-right text-[11px]">{formatMoney(guest.lifetimeValue)}</TableCell>
                     <TableCell className="text-[10px] text-muted-foreground">{guest.lastStayAt?.slice(0, 10) ?? '—'}</TableCell>
@@ -88,7 +88,7 @@ export default function GuestsPage() {
           )}
           <div className="flex justify-between">
             <p className="text-[10px] text-muted-foreground">Trang {page}/{list.data?.totalPages ?? 1}</p>
-            <div className="flex gap-2"><button className="text-xs text-champagne disabled:opacity-40" disabled={page <= 1} onClick={() => setPage(page - 1)}>Trước</button><button className="text-xs text-champagne disabled:opacity-40" disabled={page >= (list.data?.totalPages ?? 1)} onClick={() => setPage(page + 1)}>Sau</button></div>
+            <div className="flex gap-2"><button className="text-xs text-brand disabled:opacity-40" disabled={page <= 1} onClick={() => setPage(page - 1)}>Trước</button><button className="text-xs text-brand disabled:opacity-40" disabled={page >= (list.data?.totalPages ?? 1)} onClick={() => setPage(page + 1)}>Sau</button></div>
           </div>
         </CardContent>
       </Card>
@@ -103,7 +103,7 @@ function GuestDetail({ id, onClose }: { id: string | null; onClose: () => void }
   return (
     <Dialog open={Boolean(id)} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-xl">
-        <DialogHeader><DialogTitle className="flex items-center gap-2">{guest?.fullName ?? 'Khách'}<Gem className="size-4 text-champagne" /></DialogTitle><DialogDescription>{guest?.code} · {guest?.nationality ?? '—'}</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle className="flex items-center gap-2">{guest?.fullName ?? 'Khách'}<Gem className="size-4 text-brand" /></DialogTitle><DialogDescription>{guest?.code} · {guest?.nationality ?? '—'}</DialogDescription></DialogHeader>
         {!guest ? <Skeleton className="h-40 w-full" /> : (
           <div className="space-y-3 text-xs">
             <div className="grid grid-cols-2 gap-2">

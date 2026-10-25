@@ -59,7 +59,7 @@ export default function KdsPage() {
         eyebrow="Vận hành · Bếp"
         title="Màn hình bếp (KDS)"
         description="Ticket từ POS tự động chuyển sang bếp/bar. Cập nhật trạng thái theo thời gian thực."
-        actions={<Badge tone="champagne"><ChefHat className="size-3" /> {tickets.data?.length ?? 0} ticket</Badge>}
+        actions={<Badge tone="brand"><ChefHat className="size-3" /> {tickets.data?.length ?? 0} ticket</Badge>}
       />
       {tickets.isLoading ? (
         <div className="grid gap-3 md:grid-cols-3">{Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-40" />)}</div>

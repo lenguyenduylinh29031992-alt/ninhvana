@@ -73,7 +73,7 @@ export function StatCard({
   value: React.ReactNode;
   hint?: React.ReactNode;
   icon?: LucideIcon;
-  tone?: 'default' | 'champagne' | 'forest';
+  tone?: 'default' | 'brand' | 'forest';
   loading?: boolean;
 }) {
   return (
@@ -82,7 +82,7 @@ export function StatCard({
         <span
           className={cn(
             'absolute inset-x-0 top-0 h-px',
-            tone === 'champagne' ? 'bg-champagne/50' : 'bg-forest/40',
+            tone === 'brand' ? 'bg-brand/50' : 'bg-forest/40',
           )}
         />
       ) : null}

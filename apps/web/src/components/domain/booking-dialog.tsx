@@ -155,13 +155,13 @@ export function BookingDialog({
                 onClick={() => setSelected(room.roomTypeId)}
                 className={cn(
                   'flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-colors',
-                  selected === room.roomTypeId ? 'border-champagne bg-champagne-soft/60' : 'border-line hover:border-champagne/40',
+                  selected === room.roomTypeId ? 'border-brand bg-brand-soft/60' : 'border-line hover:border-brand/40',
                   room.available === 0 && 'cursor-not-allowed opacity-40',
                 )}
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <BedDouble className="size-3.5 text-champagne" />
+                    <BedDouble className="size-3.5 text-brand" />
                     <span className="font-display text-lg text-ink">{room.name}</span>
                     <Badge tone={room.available > 3 ? 'success' : 'warning'}>{room.available} phòng</Badge>
                   </div>
@@ -173,7 +173,7 @@ export function BookingDialog({
                   <p className="tabular text-sm font-medium text-ink">{formatMoney(room.total)}</p>
                   <p className="text-[9px] text-muted-foreground">{formatMoney(room.averageNightly)}/đêm · đã gồm thuế & phí</p>
                 </div>
-                {selected === room.roomTypeId ? <Check className="size-4 text-champagne" /> : null}
+                {selected === room.roomTypeId ? <Check className="size-4 text-brand" /> : null}
               </button>
             ))
           ) : (

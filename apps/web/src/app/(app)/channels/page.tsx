@@ -112,10 +112,10 @@ export default function ChannelsPage() {
                     <p className="font-mono text-[9px] uppercase tracking-wide text-muted-foreground">{channel.code}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <Badge tone={channel.type === 'OTA' ? 'champagne' : channel.type === 'SOCIAL' ? 'outline' : 'neutral'}>
+                    <Badge tone={channel.type === 'OTA' ? 'brand' : channel.type === 'SOCIAL' ? 'outline' : 'neutral'}>
                       {TYPE_LABEL[channel.type] ?? channel.type}
                     </Badge>
-                    <Badge tone={channel.integrationStatus === 'ACTIVE' ? 'success' : channel.integrationStatus === 'ERROR' ? 'danger' : 'champagne'}>
+                    <Badge tone={channel.integrationStatus === 'ACTIVE' ? 'success' : channel.integrationStatus === 'ERROR' ? 'danger' : 'brand'}>
                       {channel.integrationStatus}
                     </Badge>
                   </div>

@@ -171,12 +171,12 @@ export default function PosPage() {
                       }}
                       className={cn(
                         'flex min-h-16 flex-col items-center justify-center rounded-xl border px-2 py-2 text-center transition-colors',
-                        open ? 'border-champagne bg-champagne-soft/70' : 'border-line bg-surface hover:border-champagne/50',
+                        open ? 'border-brand bg-brand-soft/70' : 'border-line bg-surface hover:border-brand/50',
                       )}
                     >
                       <span className="font-display text-base text-ink">{table.name}</span>
                       <span className="text-[9px] text-muted-foreground">{table.seats} chỗ</span>
-                      {open ? <span className="mt-1 text-[9px] font-medium text-champagne">{formatMoney(open.total)}</span> : null}
+                      {open ? <span className="mt-1 text-[9px] font-medium text-brand">{formatMoney(open.total)}</span> : null}
                     </button>
                   );
                 })}
@@ -198,13 +198,13 @@ export default function PosPage() {
                             type="button"
                             disabled={!orderId || addItem.isPending}
                             onClick={() => addItem.mutate(item.id)}
-                            className="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-left transition-colors hover:border-champagne/50 disabled:opacity-40"
+                            className="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-left transition-colors hover:border-brand/50 disabled:opacity-40"
                           >
                             <div>
                               <p className="text-[11px] font-medium text-ink">{item.name}</p>
                               <p className="text-[9px] text-muted-foreground">{item.station === 'BAR' ? 'Bar' : 'Bếp'} · {item.price.toLocaleString('vi-VN')} ₫</p>
                             </div>
-                            <Plus className="size-3.5 text-champagne" />
+                            <Plus className="size-3.5 text-brand" />
                           </button>
                         ))}
                       </div>
@@ -221,7 +221,7 @@ export default function PosPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <p className="font-display text-lg text-ink">{detail?.number ?? 'Chưa có order'}</p>
-              {detail ? <Badge tone={detail.status === 'OPEN' ? 'champagne' : 'success'}>{detail.status}</Badge> : null}
+              {detail ? <Badge tone={detail.status === 'OPEN' ? 'brand' : 'success'}>{detail.status}</Badge> : null}
             </div>
             {detail ? (
               <>

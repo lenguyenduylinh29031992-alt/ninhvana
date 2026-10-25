@@ -54,7 +54,7 @@ export function Sidebar({
         aria-label="Điều hướng chính"
       >
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-line px-5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-champagne/40 font-display text-[15px] tracking-wide text-champagne">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-brand/40 font-display text-[15px] tracking-wide text-brand">
             GS
           </span>
           <div className="min-w-0 flex-1">
@@ -128,7 +128,7 @@ export function Sidebar({
                             aria-current={active ? 'page' : undefined}
                           >
                             {active ? (
-                              <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-champagne" aria-hidden />
+                              <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand" aria-hidden />
                             ) : null}
                             {content}
                           </Link>

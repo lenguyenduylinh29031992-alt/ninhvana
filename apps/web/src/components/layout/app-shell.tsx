@@ -39,7 +39,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen items-center justify-center bg-canvas">
         <div className="w-full max-w-sm space-y-4 px-6">
           <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-full border border-champagne/40 font-display text-champagne">
+            <span className="flex size-10 items-center justify-center rounded-full border border-brand/40 font-display text-brand">
               GS
             </span>
             <div className="flex-1">

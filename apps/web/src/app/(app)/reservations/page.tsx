@@ -82,7 +82,7 @@ export default function ReservationsPage() {
                     <TableCell className="text-[11px]">{reservation.guest.fullName}<span className="block text-[9px] text-muted-foreground">{reservation.guest.phone ?? reservation.guest.email ?? '—'}</span></TableCell>
                     <TableCell className="hidden text-[10px] text-muted-foreground md:table-cell">{reservation.checkIn} → {reservation.checkOut} · {reservation.nights} đêm</TableCell>
                     <TableCell className="hidden lg:table-cell"><Badge tone="outline">{reservation.channel?.code ?? 'DIRECT'}</Badge></TableCell>
-                    <TableCell><Badge tone={reservation.status === 'IN_HOUSE' ? 'success' : reservation.status === 'CONFIRMED' ? 'champagne' : reservation.status === 'CANCELLED' ? 'danger' : 'neutral'}>{reservation.status}</Badge></TableCell>
+                    <TableCell><Badge tone={reservation.status === 'IN_HOUSE' ? 'success' : reservation.status === 'CONFIRMED' ? 'brand' : reservation.status === 'CANCELLED' ? 'danger' : 'neutral'}>{reservation.status}</Badge></TableCell>
                     <TableCell className="tabular text-right text-[11px]">{formatMoney(reservation.totalAmount)}</TableCell>
                     <TableCell className="text-right">
                       {['CONFIRMED', 'PENDING'].includes(reservation.status) && can('reservation:cancel') ? (

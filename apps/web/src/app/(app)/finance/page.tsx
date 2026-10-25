@@ -75,7 +75,7 @@ export default function FinancePage() {
               <div className="mt-3 space-y-2 text-xs">
                 {[['Giá vốn', pnl.data.costOfSales], ['Lương & phúc lợi', pnl.data.payroll], ['Vận hành khác', pnl.data.otherOperating], ['Chi phí cố định', pnl.data.fixedCharges]].map(([label, value]) => (
                   <div key={label as string}><div className="flex justify-between"><span className="text-muted-foreground">{label}</span><span className="tabular">{formatMoney(value as number)}</span></div>
-                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full bg-champagne" style={{ width: `${pnl.data!.revenue ? ((value as number) / pnl.data!.revenue) * 100 : 0}%` }} /></div></div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand" style={{ width: `${pnl.data!.revenue ? ((value as number) / pnl.data!.revenue) * 100 : 0}%` }} /></div></div>
                 ))}
               </div>
             </CardContent></Card>
@@ -134,5 +134,5 @@ function AgingView({ title, data, loading, kind }: { title: string; data?: Aging
 }
 
 function Kpi({ label, value, hint, icon: Icon }: { label: string; value: string; hint: string; icon: typeof TrendingUp }) {
-  return <Card className="p-4"><div className="flex justify-between"><p className="label-xs">{label}</p><Icon className="size-4 text-champagne" /></div><p className="mt-2 font-display text-2xl text-ink">{value}</p>{hint ? <p className="text-[9px] text-muted-foreground">{hint}</p> : null}</Card>;
+  return <Card className="p-4"><div className="flex justify-between"><p className="label-xs">{label}</p><Icon className="size-4 text-brand" /></div><p className="mt-2 font-display text-2xl text-ink">{value}</p>{hint ? <p className="text-[9px] text-muted-foreground">{hint}</p> : null}</Card>;
 }

@@ -15,11 +15,11 @@ const buttonVariants = cva(
         secondary: 'border border-line bg-surface text-ink hover:bg-muted',
         outline: 'border border-line bg-transparent text-ink hover:bg-muted',
         ghost: 'text-muted-foreground hover:bg-muted hover:text-ink',
-        champagne:
-          'bg-champagne text-champagne-foreground shadow-sm hover:bg-champagne/90 active:scale-[0.99]',
+        brand:
+          'bg-brand text-brand-foreground shadow-sm hover:bg-brand/90 active:scale-[0.99]',
         subtle: 'bg-muted text-ink hover:bg-muted/70',
         danger: 'bg-danger text-white hover:bg-danger/90',
-        link: 'text-champagne underline-offset-4 hover:underline',
+        link: 'text-brand underline-offset-4 hover:underline',
       },
       size: {
         sm: 'h-8 px-3 text-xs',

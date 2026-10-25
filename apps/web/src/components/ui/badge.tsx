@@ -12,7 +12,7 @@ const badgeVariants = cva(
         warning: 'border-warning/25 bg-warning-soft text-warning',
         danger: 'border-danger/20 bg-danger-soft text-danger',
         info: 'border-info/20 bg-info-soft text-info',
-        champagne: 'border-champagne/25 bg-champagne-soft text-champagne',
+        brand: 'border-brand/25 bg-brand-soft text-brand',
         outline: 'border-line bg-transparent text-muted-foreground',
       },
     },

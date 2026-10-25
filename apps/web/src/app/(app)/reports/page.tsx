@@ -56,8 +56,8 @@ export default function ReportsPage() {
       </CardContent></Card>
       <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
         {(templates.data ?? []).map((item) => (
-          <button key={item.key} type="button" onClick={() => { setTemplate(item.key); setRunKey(0); }} className={`rounded-xl border p-3 text-left transition-colors ${template === item.key ? 'border-champagne bg-champagne-soft/50' : 'border-line bg-surface hover:border-champagne/40'}`}>
-            <div className="flex items-center justify-between"><span className="font-display text-base text-ink">{item.title}</span><FileSpreadsheet className="size-3.5 text-champagne" /></div>
+          <button key={item.key} type="button" onClick={() => { setTemplate(item.key); setRunKey(0); }} className={`rounded-xl border p-3 text-left transition-colors ${template === item.key ? 'border-brand bg-brand-soft/50' : 'border-line bg-surface hover:border-brand/40'}`}>
+            <div className="flex items-center justify-between"><span className="font-display text-base text-ink">{item.title}</span><FileSpreadsheet className="size-3.5 text-brand" /></div>
             <p className="mt-1 text-[10px] text-muted-foreground">{item.description}</p>
           </button>
         ))}

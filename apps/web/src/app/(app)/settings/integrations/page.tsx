@@ -48,9 +48,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   OTHER: 'Khác',
 };
 
-const STATUS_META: Record<IntegrationInfo['status'], { label: string; tone: 'success' | 'champagne' | 'neutral' | 'danger' }> = {
+const STATUS_META: Record<IntegrationInfo['status'], { label: string; tone: 'success' | 'brand' | 'neutral' | 'danger' }> = {
   ACTIVE: { label: 'Đang hoạt động', tone: 'success' },
-  SANDBOX: { label: 'Sandbox / Mock', tone: 'champagne' },
+  SANDBOX: { label: 'Sandbox / Mock', tone: 'brand' },
   DISABLED: { label: 'Tắt', tone: 'neutral' },
   ERROR: { label: 'Lỗi kết nối', tone: 'danger' },
 };
@@ -92,8 +92,8 @@ export default function IntegrationsPage() {
         }
       />
 
-      <div className="grid gap-3 rounded-xl border border-champagne/25 bg-champagne-soft/50 p-4 sm:grid-cols-[auto_1fr]">
-        <ShieldCheck className="mt-0.5 size-5 text-champagne" />
+      <div className="grid gap-3 rounded-xl border border-brand/25 bg-brand-soft/50 p-4 sm:grid-cols-[auto_1fr]">
+        <ShieldCheck className="mt-0.5 size-5 text-brand" />
         <div className="text-[11px] leading-relaxed text-ink">
           <p className="font-medium">Kết nối an toàn, mock-first</p>
           <p className="mt-1 text-muted-foreground">
@@ -114,7 +114,7 @@ export default function IntegrationsPage() {
         [...groups.entries()].map(([category, items]) => (
           <section key={category} className="space-y-2">
             <div className="flex items-center gap-2">
-              <Cable className="size-3.5 text-champagne" />
+              <Cable className="size-3.5 text-brand" />
               <h2 className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                 {CATEGORY_LABELS[category] ?? category}
               </h2>

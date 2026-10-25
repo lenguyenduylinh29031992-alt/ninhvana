@@ -12,7 +12,7 @@ export const Switch = React.forwardRef<
   <SwitchPrimitive.Root
     ref={ref}
     className={cn(
-      'focus-ring peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors data-[state=checked]:bg-champagne data-[state=unchecked]:bg-line',
+      'focus-ring peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors data-[state=checked]:bg-brand data-[state=unchecked]:bg-line',
       className,
     )}
     {...props}
@@ -34,14 +34,14 @@ export function Avatar({
   return (
     <AvatarPrimitive.Root
       className={cn(
-        'relative flex size-9 shrink-0 overflow-hidden rounded-full border border-line bg-champagne-soft',
+        'relative flex size-9 shrink-0 overflow-hidden rounded-full border border-line bg-brand-soft',
         className,
       )}
     >
       {src ? <AvatarPrimitive.Image src={src} alt={name ?? ''} className="size-full object-cover" /> : null}
       <AvatarPrimitive.Fallback
         delayMs={src ? 300 : 0}
-        className="flex size-full items-center justify-center text-2xs font-semibold tracking-wide text-champagne"
+        className="flex size-full items-center justify-center text-2xs font-semibold tracking-wide text-brand"
       >
         {initials(name)}
       </AvatarPrimitive.Fallback>

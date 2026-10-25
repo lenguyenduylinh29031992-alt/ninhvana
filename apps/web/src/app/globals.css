@@ -3,60 +3,60 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   Grand Suite design tokens — ivory, espresso, champagne.
+   Grand Suite design tokens — warm ivory, deep forest green, brass-free luxury.
    HSL channel triplets consumed by Tailwind (<alpha-value>).
    ───────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --canvas: 40 33% 97%;
-    --surface: 0 0% 100%;
-    --elevated: 40 30% 99%;
-    --ink: 24 14% 10%;
-    --muted: 38 22% 94%;
-    --muted-foreground: 30 7% 40%;
-    --line: 36 18% 88%;
-    --champagne: 36 38% 46%;
-    --champagne-soft: 37 45% 93%;
-    --champagne-foreground: 40 40% 98%;
-    --forest: 158 30% 26%;
-    --forest-soft: 155 25% 93%;
+    --canvas: 40 40% 97%;
+    --surface: 40 50% 99%;
+    --elevated: 40 35% 99%;
+    --ink: 158 30% 12%;
+    --muted: 145 18% 93%;
+    --muted-foreground: 150 8% 38%;
+    --line: 145 14% 86%;
+    --brand: 154 40% 27%;
+    --brand-soft: 145 30% 91%;
+    --brand-foreground: 40 50% 98%;
+    --forest: 160 45% 34%;
+    --forest-soft: 150 32% 91%;
     --danger: 0 58% 42%;
     --danger-soft: 0 60% 96%;
     --warning: 30 78% 34%;
     --warning-soft: 36 80% 94%;
     --info: 214 45% 38%;
     --info-soft: 214 60% 95%;
-    --sidebar: 24 16% 8%;
-    --sidebar-ink: 40 25% 92%;
-    --sidebar-muted: 36 8% 58%;
-    --sidebar-line: 36 10% 17%;
+    --sidebar: 158 40% 9%;
+    --sidebar-ink: 42 35% 92%;
+    --sidebar-muted: 145 10% 62%;
+    --sidebar-line: 155 20% 17%;
     --font-display: 'Cormorant Garamond';
     --font-sans: 'Inter';
   }
 
   .dark {
-    --canvas: 24 8% 6%;
-    --surface: 24 7% 9%;
-    --elevated: 24 6% 12%;
-    --ink: 40 22% 91%;
-    --muted: 30 6% 15%;
-    --muted-foreground: 36 8% 62%;
-    --line: 30 7% 19%;
-    --champagne: 38 44% 60%;
-    --champagne-soft: 36 22% 16%;
-    --champagne-foreground: 30 20% 8%;
-    --forest: 156 28% 55%;
-    --forest-soft: 156 20% 14%;
+    --canvas: 155 12% 6%;
+    --surface: 155 10% 8%;
+    --elevated: 155 9% 11%;
+    --ink: 42 30% 92%;
+    --muted: 150 8% 14%;
+    --muted-foreground: 145 10% 62%;
+    --line: 150 10% 18%;
+    --brand: 150 32% 62%;
+    --brand-soft: 150 18% 15%;
+    --brand-foreground: 150 20% 8%;
+    --forest: 150 28% 58%;
+    --forest-soft: 150 18% 13%;
     --danger: 0 60% 62%;
     --danger-soft: 0 30% 16%;
     --warning: 38 70% 58%;
     --warning-soft: 36 30% 14%;
     --info: 210 50% 65%;
     --info-soft: 212 30% 16%;
-    --sidebar: 24 10% 5%;
-    --sidebar-ink: 40 20% 88%;
-    --sidebar-muted: 36 6% 50%;
-    --sidebar-line: 36 8% 14%;
+    --sidebar: 158 18% 4%;
+    --sidebar-ink: 42 30% 90%;
+    --sidebar-muted: 145 8% 50%;
+    --sidebar-line: 150 10% 13%;
   }
 
   html {
@@ -84,11 +84,11 @@
   }
 
   ::selection {
-    background: hsl(var(--champagne) / 0.25);
+    background: hsl(var(--brand) / 0.25);
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--champagne));
+    outline: 2px solid hsl(var(--brand));
     outline-offset: 2px;
   }
 
@@ -135,7 +135,7 @@
   }
 
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
   }
 
   .data-grid-row {

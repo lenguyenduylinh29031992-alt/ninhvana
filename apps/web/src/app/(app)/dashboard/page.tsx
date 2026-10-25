@@ -106,7 +106,7 @@ export default function DashboardPage() {
           {Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-32" />)}
         </div>
       ) : overview.isError ? (
-        <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">Không tải được số liệu. <button className="text-champagne" onClick={() => void overview.refetch()}>Thử lại</button></CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">Không tải được số liệu. <button className="text-brand" onClick={() => void overview.refetch()}>Thử lại</button></CardContent></Card>
       ) : data ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -180,14 +180,14 @@ export default function DashboardPage() {
                           <p className="font-display text-base text-ink">{property.name}</p>
                           <p className="text-[9px] uppercase tracking-label text-muted-foreground">{property.code} · {property.city ?? '—'}</p>
                         </div>
-                        <Badge tone={property.type === 'HOTEL' ? 'champagne' : 'outline'}>{property.type === 'HOTEL' ? 'Khách sạn' : 'Nhà hàng'}</Badge>
+                        <Badge tone={property.type === 'HOTEL' ? 'brand' : 'outline'}>{property.type === 'HOTEL' ? 'Khách sạn' : 'Nhà hàng'}</Badge>
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-2 text-[10px]">
                         <div><p className="text-muted-foreground">Doanh thu tháng</p><p className="tabular font-medium text-ink">{formatMoney(property.revenueMonth)}</p></div>
                         <div><p className="text-muted-foreground">Công suất</p><p className="tabular font-medium text-ink">{property.occupancy}%</p></div>
                         <div><p className="text-muted-foreground">Đang ở</p><p className="tabular font-medium text-ink">{property.inHouse}</p></div>
                       </div>
-                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted"><div className="h-full bg-champagne" style={{ width: `${Math.min(100, property.occupancy)}%` }} /></div>
+                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand" style={{ width: `${Math.min(100, property.occupancy)}%` }} /></div>
                     </div>
                   ))}
                 </CardContent>
@@ -213,7 +213,7 @@ export default function DashboardPage() {
               <CardContent className="space-y-2.5">
                 {data.activity.length === 0 ? <p className="text-[11px] text-muted-foreground">Chưa có hoạt động.</p> : data.activity.slice(0, 7).map((item) => (
                   <div key={item.id} className="flex items-start gap-2">
-                    <span className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-champagne-soft"><Sparkles className="size-3 text-champagne" /></span>
+                    <span className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-brand-soft"><Sparkles className="size-3 text-brand" /></span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[11px] text-ink">{ACTION_LABEL[item.action] ?? item.action}</p>
                       <p className="text-[9px] text-muted-foreground">{item.actorName ?? 'Hệ thống'} · {formatDateTime(item.createdAt)}</p>
@@ -263,7 +263,7 @@ export default function DashboardPage() {
 function Metric({ label, value, hint, change, icon: Icon, primary }: { label: string; value: string; hint: string; change?: number | null; icon: typeof Gauge; primary?: boolean }) {
   const positive = (change ?? 0) >= 0;
   return (
-    <Card className={cn('p-4', primary && 'border-champagne/30 bg-gradient-to-br from-champagne-soft/60 to-transparent')}>
+    <Card className={cn('p-4', primary && 'border-brand/30 bg-gradient-to-br from-brand-soft/60 to-transparent')}>
       <div className="flex items-start justify-between">
         <span className="label-xs">{label}</span>
         <span className="flex size-7 items-center justify-center rounded-full bg-muted text-muted-foreground"><Icon className="size-3.5" /></span>
@@ -293,15 +293,15 @@ function TrendChart({ points }: { points: Array<{ date: string; revenue: number 
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
           <defs>
             <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#b08d57" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#b08d57" stopOpacity="0" />
+              <stop offset="0%" stopColor="#2f6b4f" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#2f6b4f" stopOpacity="0" />
             </linearGradient>
           </defs>
           <polygon points={area} fill="url(#rev)" />
-          <polyline points={coords.join(' ')} fill="none" stroke="#b08d57" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />
+          <polyline points={coords.join(' ')} fill="none" stroke="#2f6b4f" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />
           {coords.map((coord, index) => {
             const [x, y] = coord.split(',');
-            return <circle key={points[index]!.date} cx={x} cy={y} r="1.2" fill="#b08d57"><title>{points[index]!.date}: {formatMoney(points[index]!.revenue)}</title></circle>;
+            return <circle key={points[index]!.date} cx={x} cy={y} r="1.2" fill="#2f6b4f"><title>{points[index]!.date}: {formatMoney(points[index]!.revenue)}</title></circle>;
           })}
         </svg>
       </div>
@@ -321,7 +321,7 @@ function DepartmentBars({ rows, total }: { rows: Array<{ department: string; amo
       {rows.map((row) => (
         <div key={row.department}>
           <div className="flex justify-between text-[10px]"><span className="text-muted-foreground">{DEPARTMENT_LABEL[row.department] ?? row.department}</span><span className="tabular">{formatMoney(row.amount)}</span></div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full bg-champagne" style={{ width: `${total ? Math.min(100, (row.amount / total) * 100) : 0}%` }} /></div>
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand" style={{ width: `${total ? Math.min(100, (row.amount / total) * 100) : 0}%` }} /></div>
         </div>
       ))}
     </div>

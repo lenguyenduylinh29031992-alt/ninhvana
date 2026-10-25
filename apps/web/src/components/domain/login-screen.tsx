@@ -134,12 +134,12 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
     <div className="grid min-h-screen bg-canvas lg:grid-cols-[1.05fr_1fr]">
       {/* Brand panel */}
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-sidebar p-12 text-sidebar-ink lg:flex">
-        <div className="pointer-events-none absolute -left-40 -top-40 size-[560px] rounded-full bg-champagne/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-40 -top-40 size-[560px] rounded-full bg-brand/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-56 -right-24 size-[520px] rounded-full bg-[#2a2118]/60 blur-3xl" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-champagne/20 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-brand/20 to-transparent" />
 
         <div className="relative flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-full border border-champagne/40 font-display text-lg text-champagne">
+          <span className="flex size-10 items-center justify-center rounded-full border border-brand/40 font-display text-lg text-brand">
             GS
           </span>
           <div>
@@ -151,7 +151,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
         </div>
 
         <div className="relative max-w-lg">
-          <p className="mb-5 text-[10px] uppercase tracking-[0.28em] text-champagne/80">
+          <p className="mb-5 text-[10px] uppercase tracking-[0.28em] text-brand/80">
             {t('auth.portfolioLive')}
           </p>
           <h1 className="font-display text-[2.9rem] font-light leading-[1.06] tracking-tight text-sidebar-ink">
@@ -174,7 +174,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
               { icon: ShieldCheck, text: 'RBAC đa cơ sở, audit bất biến, tuân thủ dữ liệu' },
             ].map((feature) => (
               <li key={feature.text} className="flex items-center gap-3 text-[13px] text-sidebar-muted">
-                <span className="flex size-7 items-center justify-center rounded-full border border-sidebar-line text-champagne">
+                <span className="flex size-7 items-center justify-center rounded-full border border-sidebar-line text-brand">
                   <feature.icon className="size-3.5" />
                 </span>
                 {feature.text}
@@ -193,7 +193,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
       <main className="relative flex flex-col px-6 py-8 sm:px-10 lg:px-16">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 lg:hidden">
-            <span className="flex size-9 items-center justify-center rounded-full border border-champagne/40 font-display text-champagne">
+            <span className="flex size-9 items-center justify-center rounded-full border border-brand/40 font-display text-brand">
               GS
             </span>
             <span className="font-display text-base tracking-[0.14em]">GRAND SUITE</span>
@@ -217,7 +217,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
           {mfaToken ? (
             <form onSubmit={submitMfa} className="space-y-5">
               <div>
-                <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-champagne/30 bg-champagne-soft px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-champagne">
+                <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-soft px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-brand">
                   <BadgeCheck className="size-3" />
                   {t('auth.twoFactorTitle')}
                 </p>
@@ -324,7 +324,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
               <div className="rounded-xl border border-line bg-surface/60 p-3">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="flex items-center gap-1.5 text-[11px] font-medium text-ink">
-                    <KeyRound className="size-3.5 text-champagne" />
+                    <KeyRound className="size-3.5 text-brand" />
                     {t('auth.demoAccounts')}
                   </p>
                   <span className="text-[10px] text-muted-foreground">{DEMO_PASSWORD}</span>
@@ -343,7 +343,7 @@ export function LoginScreen({ nextPath }: { nextPath: string }) {
                         email === account.email && 'bg-muted',
                       )}
                     >
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-champagne-soft text-[9px] font-semibold text-champagne">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-[9px] font-semibold text-brand">
                         {account.name.split(' ').slice(-1)[0]!.slice(0, 1)}
                         {account.name.slice(0, 1)}
                       </span>

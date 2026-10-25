@@ -138,7 +138,7 @@ export default function ProfilePage() {
         eyebrow="Tài khoản"
         title={user.fullName}
         description="Hồ sơ cá nhân, bảo mật đăng nhập và xác thực hai lớp."
-        actions={<Badge tone="champagne">{roleName(roleCodes[0] ?? '', locale)}</Badge>}
+        actions={<Badge tone="brand">{roleName(roleCodes[0] ?? '', locale)}</Badge>}
       />
 
       <div className="grid gap-5 lg:grid-cols-3">

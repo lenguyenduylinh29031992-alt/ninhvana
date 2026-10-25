@@ -139,7 +139,7 @@ export default function TapeChartPage() {
                   <div className="relative border-l border-line" style={{ height: 48, gridColumn: '2 / span 14' }}>
                     <div className="grid h-full" style={{ gridTemplateColumns: `repeat(${dates.length}, minmax(0, 1fr))` }}>
                       {dates.map((date) => (
-                        <div key={date} className={cn('border-r border-line/50', date === iso(new Date()) && 'bg-champagne-soft/40')} />
+                        <div key={date} className={cn('border-r border-line/50', date === iso(new Date()) && 'bg-brand-soft/40')} />
                       ))}
                     </div>
                     {room.bookings.map((booking) => {
@@ -159,7 +159,7 @@ export default function TapeChartPage() {
                           title={`${booking.guest} · ${booking.code} · ${booking.checkIn} → ${booking.checkOut}`}
                           className={cn(
                             'absolute bottom-1 top-1 z-10 flex items-center gap-1 overflow-hidden rounded-md px-1.5 text-left text-[9px] text-white shadow-sm',
-                            booking.status === 'IN_HOUSE' ? 'bg-forest' : booking.status === 'CONFIRMED' ? 'bg-champagne' : 'bg-ink',
+                            booking.status === 'IN_HOUSE' ? 'bg-forest' : booking.status === 'CONFIRMED' ? 'bg-brand' : 'bg-ink',
                           )}
                           style={{
                             left: `calc(${(startIndex / dates.length) * 100}% + 1px)`,

@@ -102,7 +102,7 @@ export function Topbar({
         <button
           type="button"
           onClick={onOpenCommand}
-          className="focus-ring hidden h-9 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-xs text-muted-foreground transition-colors hover:border-champagne/40 hover:text-ink sm:flex"
+          className="focus-ring hidden h-9 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-xs text-muted-foreground transition-colors hover:border-brand/40 hover:text-ink sm:flex"
         >
           <Search className="size-3.5" />
           <span className="hidden lg:inline">{t('common.searchEverything')}</span>
@@ -136,7 +136,7 @@ export function Topbar({
             <Button variant="ghost" size="icon" className="relative" aria-label={t('common.notifications')}>
               <Bell />
               {unread > 0 ? (
-                <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-champagne text-[9px] font-semibold text-champagne-foreground">
+                <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-brand text-[9px] font-semibold text-brand-foreground">
                   {unread > 9 ? '9+' : unread}
                 </span>
               ) : null}
@@ -148,7 +148,7 @@ export function Topbar({
               {unread > 0 ? (
                 <button
                   type="button"
-                  className="text-2xs text-champagne hover:underline"
+                  className="text-2xs text-brand hover:underline"
                   onClick={async () => {
                     await api('/notifications/read-all', { method: 'POST' });
                     await queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -175,7 +175,7 @@ export function Topbar({
                     }}
                     className={cn(
                       'block w-full border-b border-line/60 px-3 py-2.5 text-left transition-colors hover:bg-muted/60',
-                      !item.readAt && 'bg-champagne-soft/40',
+                      !item.readAt && 'bg-brand-soft/40',
                     )}
                   >
                     <p className="text-xs font-medium text-ink">{item.title}</p>
@@ -229,7 +229,7 @@ export function Topbar({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="focus-ring ml-1 flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-2 transition-colors hover:border-champagne/40"
+              className="focus-ring ml-1 flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-2 transition-colors hover:border-brand/40"
             >
               <Avatar name={user.fullName} src={user.avatarUrl} className="size-7" />
               <span className="hidden max-w-[120px] truncate text-xs font-medium sm:block">
@@ -243,7 +243,7 @@ export function Topbar({
               <p className="text-sm font-medium text-ink">{user.fullName}</p>
               <p className="text-2xs text-muted-foreground">{user.email}</p>
               <div className="mt-2 flex flex-wrap gap-1">
-                <Badge tone="champagne">{roleName(primaryRole, locale)}</Badge>
+                <Badge tone="brand">{roleName(primaryRole, locale)}</Badge>
                 {user.orgWide ? <Badge tone="outline">Tập đoàn</Badge> : null}
               </div>
             </div>
@@ -274,5 +274,5 @@ export function Topbar({
 }
 
 function CheckDot() {
-  return <span className="size-1.5 rounded-full bg-champagne" aria-hidden />;
+  return <span className="size-1.5 rounded-full bg-brand" aria-hidden />;
 }

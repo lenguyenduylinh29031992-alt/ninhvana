@@ -82,5 +82,5 @@ function ExpenseDialog({ open, onOpenChange, propertyId, onDone }: { open: boole
 }
 
 function Kpi({ icon: Icon, label, value, hint }: { icon: typeof Receipt; label: string; value: string; hint: string }) {
-  return <Card className="p-4"><div className="flex justify-between"><p className="label-xs">{label}</p><Icon className="size-4 text-champagne" /></div><p className="mt-2 font-display text-2xl text-ink">{value}</p><p className="text-[9px] text-muted-foreground">{hint}</p></Card>;
+  return <Card className="p-4"><div className="flex justify-between"><p className="label-xs">{label}</p><Icon className="size-4 text-brand" /></div><p className="mt-2 font-display text-2xl text-ink">{value}</p><p className="text-[9px] text-muted-foreground">{hint}</p></Card>;
 }

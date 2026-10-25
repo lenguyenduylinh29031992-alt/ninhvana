@@ -141,7 +141,7 @@ export default function NightAuditPage() {
                   <div key={row.department}>
                     <div className="flex justify-between text-xs"><span className="text-muted-foreground">{row.department}</span><span className="tabular">{formatMoney(row.amount)}</span></div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full bg-champagne" style={{ width: `${data?.revenue.total ? (row.amount / data.revenue.total) * 100 : 0}%` }} />
+                      <div className="h-full bg-brand" style={{ width: `${data?.revenue.total ? (row.amount / data.revenue.total) * 100 : 0}%` }} />
                     </div>
                   </div>
                 ))}
@@ -230,7 +230,7 @@ export default function NightAuditPage() {
 function Kpi({ label, value, hint, icon: Icon, danger }: { label: string; value: string; hint: string; icon: typeof Coins; danger?: boolean }) {
   return (
     <Card className="p-4">
-      <div className="flex items-center justify-between"><span className="label-xs">{label}</span><Icon className={danger ? 'size-4 text-danger' : 'size-4 text-champagne'} /></div>
+      <div className="flex items-center justify-between"><span className="label-xs">{label}</span><Icon className={danger ? 'size-4 text-danger' : 'size-4 text-brand'} /></div>
       <p className={danger ? 'mt-2 font-display text-2xl text-danger' : 'mt-2 font-display text-2xl text-ink'}>{value}</p>
       <p className="mt-1 text-[10px] text-muted-foreground">{hint}</p>
     </Card>

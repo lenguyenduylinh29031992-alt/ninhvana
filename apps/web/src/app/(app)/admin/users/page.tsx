@@ -199,7 +199,7 @@ export default function UsersPage() {
                   <TableRow key={user.id}>
                     <TableCell className="pl-5">
                       <div className="flex items-center gap-2.5">
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-champagne-soft text-[10px] font-semibold text-champagne">
+                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-[10px] font-semibold text-brand">
                           {user.fullName
                             .split(' ')
                             .filter(Boolean)

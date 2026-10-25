@@ -78,7 +78,7 @@ export default function FrontDeskPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Stat icon={LogIn} label="Khách đến hôm nay" value={data?.counts.arrivals ?? 0} tone="champagne" />
+        <Stat icon={LogIn} label="Khách đến hôm nay" value={data?.counts.arrivals ?? 0} tone="brand" />
         <Stat icon={Users} label="Đang lưu trú" value={data?.counts.inHouse ?? 0} tone="success" />
         <Stat icon={LogOut} label="Dự kiến trả phòng" value={data?.counts.departures ?? 0} tone="warning" />
         <Stat icon={BedDouble} label="Phòng sẵn sàng" value={data?.counts.availableRooms ?? 0} tone="neutral" />
@@ -142,7 +142,7 @@ export default function FrontDeskPage() {
 
 function Stat({ icon: Icon, label, value, tone }: { icon: typeof LogIn; label: string; value: number; tone: string }) {
   const colors: Record<string, string> = {
-    champagne: 'bg-champagne-soft text-champagne',
+    brand: 'bg-brand-soft text-brand',
     success: 'bg-forest-soft text-forest',
     warning: 'bg-warning-soft text-warning',
     danger: 'bg-danger-soft text-danger',
@@ -179,14 +179,14 @@ function ReservationTable({ rows, onOpen, empty }: { rows: ReservationSummary[];
           <TableRow key={reservation.id} className="cursor-pointer" onClick={() => onOpen(reservation.id)}>
             <TableCell>
               <div className="flex items-center gap-2">
-                <span className="flex size-7 items-center justify-center rounded-full bg-champagne-soft font-display text-xs text-champagne">
+                <span className="flex size-7 items-center justify-center rounded-full bg-brand-soft font-display text-xs text-brand">
                   {reservation.guest.fullName.slice(0, 1)}
                 </span>
                 <div>
                   <p className="text-xs font-medium text-ink">{reservation.guest.fullName}</p>
                   <p className="text-[9px] text-muted-foreground">{reservation.guest.phone ?? reservation.guest.email ?? '—'}</p>
                 </div>
-                {reservation.guest.vipLevel > 0 ? <Badge tone="champagne">VIP {reservation.guest.vipLevel}</Badge> : null}
+                {reservation.guest.vipLevel > 0 ? <Badge tone="brand">VIP {reservation.guest.vipLevel}</Badge> : null}
               </div>
             </TableCell>
             <TableCell className="font-mono text-[10px]">{reservation.code}</TableCell>
@@ -214,7 +214,7 @@ function ReservationTable({ rows, onOpen, empty }: { rows: ReservationSummary[];
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const tone = status === 'IN_HOUSE' ? 'success' : status === 'CONFIRMED' ? 'champagne' : status === 'CANCELLED' ? 'danger' : 'neutral';
+  const tone = status === 'IN_HOUSE' ? 'success' : status === 'CONFIRMED' ? 'brand' : status === 'CANCELLED' ? 'danger' : 'neutral';
   return <Badge tone={tone}>{STATUS_LABEL[status] ?? status}</Badge>;
 }
 
