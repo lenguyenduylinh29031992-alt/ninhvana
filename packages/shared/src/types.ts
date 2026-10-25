@@ -23,6 +23,7 @@ export interface SessionUser {
   id: string;
   email: string;
   fullName: string;
+  departmentCode?: string | null;
   orgId: string;
   locale: 'vi' | 'en';
   avatarUrl: string | null;
@@ -264,6 +265,7 @@ export interface UserRecord {
   id: string;
   email: string;
   fullName: string;
+  departmentCode: string | null;
   phone: string | null;
   locale: string;
   avatarUrl: string | null;

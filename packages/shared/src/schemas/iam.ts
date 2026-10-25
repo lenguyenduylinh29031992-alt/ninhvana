@@ -46,6 +46,7 @@ export const rolesArraySchema = z
 export const createUserSchema = z.object({
   email: emailSchema,
   fullName: z.string().trim().min(2, 'Họ tên quá ngắn').max(120),
+  departmentCode: z.string().trim().max(40).nullable().optional(),
   phone: optionalText(20),
   password: passwordSchema,
   locale: localeSchema.default('vi'),
@@ -58,6 +59,7 @@ export type CreateUserInput = z.infer<typeof createUserSchema>;
 
 export const updateUserSchema = z.object({
   fullName: z.string().trim().min(2).max(120).optional(),
+  departmentCode: z.string().trim().max(40).nullable().optional(),
   phone: optionalText(20),
   locale: localeSchema.optional(),
   avatarUrl: z.string().trim().url().max(1000).nullable().optional(),
