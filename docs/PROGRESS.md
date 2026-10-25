@@ -228,3 +228,12 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Toàn bộ href menu đã có trang; các mục chưa xây dựng có trang lộ trình rõ ràng: Banquet (GĐ2), Budgets/HR/Roster (GĐ4), Assistant (GĐ5).
 - Purchasing/Inventory/Revenue/Reviews là màn hình gộp/chuyển hướng, không phải module độc lập.
 - Chi tiết: `docs/ROADMAP-AUDIT.md`. Marketing test 4/4 pass trên DB rỗng; full test/acceptance cần seed.
+
+
+## Marketing TikTok HR + iOS runtime (2026-10-25)
+
+- Nạp 3 nhân sự Marketing TikTok (Thảo Như, Tấn Việt, Mỹ Uyên), 69 bản ghi chấm công 01–25/10/2026; công thực tế 19/21/17.
+- Kỳ lương 2026-10: tạm ứng 3.100.000 đ; thực lãnh 10.622.223 đ; thêm cột `advanceAmount` vào PayrollLine.
+- Trang `/hr` có bảng công 31 ngày, tạm ứng/thực lãnh, link 3 Google Sheet; API `GET /hr/attendance`.
+- iOS Simulator runtime 26.5 đã cài; app build/cài/chạy trên iPhone 17 Pro Simulator, ảnh `docs/evidence/ios-simulator-launcher.png`.
+- Apple signing identity chưa có vì Xcode chưa đăng nhập Apple ID/team; hướng dẫn tại `docs/IOS-SETUP.md`.

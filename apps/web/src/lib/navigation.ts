@@ -106,7 +106,7 @@ export const NAV_SECTIONS: NavSection[] = [
     key: 'people',
     labelKey: 'navGroup.people',
     items: [
-      { href: '/hr', labelKey: 'nav.hr', icon: Users, permission: 'employee:view', phase: 4 },
+      { href: '/hr', labelKey: 'nav.hr', icon: Users, permission: 'payroll:view' },
       { href: '/roster', labelKey: 'nav.roster', icon: CalendarDays, permission: 'roster:view', phase: 4 },
       { href: '/payroll', labelKey: 'nav.payroll', icon: CreditCard, permission: 'payroll:view' },
     ],

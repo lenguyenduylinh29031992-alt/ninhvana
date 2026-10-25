@@ -2318,6 +2318,7 @@ model PayrollLine {
   unionFee          Decimal @default(0) @db.Decimal(18, 2)
   tax               Decimal @default(0) @db.Decimal(18, 2)
   net               Decimal @default(0) @db.Decimal(18, 2)
+  advanceAmount     Decimal @default(0) @db.Decimal(18, 2)
   insuranceEmployer Decimal @default(0) @db.Decimal(18, 2)
   totalCost         Decimal @default(0) @db.Decimal(18, 2)
 
