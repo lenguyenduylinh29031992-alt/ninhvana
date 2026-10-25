@@ -22,4 +22,10 @@ if [ "${SEED_HISTORY_ON_START:-true}" = "true" ]; then
     echo "⚠ Không sinh được lịch sử — API vẫn khởi động."
 fi
 
+if [ "${SEED_FINANCE_ON_START:-true}" = "true" ]; then
+  echo "→ Bổ sung chi phí, kho, nhân sự và bảng lương (idempotent)…"
+  ./node_modules/.bin/tsx prisma/seed-finance.ts || \
+    echo "⚠ Không sinh được dữ liệu tài chính — API vẫn khởi động."
+fi
+
 exec "$@"

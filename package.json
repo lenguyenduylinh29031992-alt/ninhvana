@@ -33,7 +33,8 @@
     "db:status": "bash scripts/dev-db.sh status",
     "db:seed:ops": "pnpm --filter @grand-suite/api exec tsx prisma/seed-operations-run.ts",
     "db:seed:history": "pnpm --filter @grand-suite/api exec tsx prisma/seed-history.ts",
-    "db:demo": "pnpm db:seed && pnpm db:seed:history"
+    "db:demo": "pnpm db:seed && pnpm db:seed:history && pnpm db:seed:finance",
+    "db:seed:finance": "pnpm --filter @grand-suite/api exec tsx prisma/seed-finance.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

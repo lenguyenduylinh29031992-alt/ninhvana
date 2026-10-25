@@ -1,112 +1,116 @@
 # GRAND SUITE — Tiến độ triển khai
 
-> Cập nhật sau mỗi giai đoạn. Nguồn kế hoạch: `docs/PLAN.md`. Ngày: 2026-10-25.
+> Cập nhật sau mỗi giai đoạn. Kế hoạch: `docs/PLAN.md`. Ngày: 2026-10-25.
 
 ## Trạng thái tổng quan
 
 | Giai đoạn | Nội dung | Trạng thái | Gate |
 |---|---|---|---|
 | 0 | Kế hoạch: giả định, kiến trúc, ERD, backlog | ✅ Hoàn tất | PLAN.md |
-| 1 | Nền tảng: monorepo, DB, auth, RBAC, audit, design system, seed | ✅ Hoàn tất | **Gate 1 — PASS** |
-| 2 | Lõi PMS + POS + Revenue + Night Audit + sổ cái | ✅ Hoàn tất | **Gate 2 — PASS** |
-| 3 | Kênh bán, booking engine, social inbox, attribution | ✅ Hoàn tất | **Gate 3 — PASS** |
-| 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ⏳ Tiếp theo | P&L/GOP/GOPPAR đúng |
-| 5 | Dashboard đầy đủ, report builder, AI, dự báo, seed 24 tháng | ⬜ Chưa | <2s, số liệu khớp 3 chiều |
-| 6 | Kiểm thử, bảo mật, hiệu năng, tài liệu, PWA offline | ⬜ Chưa | 8/8 tiêu chí |
+| 1 | Nền tảng: monorepo, auth, RBAC, audit, design system | ✅ Hoàn tất | **Gate 1 — PASS** |
+| 2 | PMS, Folio, POS, Night Audit, sổ cái kép | ✅ Hoàn tất | **Gate 2 — PASS** |
+| 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất | **Gate 3 — PASS** |
+| 4 | Chi phí, mua hàng, kho, HRM, lương, P&L, báo cáo tài chính | ✅ Hoàn tất | **Gate 4 — PASS** |
+| 5 | Dashboard đầy đủ, report builder, AI, dự báo, seed 24 tháng | ⏳ Tiếp theo | <2s, số liệu khớp 3 chiều |
+| 6 | Kiểm thử, bảo mật, hiệu năng, PWA offline, tài liệu | ⬜ Chưa | 8/8 tiêu chí |
 
 ---
 
-## Giai đoạn 1 — Nền tảng (hoàn tất)
+## Giai đoạn 2 — Vận hành (tóm tắt)
 
-Monorepo pnpm 11 + Turborepo; NestJS 11 + Next.js 15 + Prisma/PostgreSQL 16 + Redis. 14 vai trò × 88 quyền, phạm vi cơ sở, JWT/refresh, 2FA TOTP, CSRF, rate limit, audit chain SHA-256, mã hoá credential AES-256-GCM, design system “ivory & champagne”, i18n vi/en, 2 cơ sở 250 phòng. Gate 1: 63 unit + 7 integration test, 19 kiểm tra nghiệm thu.
+29 model PMS/POS; chống overbooking 3 lớp (Redis lock → advisory lock → `EXCLUDE USING gist`); luồng booking → check-in → POS ghi nợ → night audit → checkout → thanh toán → hoá đơn; sổ cái kép là nguồn sự thật; 10 request đồng thời chỉ 1 thành công; seed 30 ngày (3.638 stays, 7.251 room-nights, 2.457 POS orders). Gate 2: 78 unit + 15 integration test, 25 kiểm tra.
 
-## Giai đoạn 2 — PMS, POS, Night Audit (hoàn tất)
+## Giai đoạn 3 — Kênh bán (tóm tắt)
 
-- 29 model vận hành; chống overbooking 3 lớp, chốt bằng `EXCLUDE USING gist` trên khoảng ngày.
-- Đặt phòng → check-in → POS ghi nợ phòng → night audit → checkout → thanh toán → hoá đơn PAID.
-- Sổ cái kép là nguồn sự thật; đối soát doanh thu = bộ phận = kênh = sổ; 10 request đồng thời chỉ 1 thành công.
-- UI lễ tân, POS, KDS, buồng phòng, tape chart, night audit, khách, đặt phòng; dashboard đọc từ sổ.
-- Seed 30 ngày: 3.638 lượt khách, 7.251 đêm phòng, 2.457 order POS.
-- Gate 2: 78 unit + 15 integration test, 25 kiểm tra nghiệm thu.
+17 adapter mock (8 OTA + 9 social); ARI idempotent với retry/backoff/DLQ; webhook HMAC chống replay; pull booking thật vào PMS; booking engine công khai `/book`; inbox 9 kênh; doanh thu net sau hoa hồng theo kênh. Gate 3: 23 integration test, 28 kiểm tra.
 
 ---
 
-## Giai đoạn 3 — Kênh bán, Booking Engine, Social Inbox (hoàn tất)
+## Giai đoạn 4 — Chi phí, HRM và báo cáo tài chính (hoàn tất)
 
-### Mô hình dữ liệu (1 migration mới)
+### Mô hình dữ liệu (1 migration, 16 bảng)
 
-- `ChannelRoomMapping`: map hạng phòng nội bộ ↔ mã phòng/rate plan của kênh.
-- `ChannelSyncJob`: hàng đợi ARI idempotent (`channelId + idempotencyKey`), attempts, `nextAttemptAt`, DLQ.
-- `ChannelSyncLog`: nhật ký PUSH/PULL/WEBHOOK, request/response, lỗi, thời lượng.
-- `ExternalReservation`: unique `(channelId, externalId)` — chống tạo trùng khi webhook replay.
-- `Conversation` / `ConversationMessage`: hội thoại đa kênh, tin nhắn vào/ra, trạng thái, unread.
+- **Mua hàng**: `Supplier`, `PurchaseRequest`, `PurchaseOrder`/`Line`, `GoodsReceipt`/`Line`, `SupplierInvoice`, `SupplierPayment`.
+- **Kho**: `InventoryItem`, `StockBalance`, `StockMovement` (IN/OUT/OPENING), định mức tối thiểu.
+- **Chi phí**: `Expense` theo tài khoản/bộ phận, thanh toán ngay hoặc qua AP.
+- **HRM/payroll**: `Employee`, `Attendance`, `PayrollRun`, `PayrollLine`.
+- **Sổ cái**: mọi chứng từ đều sinh bút toán qua `PostingService`; không có đường ghi tắt.
 
-### Adapter & đồng bộ
+### Nghiệp vụ đã chạy thật
 
-- Interface `ChannelAdapter` gồm `pullReservations`, `pushAvailability`, `pushRates`, `handleWebhook`, `mapStatus`, `sendMessage`.
-- **17 connector mock** chạy thật qua cùng interface: 8 OTA + 9 social. Thay bằng connector thật chỉ cần thay class, không đổi nghiệp vụ.
-- ARI: tính tồn phòng từ buồng vật lý trừ booking đang giữ, lấy giá BAR, tạo job theo ngày/hạng phòng, xử lý ngay và trả thống kê.
-- Retry: lỗi tạm thời → `FAILED` + backoff `60s × 2^(n-1)`; hết `maxAttempts` → `DLQ`; retry thủ công reset payload và chạy lại.
-- Webhook: HMAC-SHA256 trên `provider.timestamp.body`, cửa sổ 5 phút, sai chữ ký 401; replay trả `duplicate=true`, không tạo booking thứ hai.
-- Kéo booking: adapter sinh external reservation → PMS tạo reservation thật → lưu link; lỗi từng booking không làm hỏng cả lô.
+1. **PR → PO → GRN**: yêu cầu mua có dòng hàng, duyệt tạo đơn theo nhà cung cấp, nhận hàng cập nhật tồn kho + bút toán `Dr 1520 / Cr 3310`.
+2. **Hoá đơn NCC**: ghi nhận chi phí + VAT đầu vào + AP; thanh toán `Dr 3310 / Cr 1120`, cập nhật tuổi nợ.
+3. **Xuất kho**: trừ tồn theo giá bình quân, `Dr 5000/5200 / Cr 1520`, ghi COGS F&B.
+4. **Chi phí**: ghi nhận và hạch toán ngay `Dr chi phí + VAT / Cr tiền`, ảnh hưởng P&L tức thì.
+5. **Payroll**: tính từ hợp đồng + chấm công + tăng ca; khấu trừ BHXH/BHYT/BHTN/KPCĐ, thuế TNCN lũy tiến; hạch toán `Dr 6000/6010 / Cr 3340/3380/3335`; chi trả `Dr 3340 / Cr 1120`.
+6. **P&L USALI**: doanh thu, COGS, lương, chi phí vận hành, chi phí cố định, **GOP**, **GOPPAR**, **RevPAR**, lợi nhuận sau thuế, lợi nhuận từng bộ phận.
+7. **Bảng cân đối**: tài sản/nợ/vốn + lợi nhuận giữ lại tính từ sổ; kiểm tra cân bằng tự động.
+8. **Lưu chuyển tiền tệ**: phân loại kinh doanh/đầu tư/tài chính từ các entry có tiền mặt/ngân hàng.
+9. **Tuổi nợ AR/AP**: bucket trong hạn/1–30/31–60/61–90/>90 theo ngày đến hạn.
 
-### Booking engine công khai
+### UI mới
 
-- `GET /api/v1/public/booking/properties`, `availability`, `POST reservations` — không cần đăng nhập, rate limit 30/phút.
-- Trang `/book`: tìm theo ngày/khách, hiển thị hạng phòng còn trống và tổng tiền, form khách, xác nhận tức thì mã `RSV-*`, thanh toán tại khách sạn.
-- Dùng chính `ReservationsService` nên vẫn qua kiểm tra tồn phòng, khoá và exclusion constraint.
+- `/finance`: 5 tab P&L, cân đối kế toán, dòng tiền, phải thu, phải trả.
+- `/costs`: chi phí, tồn kho, công nợ NCC; dialog ghi chi phí.
+- `/payroll`: nhân sự, kỳ lương, tính/hạch toán/chi trả.
+- `/purchasing`, `/inventory` chuyển hướng vào Cost Control (một màn hình vận hành).
 
-### Social inbox & attribution
+### Seed tài chính
 
-- 9 hội thoại seed (Facebook, Instagram, Zalo, TikTok, WhatsApp, Telegram, LINE, KakaoTalk, WeChat), mỗi hội thoại có lịch sử tin nhắn.
-- Trả lời qua adapter, lưu OUTBOUND + external id, cập nhật `lastMessageAt`, trạng thái; ghi audit.
-- Dashboard bổ sung **booking theo kênh** và **doanh thu net sau hoa hồng**; channel page hiển thị mapping, booking 30 ngày, job, sync log.
+- 18 nhân viên/cơ sở, chấm công 22 ngày, 2 kỳ lương (kỳ trước PAID, kỳ hiện tại POSTED).
+- 8 nhà cung cấp, 10 mặt hàng, tồn kho đầu kỳ + 4 tuần xuất kho COGS.
+- Hoá đơn điện/nước/vệ sinh/marketing/bảo trì 2 tháng, thanh toán kỳ trước; thuê mặt bằng + bảo hiểm cố định.
+- Chạy lại: `pnpm db:seed:finance` (idempotent).
 
-### Bằng chứng Gate 3
+### Bằng chứng Gate 4
 
 | Hạng mục | Kết quả |
 |---|---|
 | `pnpm lint` · `typecheck` · `build` | ✅ 0 lỗi |
 | Unit test shared | ✅ **78/78** |
-| Integration API | ✅ **23/23** (thêm 8 test kênh/booking/inbox) |
-| Webhook | ✅ Ký hợp lệ tạo booking; replay `duplicate=true`; sai chữ ký 401 |
-| ARI | ✅ 56 job đẩy thành công; job lỗi → retry/backoff → DLQ → retry thủ công thành công |
-| Kênh | ✅ 25 kênh · 8 OTA · 9 social · 112 mapping · 3.793 booking 30 ngày |
-| Kéo booking | ✅ 5 OTA (Booking, Agoda, Expedia, Airbnb, Traveloka) tạo reservation thật |
-| Booking engine | ✅ Public availability + tạo booking, không lộ session nội bộ |
-| Inbox | ✅ 9 hội thoại, trả lời lưu lịch sử |
-| Acceptance script | ✅ **28/28** |
-| Audit chain | ✅ Hợp lệ sau toàn bộ traffic kênh |
+| Integration API | ✅ **29/29** (thêm 6 test tài chính) |
+| P&L tháng hiện tại (GSL-HAN) | ✅ Doanh thu ~27,6 tỷ · lương 456,5 triệu · **GOP 24,06 tỷ** · **GOPPAR 3,08 triệu/phòng-đêm** |
+| Bảng cân đối | ✅ Tài sản = Nợ + Vốn; **lệch 0 ₫** |
+| Payroll | ✅ Chạy → hạch toán → chi trả; trạng thái PAID; bút toán cân bằng |
+| Mua hàng | ✅ PR → duyệt → nhận hàng làm tăng tồn kho, sinh AP |
+| Chi phí | ✅ Ghi chi phí làm tăng P&L đúng một lần |
+| AR/AP aging | ✅ AP 458 triệu, 6 hoá đơn, bucket đúng hạn |
+| Acceptance script | ✅ **33/33** |
+| Audit chain | ✅ Hợp lệ sau toàn bộ giao dịch tài chính |
 
-### Sai lệch / giới hạn có chủ ý
+### Giới hạn có chủ ý
 
-- Connector là **mock** (đúng yêu cầu “mock connectors chạy thật”); OAuth/credential thật của OTA để Phase 6.
-- Webhook chỉ xử lý tạo mới và ghi nhận cancel/no-show; chưa tự huỷ reservation đã tồn tại khi nhận cancel (sẽ làm cùng đối soát kênh Phase 6).
-- ARI đẩy theo lô đồng bộ trong request; production sẽ chuyển sang BullMQ worker (hạ tầng Redis đã sẵn sàng).
-- Social adapter chỉ gửi/nhận text; chưa đính kèm ảnh/file.
-- Booking engine chưa có giữ chỗ 15 phút và thanh toán cọc online; hiện xác nhận + trả tại khách sạn.
-- Kênh social hiển thị “Mapping 0” vì không bán buồng qua chat; nút kéo booking vẫn dùng để tạo booking từ hội thoại.
+- Báo cáo P&L hiện theo **một cơ sở** mỗi lần; hợp nhất tập đoàn sẽ ở Phase 5 (dashboard).
+- AR aging dựa trên `Invoice` của PMS; các khoản phải thu nội bộ chỉ có trong sổ cái.
+- Chưa có màn hình duyệt PR/PO đầy đủ (backend + seed đã có); UI hiện tập trung chi phí/kho/AP.
+- Giá vốn món ăn dùng xuất kho định kỳ, chưa chạy recipe costing theo từng order POS.
+- Bảng lương dùng bảng thuế TNCN rút gọn 7 bậc, chưa có giảm trừ người phụ thuộc theo đăng ký thực tế.
+- Docker vẫn chưa chạy được trên máy này; entrypoint đã bổ sung seed tài chính.
 
 ---
 
-## Giai đoạn 4 — Kế hoạch kế tiếp
+## Giai đoạn 5 — Kế hoạch kế tiếp
 
-1. **Chi phí & mua hàng**: nhà cung cấp, yêu cầu mua → đơn → nhận hàng → hoá đơn → thanh toán; phân bổ chi phí theo bộ phận/usali; ngân sách.
-2. **Kho**: nguyên liệu, recipe costing, xuất/nhập/chuyển kho, kiểm kê, định lượng món → giá vốn F&B.
-3. **HRM & lương**: nhân viên, hợp đồng, chấm công, ca làm, nghỉ phép, bảng lương, thuế TNCN/BHXH, hạch toán lương.
-4. **Finance**: P&L, cân đối kế toán, lưu chuyển tiền tệ, AR/AP, công nợ, USALI department costs, GOP/GOPPAR.
-5. Gate 4: chi phí + lương → P&L/GOP/GOPPAR đúng; bảng cân đối cân; đối soát AR/AP; báo cáo xuất PDF/Excel.
+1. **Dashboard hợp nhất**: doanh thu, GOP, GOPPAR, RevPAR theo cơ sở/kênh/bộ phận; P&L mini; công nợ; công suất; ADR; ALOS; so sánh MoM/YoY.
+2. **Seed 24 tháng** bằng generator hiện tại + mùa vụ, lạm phát, tỷ giá; đủ dữ liệu cho forecast.
+3. **Report builder**: lưu báo cáo, tham số, xuất PDF/Excel; lịch gửi email.
+4. **AI/forecast**: dự báo công suất/doanh thu, phát hiện bất thường chi phí, gợi ý giá.
+5. **Realtime & hiệu năng**: WebSocket cho KPI, cache Redis, mục tiêu dashboard <2s.
+6. Gate 5: dashboard khớp 3 chiều (tổng = bộ phận = kênh = sổ), 24 tháng dữ liệu, xuất báo cáo, forecast có backtest.
 
 ## Rủi ro đang mở
 
-1. **Docker chưa chạy được trên máy này** — compose/entrypoint đã cập nhật nhưng cần kiểm chứng nơi có Docker.
-2. **Lịch sử 30 ngày** — Phase 5 mở rộng 24 tháng để báo cáo MoM/YoY.
-3. **Webhook cancel** chưa đồng bộ hai chiều; cần hoàn thiện trước khi nối OTA thật.
-4. **Khối lượng Phase 4** lớn (cost + inventory + HRM + payroll + P&L) — ưu tiên chi phí → P&L trước, HRM/payroll sau nhưng vẫn trong cùng gate.
+1. **Docker chưa kiểm chứng** trên môi trường có Docker.
+2. **Lịch sử 30 ngày** — cần 24 tháng trước báo cáo MoM/YoY.
+3. **UI mua hàng** chưa đầy đủ; backend đã sẵn sàng.
+4. **Đối soát liên công ty** (intercompany) chưa làm; sổ cái có tài khoản 1360 nhưng chưa tự động.
+5. **Recipe costing** cần nối POS order → định lượng → trừ kho.
 
 ## Nhật ký quyết định
 
-- 2026-10-25: PWA thay React Native (ADR-01); GL là nguồn sự thật (ADR-02); exclusion constraint chặn overbooking (ADR-03).
-- 2026-10-25: Pin PostgreSQL session UTC để `@db.Date` so sánh đúng.
-- 2026-10-25: Kênh dùng interface adapter + idempotency key; webhook HMAC và unique external id thay vì tin tưởng payload.
-- 2026-10-25: Booking engine gọi lại đúng `ReservationsService` thay vì viết đường tắt, để giữ nguyên khoá và ràng buộc DB.
+- 2026-10-25: GL là nguồn sự thật duy nhất cho mọi báo cáo tài chính (ADR-02).
+- 2026-10-25: Pin PostgreSQL UTC để `@db.Date` đúng.
+- 2026-10-25: Kênh dùng adapter + idempotency key; webhook HMAC.
+- 2026-10-25: Booking engine gọi lại `ReservationsService` để giữ khoá/exclusion.
+- 2026-10-25: Payroll và chi phí đều đi qua `PostingService`; không có bút toán ngoài sổ.
+- 2026-10-25: Bảng cân đối tính lợi nhuận giữ lại từ P&L lũy kế thay vì bắt buộc kết chuyển 4210, nhờ vậy luôn cân bằng mà không cần bút toán khoá sổ.

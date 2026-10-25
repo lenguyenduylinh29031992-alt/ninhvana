@@ -190,6 +190,59 @@ sys.exit(0 if ok else 1)
 " 2>/dev/null
 check "Booking engine công khai trả phòng trống" $?
 
+
+TODAY_FIN=$(python3 -c "import datetime; print(datetime.date.today())")
+FROM_FIN=$(python3 -c "import datetime; print(datetime.date.today().replace(day=1))")
+pnl=$(curl -fsS -b "$MGR_JAR" "$API/finance/pnl?propertyId=$PROP&from=$FROM_FIN&to=$TODAY_FIN" 2>/dev/null || echo '{}')
+echo "$pnl" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = d.get('revenue',0)>0 and d.get('payroll',0)>0 and d.get('gop',0)>0 and d.get('gopPar',0)>0
+print(f\"  · P&L: doanh thu {d.get('revenue',0):,.0f} ₫ · lương {d.get('payroll',0):,.0f} ₫ · GOP {d.get('gop',0):,.0f} ₫ · GOPPAR {d.get('gopPar',0):,.0f} ₫\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "P&L / GOP / GOPPAR từ sổ cái" $?
+
+bs=$(curl -fsS -b "$MGR_JAR" "$API/finance/balance-sheet?propertyId=$PROP&asOf=$TODAY_FIN" 2>/dev/null || echo '{}')
+echo "$bs" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = d.get('balanced') is True and abs(d.get('difference',1))<1 and d.get('totalAssets',0)>0
+print(f\"  · Cân đối: tài sản {d.get('totalAssets',0):,.0f} ₫ · nợ {d.get('totalLiabilities',0):,.0f} ₫ · vốn {d.get('totalEquity',0):,.0f} ₫ · lệch {d.get('difference')} ₫\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Bảng cân đối kế toán cân bằng" $?
+
+ap=$(curl -fsS -b "$MGR_JAR" "$API/finance/ap-aging?propertyId=$PROP" 2>/dev/null || echo '{}')
+echo "$ap" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = d.get('total',0)>0
+print(f\"  · Công nợ NCC: {d.get('total',0):,.0f} ₫ · {len(d.get('rows',[]))} hoá đơn\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Tuổi nợ phải trả nhà cung cấp" $?
+
+payroll=$(curl -fsS -b "$MGR_JAR" "$API/hr/payroll?propertyId=$PROP" 2>/dev/null || echo '[]')
+echo "$payroll" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = isinstance(d,list) and len(d)>0 and any(r.get('status') in ('POSTED','PAID') for r in d)
+print(f\"  · Bảng lương: {len(d)} kỳ · {d[0].get('period') if d else '—'}\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Bảng lương đã hạch toán" $?
+
+stock=$(curl -fsS -b "$MGR_JAR" "$API/procurement/stock?propertyId=$PROP" 2>/dev/null || echo '[]')
+echo "$stock" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = isinstance(d,list) and len(d)>0 and sum(float(r.get('value',0)) for r in d)>0
+print(f\"  · Kho: {len(d)} mặt hàng · giá trị {sum(float(r.get('value',0)) for r in d):,.0f} ₫\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Tồn kho & giá vốn" $?
+
 rm -f "$MGR_JAR"
 
 echo ""

@@ -33,6 +33,9 @@ pnpm --filter @grand-suite/api seed
 echo "→ Sinh 30 ngày lịch sử vận hành (doanh thu, POS, kiểm toán)…"
 SEED_HISTORY_DAYS="${SEED_HISTORY_DAYS:-30}" pnpm --filter @grand-suite/api exec tsx prisma/seed-history.ts
 
+echo "→ Sinh chi phí, kho, nhân sự và bảng lương…"
+pnpm --filter @grand-suite/api exec tsx prisma/seed-finance.ts
+
 cat <<'EOF'
 
   ✔ Sẵn sàng.

@@ -16,7 +16,7 @@
 | 1 | Nền tảng: monorepo, DB, auth/2FA, RBAC, audit, design system, seed | ✅ Hoàn tất (Gate 1) |
 | 2 | PMS + Folio + POS + Night Audit + Revenue posting | ✅ Hoàn tất (Gate 2) |
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất (Gate 3) |
-| 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ⏳ Tiếp theo |
+| 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ✅ Hoàn tất (Gate 4) |
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
 | 6 | Kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⬜ |
 
@@ -88,6 +88,23 @@ bash scripts/check-acceptance.sh
 ![Social Inbox](docs/evidence/inbox-1920.png)
 
 ![Booking Engine](docs/evidence/booking-engine-1920.png)
+
+---
+
+## Năng lực Giai đoạn 4
+
+- **Chi phí & mua hàng**: nhà cung cấp, yêu cầu mua → đơn mua → nhận hàng → hoá đơn → thanh toán; mọi bước sinh bút toán và cập nhật kho.
+- **Kho & giá vốn**: tồn kho theo mặt hàng, nhập/xuất kho, định mức tối thiểu, xuất kho về bộ phận ghi nhận COGS F&B.
+- **HRM & lương**: hồ sơ nhân viên, chấm công, tính lương theo hợp đồng + tăng ca, BHXH/BHYT/BHTN/KPCĐ, thuế TNCN lũy tiến, hạch toán và chi trả.
+- **P&L theo USALI**: doanh thu, giá vốn, lương, chi phí vận hành, chi phí cố định, **GOP**, **GOPPAR**, **RevPAR**, lợi nhuận sau thuế, hiệu quả từng bộ phận.
+- **Báo cáo tài chính**: bảng cân đối kế toán tự cân bằng, lưu chuyển tiền tệ 3 dòng, tuổi nợ AR/AP.
+- **UI**: Finance & P&L (5 tab), Cost Control (chi phí/tồn kho/công nợ NCC), HR & Payroll.
+
+![Finance & P&L](docs/evidence/finance-1920.png)
+
+![Cost Control](docs/evidence/costs-1920.png)
+
+![HR & Payroll](docs/evidence/payroll-1920.png)
 
 ---
 
@@ -168,9 +185,9 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 ## Kiểm thử
 
 - **78 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
-- **23 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine công khai, inbox trả lời.
-- `bash scripts/check-acceptance.sh` chạy **28 kiểm tra** Gate 1–3.
-- Ảnh chụp 1920 / 768 / 390 px (25 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
+- **29 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối kế toán, payroll và mua hàng.
+- `bash scripts/check-acceptance.sh` chạy **33 kiểm tra** Gate 1–4.
+- Ảnh chụp 1920 / 768 / 390 px (28 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
 ---
 
