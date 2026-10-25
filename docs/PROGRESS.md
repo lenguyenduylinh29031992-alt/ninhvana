@@ -247,3 +247,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Gắn khu vực A1/A2/A3/B/C/D với nhóm bộ phận và mã bộ phận; thêm trang `/revenue` doanh thu theo khu vực/nhóm bộ phận.
 - API `GET /hr/departments`; trang `/hr` hiển thị cơ cấu bộ phận sẵn sàng phân quyền sau.
 - Reset lại dữ liệu vận hành lần cuối và nạp lại 3 nhân sự Marketing TikTok + 69 bản ghi công; doanh thu 0.
+
+
+## Giao diện di động & bảo trì (2026-10-25)
+
+- Thêm thanh điều hướng mobile 5 mục, nút tròn Trung tâm điều hành ở giữa, active màu xanh thương hiệu.
+- Thêm overlay bảo trì toàn cục khi health check lỗi: thời gian chạy HH:MM:SS, địa chỉ máy chủ, thử lại, tự kiểm tra 15 giây.
+- Native launcher có panel bảo trì tương tự, probe URL 6 giây, thử lại/đổi địa chỉ; đã build lại iOS simulator.
+- Ảnh: `marketing-390.png`, `mobile-dashboard-390.png`, `maintenance-390.png`, `ios-launcher-390.png`, `ios-maintenance-panel.png`.

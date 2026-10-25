@@ -28,6 +28,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Nhân sự Marketing TikTok:** [`docs/MARKETING-TIKTOK-HR.md`](docs/MARKETING-TIKTOK-HR.md).
 
+**Giao diện di động:** [`docs/MOBILE-UI.md`](docs/MOBILE-UI.md).
+
 **Truy cập iPhone LAN/từ xa:** [`docs/REMOTE-ACCESS.md`](docs/REMOTE-ACCESS.md).
 
 **iOS runtime & signing:** [`docs/IOS-SETUP.md`](docs/IOS-SETUP.md).

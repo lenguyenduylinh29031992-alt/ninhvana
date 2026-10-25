@@ -25,6 +25,24 @@
   .error { display: none; margin-top: 12px; padding: 10px 12px; border-radius: 9px; background: #fdf0ef; color: #a33d36; font-size: 12px; }
   .hint { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e8e0d4; font-size: 11px; line-height: 1.65; color: #8a949a; }
   code { background: #f1ece2; padding: 1px 5px; border-radius: 4px; color: #45545d; }
+  .maintenance { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; padding: 18px 16px max(18px, env(safe-area-inset-bottom)); background: rgba(11,34,57,.5); backdrop-filter: blur(6px); }
+  .maintenance[hidden] { display: none; }
+  .maintenance .sheet { width: 100%; max-width: 440px; overflow: hidden; border-radius: 20px; background: #faf7f2; box-shadow: 0 22px 60px rgba(11,34,57,.3); }
+  .maintenance .head { background: #0b2239; color: #f7f3eb; padding: 20px; }
+  .maintenance .head small { display: block; font-size: 8px; letter-spacing: .2em; text-transform: uppercase; color: #b7c6cf; }
+  .maintenance .head h2 { margin: 6px 0 0; font-family: Georgia, serif; font-weight: 500; font-size: 27px; }
+  .maintenance .head p { margin: 8px 0 0; color: #c7d1d6; font-size: 11px; line-height: 1.6; }
+  .maintenance .body { padding: 18px 20px 20px; }
+  .maintenance .clock { display: flex; align-items: center; justify-content: space-between; border: 1px solid #e4dccf; border-radius: 12px; background: #fffdf9; padding: 12px 14px; }
+  .maintenance .clock span { display: block; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #7a878f; }
+  .maintenance .clock strong { display: block; margin-top: 5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 24px; letter-spacing: .1em; color: #102a3c; }
+  .maintenance .clock i { font-style: normal; font-size: 23px; }
+  .maintenance .server { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; font-size: 10px; color: #7a878f; }
+  .maintenance .server code { max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .maintenance .body p.note { margin: 12px 0; font-size: 11px; line-height: 1.6; color: #7a878f; }
+  .maintenance .actions { display: flex; gap: 8px; }
+  .maintenance .actions button { margin-top: 0; height: 46px; font-size: 12px; }
+  .maintenance .actions button.secondary { background: #eee7db; color: #334b5c; }
   footer { margin-top: 24px; text-align: center; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: #a6adb2; }
 </style>
 </head>
@@ -41,23 +59,110 @@
     <div class="hint">Ví dụ: <code>http://192.168.1.20:3000</code> (LAN) hoặc <code>https://app.ninhvana.vn</code>. Địa chỉ được lưu cho lần mở sau.</div>
   </main>
   <footer>NinhVaNa · Ninh Vân, Khánh Hòa</footer>
+  <div class="maintenance" id="maintenance" hidden>
+    <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="maintenance-title">
+      <div class="head"><small>NinhVaNa · Trạng thái hệ thống</small><h2 id="maintenance-title">Hệ thống đang bảo trì</h2><p>Không thể kết nối tới máy chủ. Đội kỹ thuật đang kiểm tra; dữ liệu của bạn vẫn được giữ an toàn.</p></div>
+      <div class="body">
+        <div class="clock"><div><span>Thời gian chạy</span><strong id="elapsed">00:00:00</strong></div><i>🛠️</i></div>
+        <div class="server"><span>Máy chủ</span><code id="server-label">—</code></div>
+        <p class="note">Kiểm tra Wi-Fi/4G hoặc địa chỉ máy chủ. Hệ thống sẽ thử lại khi bạn bấm nút bên dưới.</p>
+        <div class="actions"><button id="retry" type="button">Thử kết nối lại</button><button id="edit-server" class="secondary" type="button">Đổi địa chỉ</button></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const input = document.getElementById('server');
     const error = document.getElementById('error');
-    const saved = localStorage.getItem('ninhvana.server');
-    input.value = saved || 'http://localhost:3000';
-    function connect() {
-      let url = input.value.trim().replace(/\/$/, '');
+    const button = document.getElementById('open');
+    const panel = document.getElementById('maintenance');
+    const elapsedNode = document.getElementById('elapsed');
+    const serverLabel = document.getElementById('server-label');
+    const retry = document.getElementById('retry');
+    let downSince = null;
+    let timer = null;
+    let currentUrl = '';
+
+    input.value = localStorage.getItem('ninhvana.server') || 'https://ohio-note-holes-jam.trycloudflare.com';
+
+    function formatElapsed(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const sec = seconds % 60;
+      return [h, m, sec].map((value) => String(value).padStart(2, '0')).join(':');
+    }
+
+    function startClock() {
+      if (!downSince) downSince = Date.now();
+      if (timer) clearInterval(timer);
+      const tick = () => { elapsedNode.textContent = formatElapsed(Math.max(0, Math.floor((Date.now() - downSince) / 1000))); };
+      tick();
+      timer = setInterval(tick, 1000);
+    }
+
+    function showMaintenance(url, message) {
+      currentUrl = url;
+      serverLabel.textContent = url.replace(/^https?:\/\//, '');
+      if (message) document.querySelector('.maintenance .head p').textContent = message;
+      panel.hidden = false;
+      startClock();
+    }
+
+    function hideMaintenance() {
+      panel.hidden = true;
+      if (timer) clearInterval(timer);
+      timer = null;
+      downSince = null;
+    }
+
+    async function probe(url) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 6000);
+      try {
+        await fetch(url + '/login', { mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+        return true;
+      } catch (_) {
+        return false;
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    async function connect() {
+      const url = input.value.trim().replace(/\/$/, '');
       if (!/^https?:\/\/[^\s]+$/i.test(url)) {
         error.textContent = 'Địa chỉ phải bắt đầu bằng http:// hoặc https://';
         error.style.display = 'block';
         return;
       }
+      error.style.display = 'none';
       localStorage.setItem('ninhvana.server', url);
-      window.location.replace(url);
+      button.disabled = true;
+      button.textContent = 'Đang kết nối…';
+      const ok = await probe(url);
+      button.disabled = false;
+      button.textContent = 'Kết nối';
+      if (ok) { hideMaintenance(); window.location.replace(url); return; }
+      showMaintenance(url, 'Không thể kết nối tới máy chủ. Đội kỹ thuật đang kiểm tra; dữ liệu của bạn vẫn được giữ an toàn.');
     }
+
     document.getElementById('open').addEventListener('click', connect);
     input.addEventListener('keydown', (event) => { if (event.key === 'Enter') connect(); });
+    retry.addEventListener('click', async () => {
+      if (!currentUrl) return;
+      retry.disabled = true;
+      retry.textContent = 'Đang kiểm tra…';
+      const ok = await probe(currentUrl);
+      retry.disabled = false;
+      retry.textContent = 'Thử kết nối lại';
+      if (ok) { hideMaintenance(); window.location.replace(currentUrl); }
+      else startClock();
+    });
+    document.getElementById('edit-server').addEventListener('click', () => {
+      hideMaintenance();
+      input.focus();
+      input.select();
+    });
   </script>
 </body>
 </html>

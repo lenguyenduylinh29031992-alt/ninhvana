@@ -10,6 +10,8 @@ import { PropertyProvider } from '@/lib/property-context';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { CommandMenu } from './command-menu';
+import { MobileTabBar } from './mobile-tab-bar';
+import { SystemHealth } from './system-health';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -67,14 +69,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onOpenCommand={() => setCommandOpen(true)}
             realtimeConnected={connected}
           />
-          <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-6 md:px-6 lg:px-8">
+          <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pb-28 pt-6 md:px-6 lg:px-8 lg:pb-6">
             {children}
           </main>
-          <footer className="mx-auto w-full max-w-[1600px] px-4 pb-6 pt-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 md:px-6 lg:px-8">
+          <footer className="mx-auto w-full max-w-[1600px] px-4 pb-28 pt-2 lg:pb-6 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 md:px-6 lg:px-8">
             NinhVaNa · Hệ thống quản trị khách sạn · v0.1
           </footer>
         </div>
         <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} user={access.user} />
+        <MobileTabBar />
+        <SystemHealth />
       </div>
     </PropertyProvider>
   );

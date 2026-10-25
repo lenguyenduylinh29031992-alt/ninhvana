@@ -27,7 +27,7 @@ async function shot(page, name, fullPage = false) {
 {
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
   const page = await context.newPage();
-  page.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  page.on('console', (msg) => { if (msg.type() === 'error' && !msg.text().includes('503')) problems.push(`console: ${msg.text()}`); });
   page.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
 
   await page.goto(`${base}/login`, { waitUntil: 'domcontentloaded' });
@@ -60,7 +60,7 @@ async function shot(page, name, fullPage = false) {
   // Operations screens — property manager
   const ops = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
   const opsPage = await ops.newPage();
-  opsPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  opsPage.on('console', (msg) => { if (msg.type() === 'error' && !msg.text().includes('503')) problems.push(`console: ${msg.text()}`); });
   opsPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
   await login(opsPage, 'manager.hanoi@ninhvana.vn');
   for (const [path, name] of [
@@ -82,7 +82,7 @@ async function shot(page, name, fullPage = false) {
 
   const financeContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
   const financePage = await financeContext.newPage();
-  financePage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  financePage.on('console', (msg) => { if (msg.type() === 'error' && !msg.text().includes('503')) problems.push(`console: ${msg.text()}`); });
   financePage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
   await login(financePage, 'cfo@ninhvana.vn');
   for (const [path, name] of [['/finance', 'finance-1920'], ['/costs', 'costs-1920'], ['/payroll', 'payroll-1920'], ['/analytics', 'analytics-1920'], ['/crm', 'crm-1920']]) {
@@ -99,7 +99,7 @@ async function shot(page, name, fullPage = false) {
 
   const publicContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
   const publicPage = await publicContext.newPage();
-  publicPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  publicPage.on('console', (msg) => { if (msg.type() === 'error' && !msg.text().includes('503')) problems.push(`console: ${msg.text()}`); });
   publicPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
   await publicPage.goto(`${base}/book`, { waitUntil: 'domcontentloaded' });
   await publicPage.waitForTimeout(1500);
@@ -147,7 +147,7 @@ async function shot(page, name, fullPage = false) {
 {
   const adminContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
   const adminPage = await adminContext.newPage();
-  adminPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  adminPage.on('console', (msg) => { if (msg.type() === 'error' && !msg.text().includes('503')) problems.push(`console: ${msg.text()}`); });
   adminPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
   await login(adminPage, 'admin@ninhvana.vn');
   for (const [path, name] of [['/marketing', 'marketing-1920'], ['/property-map', 'property-map-1920'], ['/hr', 'hr-1920'], ['/revenue', 'revenue-1920']]) {
@@ -159,6 +159,14 @@ async function shot(page, name, fullPage = false) {
   await adminPage.goto(`${base}/marketing`, { waitUntil: 'domcontentloaded' });
   await adminPage.waitForTimeout(1000);
   await shot(adminPage, 'marketing-390');
+  await adminPage.goto(`${base}/dashboard`, { waitUntil: 'domcontentloaded' });
+  await adminPage.waitForTimeout(1200);
+  await shot(adminPage, 'mobile-dashboard-390');
+  await adminPage.route('**/api/v1/health/live', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: '{"status":"down"}' }));
+  await adminPage.reload({ waitUntil: 'domcontentloaded' });
+  await adminPage.waitForTimeout(2200);
+  await shot(adminPage, 'maintenance-390');
+  await adminPage.unroute('**/api/v1/health/live');
 }
 
 await browser.close();
