@@ -9,6 +9,7 @@
   ```
   Dung lượng cần khoảng 8,5 GB; quá trình tải có thể mất 30–90 phút tùy mạng.
 - **iOS Simulator runtime 26.5 đã cài thành công**; app đã build, cài và chạy trên iPhone 17 Pro Simulator (xem `docs/evidence/ios-simulator-launcher.png`).
+- **Build thiết bị thật (unsigned) đã thành công**: `dist/NinhVaNa-ios-unsigned.ipa`; file này cần được ký bằng Apple ID/team trước khi cài lên iPhone.
 - Chưa có **Apple signing identity**:
   - `security find-identity -v -p codesigning` → 0 identity.
   - Xcode chưa có Apple ID/team (kiểm tra `defaults read com.apple.dt.Xcode DVTDeveloperAccountManagerAppleIDLists` → danh sách rỗng).
@@ -49,6 +50,24 @@ xcrun simctl launch booted vn.ninhvana.app
 5. Để phát hành TestFlight/App Store cần **Apple Developer Program** (trả phí) và quyền truy cập App Store Connect.
 
 Không nên tạo chứng chỉ self-signed: thiết bị iOS sẽ không tin cậy và không cài được.
+
+## Kết quả kiểm tra lệnh
+
+```text
+xcrun simctl list runtimes
+→ iOS 26.5 (26.5 - 23F77) — installed
+
+xcodebuild ... -sdk iphonesimulator ... CODE_SIGNING_ALLOWED=NO build
+→ BUILD SUCCEEDED
+
+xcodebuild ... -sdk iphoneos -destination generic/platform=iOS ... CODE_SIGNING_ALLOWED=NO build
+→ BUILD SUCCEEDED
+
+security find-identity -v -p codesigning
+→ 0 valid identities found
+```
+
+Vì chưa có Apple ID/team, **không thể tạo Apple Development certificate** hoặc cài lên iPhone thật. Sau khi đăng nhập Xcode, chạy lại build không có `CODE_SIGNING_ALLOWED=NO` để Xcode tự ký.
 
 ## Nếu chỉ cần chạy trên Simulator
 

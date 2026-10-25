@@ -236,4 +236,5 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Kỳ lương 2026-10: tạm ứng 3.100.000 đ; thực lãnh 10.622.223 đ; thêm cột `advanceAmount` vào PayrollLine.
 - Trang `/hr` có bảng công 31 ngày, tạm ứng/thực lãnh, link 3 Google Sheet; API `GET /hr/attendance`.
 - iOS Simulator runtime 26.5 đã cài; app build/cài/chạy trên iPhone 17 Pro Simulator, ảnh `docs/evidence/ios-simulator-launcher.png`.
+- Build thiết bị thật unsigned thành công (`dist/NinhVaNa-ios-unsigned.ipa`); chưa ký vì máy không có Apple ID/team (0 signing identity).
 - Apple signing identity chưa có vì Xcode chưa đăng nhập Apple ID/team; hướng dẫn tại `docs/IOS-SETUP.md`.
