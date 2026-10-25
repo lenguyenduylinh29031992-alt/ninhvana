@@ -57,6 +57,39 @@ async function shot(page, name, fullPage = false) {
   await page.waitForTimeout(500);
   await shot(page, 'dashboard-1920-dark', true);
 
+  // Operations screens — property manager
+  const ops = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
+  const opsPage = await ops.newPage();
+  opsPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  opsPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
+  await login(opsPage, 'manager.han@grandsuite.vn');
+  for (const [path, name] of [
+    ['/front-desk', 'front-desk-1920'],
+    ['/pos', 'pos-1920'],
+    ['/pos/kds', 'kds-1920'],
+    ['/housekeeping', 'housekeeping-1920'],
+    ['/night-audit', 'night-audit-1920'],
+    ['/tape-chart', 'tape-chart-1920'],
+    ['/reservations', 'reservations-1920'],
+    ['/guests', 'guests-1920'],
+  ]) {
+    await opsPage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
+    await opsPage.waitForTimeout(1200);
+    await shot(opsPage, name);
+  }
+
+  const mobileOps = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'vi-VN', isMobile: true, hasTouch: true });
+  const mobileOpsPage = await mobileOps.newPage();
+  await login(mobileOpsPage, 'manager.han@grandsuite.vn');
+  await mobileOpsPage.goto(`${base}/front-desk`, { waitUntil: 'domcontentloaded' });
+  await mobileOpsPage.waitForTimeout(1200);
+  await shot(mobileOpsPage, 'front-desk-390');
+  await mobileOpsPage.goto(`${base}/housekeeping`, { waitUntil: 'domcontentloaded' });
+  await mobileOpsPage.waitForTimeout(1200);
+  await shot(mobileOpsPage, 'housekeeping-390', true);
+  await mobileOps.close();
+  await ops.close();
+
   // Tablet 768 — front desk scope
   const tablet = await browser.newContext({
     viewport: { width: 768, height: 1024 },

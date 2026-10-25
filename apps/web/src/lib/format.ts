@@ -23,6 +23,8 @@ export function useFormatters(locale: 'vi' | 'en' = 'vi') {
   };
 }
 
+export { formatCompactMoney, formatMoney, formatNumber, formatPercent } from '@grand-suite/shared';
+
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
