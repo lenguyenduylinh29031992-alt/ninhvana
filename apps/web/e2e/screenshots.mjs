@@ -85,11 +85,16 @@ async function shot(page, name, fullPage = false) {
   financePage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
   financePage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
   await login(financePage, 'cfo@grandsuite.vn');
-  for (const [path, name] of [['/finance', 'finance-1920'], ['/costs', 'costs-1920'], ['/payroll', 'payroll-1920']]) {
+  for (const [path, name] of [['/finance', 'finance-1920'], ['/costs', 'costs-1920'], ['/payroll', 'payroll-1920'], ['/analytics', 'analytics-1920']]) {
     await financePage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
     await financePage.waitForTimeout(1200);
     await shot(financePage, name);
   }
+  await financePage.goto(`${base}/reports`, { waitUntil: 'domcontentloaded' });
+  await financePage.waitForTimeout(800);
+  await financePage.getByRole('button', { name: 'Chạy báo cáo' }).click();
+  await financePage.waitForTimeout(1200);
+  await shot(financePage, 'reports-1920');
   await financeContext.close();
 
   const publicContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });

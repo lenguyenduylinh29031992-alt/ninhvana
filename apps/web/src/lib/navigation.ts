@@ -80,7 +80,7 @@ export const NAV_SECTIONS: NavSection[] = [
     key: 'commercial',
     labelKey: 'navGroup.commercial',
     items: [
-      { href: '/revenue', labelKey: 'nav.revenue', icon: TrendingUp, permission: 'rate:view', phase: 2 },
+      { href: '/revenue', labelKey: 'nav.revenue', icon: TrendingUp, permission: 'rate:view' },
       { href: '/night-audit', labelKey: 'nav.nightAudit', icon: ClipboardCheck, permission: 'night-audit:view' },
       { href: '/channels', labelKey: 'nav.channels', icon: Radio, permission: 'channel:view' },
       { href: '/inbox', labelKey: 'nav.inbox', icon: Inbox, permission: 'inbox:view' },
@@ -112,7 +112,7 @@ export const NAV_SECTIONS: NavSection[] = [
     key: 'intelligence',
     labelKey: 'navGroup.intelligence',
     items: [
-      { href: '/reports', labelKey: 'nav.reports', icon: FileBarChart, permission: 'report:view', phase: 5 },
+      { href: '/reports', labelKey: 'nav.reports', icon: FileBarChart, permission: 'report:view' },
       { href: '/assistant', labelKey: 'nav.assistant', icon: Bot, permission: 'assistant:use', phase: 5 },
     ],
   },
