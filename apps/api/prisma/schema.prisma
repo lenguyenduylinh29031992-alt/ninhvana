@@ -2279,3 +2279,48 @@ model PayrollLine {
 
   @@index([payrollRunId])
 }
+
+// ───────────────────────── CRM ─────────────────────────
+
+model GuestReview {
+  id          String   @id @default(cuid())
+  orgId       String
+  propertyId  String
+  guestId     String?
+  reservationId String?
+  channelId   String?
+  rating      Int
+  cleanliness Int?
+  service     Int?
+  location    Int?
+  value       Int?
+  title       String?
+  comment     String?
+  response    String?
+  respondedById String?
+  respondedAt DateTime?
+  status      String   @default("NEW")
+  reviewDate  DateTime @db.Date
+  createdAt   DateTime @default(now())
+
+  @@index([orgId, status, reviewDate])
+  @@index([propertyId, reviewDate])
+}
+
+model Campaign {
+  id              String   @id @default(cuid())
+  orgId           String
+  name            String
+  channel         String   @default("EMAIL")
+  segment         String   @default("ALL")
+  subject         String
+  body            String
+  status          String   @default("DRAFT")
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  recipientsCount Int      @default(0)
+  createdById     String?
+  createdAt       DateTime @default(now())
+
+  @@index([orgId, status, createdAt])
+}

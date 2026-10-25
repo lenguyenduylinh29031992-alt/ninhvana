@@ -238,6 +238,31 @@ async function main() {
     }
   }
 
+
+  // CRM reviews and campaigns (idempotent by emptiness).
+  if ((await prisma.guestReview.count({ where: { orgId } })) === 0) {
+    const guests = await prisma.guest.findMany({ where: { orgId }, take: 24, orderBy: { createdAt: 'asc' } });
+    const comments = [
+      ['Tuyệt vời từ phòng đến dịch vụ', 5], ['Bữa sáng rất phong phú', 5], ['Nhân viên thân thiện', 4],
+      ['Phòng sạch, view đẹp', 5], ['Hơi ồn vào buổi tối', 3], ['Spa rất đáng tiền', 5],
+      ['Check-in nhanh', 4], ['Giá hơi cao so với chất lượng', 3], ['Sẽ quay lại', 5], ['Vị trí thuận tiện', 4],
+    ] as const;
+    for (const [index, guest] of guests.entries()) {
+      const [comment, rating] = comments[index % comments.length]!;
+      await prisma.guestReview.create({ data: { orgId, propertyId: properties[index % properties.length]!.id, guestId: guest.id, rating, cleanliness: rating, service: Math.min(5, rating + (index % 2)), location: 5, value: Math.max(3, rating - 1), title: comment, comment, status: index % 3 === 0 ? 'RESPONDED' : 'NEW', response: index % 3 === 0 ? 'Cảm ơn quý khách đã chia sẻ trải nghiệm.' : null, reviewDate: new Date(Date.now() - index * 86_400_000) } });
+    }
+  }
+  if ((await prisma.campaign.count({ where: { orgId } })) === 0) {
+    for (const [name, segment, subject] of [
+      ['Ưu đãi cuối tuần cho khách VIP', 'VIP', 'Đặc quyền cuối tuần tại Grand Suite'],
+      ['Mời khách quay lại', 'LAPSED', 'Chúng tôi nhớ quý khách'],
+      ['Ưu đãi spa tháng 11', 'REPEAT', 'Thư giãn cùng Grand Spa'],
+      ['Bản tin sự kiện', 'ALL', 'Sự kiện ẩm thực tháng này'],
+    ] as const) {
+      await prisma.campaign.create({ data: { orgId, name, segment, subject, channel: 'EMAIL', body: 'Kính gửi quý khách, Grand Suite trân trọng gửi tới quý khách ưu đãi đặc biệt.', status: 'DRAFT' } });
+    }
+  }
+
   const counts = {
     employees: await prisma.employee.count({ where: { orgId } }),
     suppliers: await prisma.supplier.count({ where: { orgId } }),
