@@ -173,6 +173,14 @@ Bằng chứng: `docs/evidence/docker-compose-stack.txt`, `docker-seed-log.txt`,
 
 ---
 
+## Xoá dữ liệu vận hành (về 0)
+
+```bash
+RESET_CONFIRM=YES pnpm --filter @grand-suite/api db:clear
+```
+
+Lệnh này xoá khách hàng, phòng, đặt phòng, folio, POS, hoá đơn, thanh toán, bút toán, lương, buồng phòng và audit; đặt số phòng + bộ đếm chứng từ về 0. **Giữ nguyên** tài khoản, vai trò, cấu hình, marketing, sơ đồ khu vực, kênh, menu, nhà cung cấp và mặt hàng. Seed lại bằng `pnpm db:demo` nếu cần dữ liệu mẫu.
+
 ## Tài khoản demo
 
 Mật khẩu chung: **`NinhVaNa@2026`** (đổi qua `SEED_ADMIN_PASSWORD` trước khi seed).

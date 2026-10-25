@@ -211,3 +211,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Nhãn thương hiệu/sidebar/footer dùng i18n; các thuật ngữ chuyên ngành giữ nguyên (P&L, GOP, OTA, OTB, KOL, ROI…).
 - **Chỉ SUPER_ADMIN được đổi tên**: họ tên hồ sơ, tên người dùng trong quản trị và tên thương hiệu trong cấu hình. Các vai trò khác nhận 403; ô họ tên trên hồ sơ bị khoá kèm giải thích.
 - Thêm test xác nhận CEO không đổi được tên, Admin đổi và khôi phục được; 42 integration test.
+
+
+## Reset dữ liệu vận hành (2026-10-25)
+
+- Thêm `apps/api/prisma/reset-operations.ts` + `pnpm db:clear` (yêu cầu `RESET_CONFIRM=YES`).
+- Đã chạy trên database local: **khách=0, phòng=0, đặt phòng=0, bút toán=0, POS=0**; dashboard doanh thu/công suất/ADR/GOPPAR = 0.
+- Giữ 15 tài khoản, 18 mục marketing, 7 khu vực, cấu hình, kênh, menu, nhà cung cấp, nhân sự và mặt hàng.
+- Không chạy acceptance/test integration trên DB trống; bộ test cần seed demo.

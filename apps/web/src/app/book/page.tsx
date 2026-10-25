@@ -274,7 +274,7 @@ export default function BookingEnginePage() {
       ) : null}
 
       <footer className="border-t border-line px-5 py-6 text-center text-[10px] text-muted-foreground">
-        NINHVANA · HOSPITALITY OPERATING SYSTEM · Đặt phòng trực tiếp được bảo đảm bởi hệ thống PMS
+        NINHVANA · HỆ THỐNG QUẢN TRỊ KHÁCH SẠN · Đặt phòng trực tiếp được bảo đảm bởi hệ thống PMS
       </footer>
     </main>
   );

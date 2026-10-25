@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <footer className="mx-auto w-full max-w-[1600px] px-4 pb-6 pt-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 md:px-6 lg:px-8">
-            NinhVaNa · Hospitality Operating System · v0.1
+            NinhVaNa · Hệ thống quản trị khách sạn · v0.1
           </footer>
         </div>
         <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} user={access.user} />
