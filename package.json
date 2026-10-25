@@ -1,0 +1,44 @@
+{
+  "name": "grand-suite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Grand Suite — Hospitality ERP for luxury hotels & restaurants (multi-property)",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "dev": "bash scripts/dev.sh",
+    "dev:api": "pnpm --filter @grand-suite/api dev",
+    "dev:web": "pnpm --filter @grand-suite/web dev",
+    "build": "turbo run build",
+    "build:shared": "pnpm --filter @grand-suite/shared build",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md,css}\"",
+    "typecheck": "turbo run typecheck",
+    "test": "pnpm --filter @grand-suite/shared test && pnpm --filter @grand-suite/api test",
+    "test:coverage": "pnpm --filter @grand-suite/shared test:coverage && pnpm --filter @grand-suite/api test:coverage",
+    "test:e2e": "pnpm --filter @grand-suite/web test:e2e",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "db:generate": "pnpm --filter @grand-suite/api prisma:generate",
+    "db:migrate": "pnpm --filter @grand-suite/api prisma:migrate",
+    "db:push": "pnpm --filter @grand-suite/api prisma:push",
+    "db:seed": "pnpm --filter @grand-suite/api seed",
+    "db:reset": "pnpm --filter @grand-suite/api prisma:reset && pnpm db:seed",
+    "db:studio": "pnpm --filter @grand-suite/api prisma:studio",
+    "db:start": "bash scripts/dev-db.sh start",
+    "db:stop": "bash scripts/dev-db.sh stop",
+    "db:status": "bash scripts/dev-db.sh status"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
+    "prettier": "^3.5.3",
+    "turbo": "^2.11.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}

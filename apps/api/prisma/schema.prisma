@@ -1,0 +1,798 @@
+// Grand Suite — Prisma schema
+// Foundation slice (Phase 1): tenancy, identity, RBAC, audit, configuration,
+// property structure (floors/room types/rooms/rate plans), USALI chart of accounts.
+//
+// Conventions
+//  - Money: Decimal(18,2) in the document currency; VND amounts are whole đồng.
+//  - Business dates: DateTime @db.Date (no time component).
+//  - Operational rows always carry propertyId; group-level rows carry orgId.
+//  - Financial documents are never deleted (void / reversal instead).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum PropertyType {
+  HOTEL
+  RESORT
+  RESTAURANT
+  SPA
+}
+
+enum TaxType {
+  VAT
+  SERVICE_CHARGE
+  LODGING
+  WITHHOLDING
+  OTHER
+}
+
+enum IntegrationStatus {
+  DISABLED
+  SANDBOX
+  ACTIVE
+  ERROR
+}
+
+enum DomainEventStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+  DEAD
+}
+
+enum NotificationSeverity {
+  INFO
+  SUCCESS
+  WARNING
+  CRITICAL
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum DepartmentGroup {
+  ROOMS
+  FNB
+  OTHER_OPERATED
+  MISCELLANEOUS
+  UNDISTRIBUTED
+  ADMIN
+  SALES
+  PROPERTY_OPS
+  UTILITIES
+  MAINTENANCE
+  FIXED
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+  COGS
+}
+
+enum RoomStatus {
+  CLEAN
+  DIRTY
+  INSPECTED
+  OUT_OF_ORDER
+  OUT_OF_SERVICE
+}
+
+enum RatePlanType {
+  BAR
+  CORPORATE
+  GROUP
+  MEMBER
+  PACKAGE
+  PROMO
+  OTA
+}
+
+enum OutletType {
+  RESTAURANT
+  BAR
+  ROOM_SERVICE
+  SPA
+  POOL
+  RETAIL
+  BANQUET
+  CAFE
+}
+
+// ─────────────────────── Organization & property ───────────────────────
+
+model Organization {
+  id           String   @id @default(cuid())
+  name         String
+  legalName    String?
+  taxCode      String?
+  address      String?
+  phone        String?
+  email        String?
+  logoUrl      String?
+  baseCurrency String   @default("VND")
+  timezone     String   @default("Asia/Ho_Chi_Minh")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  properties           Property[]
+  users                User[]
+  roles                Role[]
+  permissions          Permission[]
+  auditLogs            AuditLog[]
+  settings             SystemSetting[]
+  taxRates             TaxRate[]
+  exchangeRates        ExchangeRate[]
+  glAccounts           GlAccount[]
+  amenities            Amenity[]
+  documentTemplates    DocumentTemplate[]
+  integrationConfigs   IntegrationConfig[]
+  apiKeys              ApiKey[]
+  webhookSubscriptions WebhookSubscription[]
+  domainEvents         DomainEvent[]
+  notifications        Notification[]
+  alerts               Alert[]
+}
+
+model Property {
+  id                String       @id @default(cuid())
+  orgId             String
+  code              String
+  name              String
+  legalName         String?
+  type              PropertyType @default(HOTEL)
+  starRating        Int?
+  address           String
+  city              String
+  country           String       @default("VN")
+  phone             String?
+  email             String?
+  timezone          String       @default("Asia/Ho_Chi_Minh")
+  currency          String       @default("VND")
+  roomCount         Int          @default(0)
+  checkInTime       String       @default("14:00")
+  checkOutTime      String       @default("12:00")
+  businessDayCutoff Int          @default(6)
+  pricesIncludeTax  Boolean      @default(false)
+  serviceChargePct  Decimal      @default(5) @db.Decimal(5, 2)
+  taxCode           String?
+  latitude          Decimal?     @db.Decimal(9, 6)
+  longitude         Decimal?     @db.Decimal(9, 6)
+  logoUrl           String?
+  isActive          Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  org                Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  floors             Floor[]
+  roomTypes          RoomType[]
+  rooms              Room[]
+  ratePlans          RatePlan[]
+  outlets            Outlet[]
+  departments        Department[]
+  userRoles          UserPropertyRole[]
+  auditLogs          AuditLog[]
+  numberSequences    NumberSequence[]
+  documentTemplates  DocumentTemplate[]
+  integrationConfigs IntegrationConfig[]
+  domainEvents       DomainEvent[]
+  notifications      Notification[]
+  alerts             Alert[]
+
+  @@unique([orgId, code])
+  @@index([orgId, isActive])
+  @@index([type])
+}
+
+// ───────────────────────── Identity & RBAC ─────────────────────────
+
+model User {
+  id                  String    @id @default(cuid())
+  orgId               String
+  email               String    @unique
+  passwordHash        String
+  fullName            String
+  phone               String?
+  avatarUrl           String?
+  locale              String    @default("vi")
+  isActive            Boolean   @default(true)
+  twoFactorEnabled    Boolean   @default(false)
+  twoFactorSecret     String?
+  twoFactorRecovery   Json?
+  twoFactorLastStep   Int?
+  mustChangePassword  Boolean   @default(false)
+  lastLoginAt         DateTime?
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  org           Organization       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  roles         UserPropertyRole[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]         @relation("AuditActor")
+  notifications Notification[]
+
+  @@index([orgId, isActive])
+  @@index([lastLoginAt])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  orgId       String?
+  code        String   @unique
+  name        String
+  nameEn      String
+  description String?
+  scope       String   @default("PROPERTY")
+  level       Int      @default(1)
+  isSystem    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  org         Organization?      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  permissions RolePermission[]
+  assignments UserPropertyRole[]
+
+  @@index([scope])
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  orgId       String?
+  code        String   @unique
+  resource    String
+  action      String
+  category    String   @default("general")
+  description String?
+  createdAt   DateTime @default(now())
+
+  org             Organization?    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  rolePermissions RolePermission[]
+
+  @@index([resource])
+}
+
+model RolePermission {
+  id           String @id @default(cuid())
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([permissionId])
+}
+
+/// A user may hold different roles per property; propertyId = null means group-wide.
+model UserPropertyRole {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String?
+  roleId     String
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  role     Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId, roleId])
+  @@index([propertyId, roleId])
+  @@index([userId])
+}
+
+model RefreshToken {
+  id                String    @id @default(cuid())
+  userId            String
+  tokenHash         String    @unique
+  familyId          String
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  replacedByTokenId String?
+  ip                String?
+  userAgent         String?
+  createdAt         DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, familyId])
+  @@index([expiresAt])
+}
+
+// ───────────────────────── Audit & events ─────────────────────────
+
+/// Append-only; hash chain makes tampering detectable. No update/delete API exists.
+model AuditLog {
+  id         String   @id @default(cuid())
+  orgId      String
+  propertyId String?
+  actorId    String?
+  actorName  String?
+  actorRole  String?
+  action     String
+  entityType String
+  entityId   String?
+  reason     String?
+  before     Json?
+  after      Json?
+  metadata   Json?
+  ip         String?
+  userAgent  String?
+  requestId  String?
+  hashPrev   String?
+  hashSelf   String
+  createdAt  DateTime @default(now())
+
+  org      Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  actor    User?        @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([orgId, createdAt])
+  @@index([propertyId, createdAt])
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+}
+
+model DomainEvent {
+  id            String            @id @default(cuid())
+  orgId         String
+  propertyId    String?
+  type          String
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  status        DomainEventStatus @default(PENDING)
+  attempts      Int               @default(0)
+  availableAt   DateTime          @default(now())
+  processedAt   DateTime?
+  lastError     String?
+  createdAt     DateTime          @default(now())
+
+  org      Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([status, availableAt])
+  @@index([orgId, type, createdAt])
+  @@index([aggregateType, aggregateId])
+}
+
+model Notification {
+  id         String               @id @default(cuid())
+  orgId      String
+  userId     String
+  propertyId String?
+  type       String
+  title      String
+  body       String
+  severity   NotificationSeverity @default(INFO)
+  link       String?
+  data       Json?
+  readAt     DateTime?
+  createdAt  DateTime             @default(now())
+
+  org      Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
+model Alert {
+  id               String        @id @default(cuid())
+  orgId            String
+  propertyId       String
+  type             String
+  severity         AlertSeverity @default(WARNING)
+  title            String
+  message          String
+  entityType       String?
+  entityId         String?
+  status           AlertStatus   @default(OPEN)
+  metadata         Json?
+  createdAt        DateTime      @default(now())
+  acknowledgedAt   DateTime?
+  acknowledgedById String?
+  resolvedAt       DateTime?
+
+  org      Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  property Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, status, createdAt])
+  @@index([propertyId, status])
+}
+
+// ───────────────────────── Configuration ─────────────────────────
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  orgId       String
+  scope       String   @default("ORG")
+  key         String
+  value       Json
+  category    String   @default("general")
+  description String?
+  isSecret    Boolean  @default(false)
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, scope, key])
+  @@index([orgId, category])
+}
+
+model NumberSequence {
+  id          String    @id @default(cuid())
+  orgId       String
+  propertyId  String
+  docType     String
+  prefix      String
+  nextValue   Int       @default(1)
+  padding     Int       @default(5)
+  resetPeriod String    @default("NEVER")
+  lastResetAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, docType])
+}
+
+model Currency {
+  code      String  @id
+  name      String
+  nameEn    String
+  symbol    String
+  decimals  Int     @default(2)
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+}
+
+model ExchangeRate {
+  id            String   @id @default(cuid())
+  orgId         String
+  base          String
+  quote         String
+  rate          Decimal  @db.Decimal(18, 8)
+  effectiveDate DateTime @db.Date
+  source        String?
+  createdAt     DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, base, quote, effectiveDate])
+  @@index([orgId, effectiveDate])
+}
+
+model TaxRate {
+  id            String   @id @default(cuid())
+  orgId         String
+  code          String
+  name          String
+  rate          Decimal  @db.Decimal(6, 3)
+  type          TaxType
+  isIncluded    Boolean  @default(false)
+  glAccountCode String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, code])
+  @@index([orgId, type])
+}
+
+model DocumentTemplate {
+  id          String   @id @default(cuid())
+  orgId       String
+  propertyId  String?
+  type        String
+  name        String
+  locale      String   @default("vi")
+  contentHtml String   @db.Text
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  org      Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, type])
+}
+
+model IntegrationConfig {
+  id             String            @id @default(cuid())
+  orgId          String
+  propertyId     String?
+  provider       String
+  category       String
+  displayName    String
+  credentialsEnc String?           @db.Text
+  settings       Json?
+  status         IntegrationStatus @default(SANDBOX)
+  lastCheckedAt  DateTime?
+  lastError      String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  org      Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  property Property?    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, provider])
+  @@index([category, status])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  orgId       String
+  name        String
+  prefix      String
+  keyHash     String    @unique
+  scopes      String[]
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  createdById String?
+  createdAt   DateTime  @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, revokedAt])
+}
+
+model WebhookSubscription {
+  id             String    @id @default(cuid())
+  orgId          String
+  url            String
+  secretEnc      String
+  events         String[]
+  isActive       Boolean   @default(true)
+  failureCount   Int       @default(0)
+  lastDeliveryAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, isActive])
+}
+
+// ───────────────────────── Accounting foundation ─────────────────────────
+
+/// USALI 11th edition chart of accounts with Vietnamese (TT200) mapping.
+model GlAccount {
+  id         String      @id @default(cuid())
+  orgId      String
+  code       String
+  name       String
+  nameEn     String?
+  type       AccountType
+  usaliCode  String?
+  vasCode    String?
+  parentCode String?
+  isActive   Boolean     @default(true)
+  sortOrder  Int         @default(0)
+  createdAt  DateTime    @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, code])
+  @@index([orgId, type, sortOrder])
+  @@index([usaliCode])
+  @@index([vasCode])
+}
+
+model Department {
+  id              String          @id @default(cuid())
+  propertyId      String
+  code            String
+  name            String
+  nameEn          String?
+  group           DepartmentGroup
+  isRevenueCenter Boolean         @default(false)
+  sortOrder       Int             @default(0)
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, code])
+  @@index([propertyId, group])
+}
+
+// ───────────────────────── Rooms & rates ─────────────────────────
+
+model Floor {
+  id         String @id @default(cuid())
+  propertyId String
+  name       String
+  number     Int
+  sortOrder  Int    @default(0)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  rooms    Room[]
+
+  @@unique([propertyId, number])
+}
+
+model Amenity {
+  id       String  @id @default(cuid())
+  orgId    String
+  code     String
+  name     String
+  nameEn   String?
+  icon     String?
+  category String  @default("ROOM")
+
+  org       Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  roomTypes RoomTypeAmenity[]
+
+  @@unique([orgId, code])
+}
+
+model RoomType {
+  id             String   @id @default(cuid())
+  propertyId     String
+  code           String
+  name           String
+  nameEn         String?
+  description    String?
+  maxAdults      Int      @default(2)
+  maxChildren    Int      @default(0)
+  maxOccupancy   Int      @default(2)
+  sizeSqm        Int?
+  bedType        String?
+  baseRate       Decimal  @db.Decimal(18, 2)
+  extraAdultRate Decimal  @default(0) @db.Decimal(18, 2)
+  extraChildRate Decimal  @default(0) @db.Decimal(18, 2)
+  sortOrder      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  property  Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  rooms     Room[]
+  amenities RoomTypeAmenity[]
+  rates     RatePlanRate[]
+
+  @@unique([propertyId, code])
+  @@index([propertyId, isActive])
+}
+
+model RoomTypeAmenity {
+  id         String @id @default(cuid())
+  roomTypeId String
+  amenityId  String
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+  amenity  Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@unique([roomTypeId, amenityId])
+}
+
+model Room {
+  id         String     @id @default(cuid())
+  propertyId String
+  roomTypeId String
+  floorId    String?
+  number     String
+  view       String?
+  features   Json?
+  status     RoomStatus @default(CLEAN)
+  isActive   Boolean    @default(true)
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  property   Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  roomType   RoomType        @relation(fields: [roomTypeId], references: [id], onDelete: Restrict)
+  floor      Floor?          @relation(fields: [floorId], references: [id], onDelete: SetNull)
+  statusLogs RoomStatusLog[]
+
+  @@unique([propertyId, number])
+  @@index([propertyId, status])
+  @@index([roomTypeId])
+}
+
+model RoomStatusLog {
+  id         String      @id @default(cuid())
+  roomId     String
+  fromStatus RoomStatus?
+  toStatus   RoomStatus
+  byId       String?
+  note       String?
+  createdAt  DateTime    @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, createdAt])
+}
+
+model RatePlan {
+  id                 String       @id @default(cuid())
+  propertyId         String
+  code               String
+  name               String
+  description        String?
+  type               RatePlanType @default(BAR)
+  cancellationPolicy Json?
+  depositPolicy      Json?
+  inclusions         Json?
+  commissionPct      Decimal?     @db.Decimal(5, 2)
+  isActive           Boolean      @default(true)
+  sortOrder          Int          @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  property Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  rates    RatePlanRate[]
+
+  @@unique([propertyId, code])
+  @@index([propertyId, type])
+}
+
+model RatePlanRate {
+  id              String   @id @default(cuid())
+  ratePlanId      String
+  roomTypeId      String
+  date            DateTime @db.Date
+  amount          Decimal  @db.Decimal(18, 2)
+  currency        String   @default("VND")
+  minStay         Int?
+  maxStay         Int?
+  closed          Boolean  @default(false)
+  closedToArrival Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+
+  ratePlan RatePlan @relation(fields: [ratePlanId], references: [id], onDelete: Cascade)
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([ratePlanId, roomTypeId, date])
+  @@index([date])
+  @@index([roomTypeId, date])
+}
+
+// ───────────────────────── Outlets (POS foundation) ─────────────────────────
+
+model Outlet {
+  id               String     @id @default(cuid())
+  propertyId       String
+  code             String
+  name             String
+  type             OutletType
+  serviceChargePct Decimal    @default(5) @db.Decimal(5, 2)
+  isActive         Boolean    @default(true)
+  openingHours     Json?
+  sortOrder        Int        @default(0)
+  createdAt        DateTime   @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, code])
+  @@index([propertyId, isActive])
+}
