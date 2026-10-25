@@ -85,7 +85,7 @@ async function shot(page, name, fullPage = false) {
   financePage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
   financePage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
   await login(financePage, 'cfo@grandsuite.vn');
-  for (const [path, name] of [['/finance', 'finance-1920'], ['/costs', 'costs-1920'], ['/payroll', 'payroll-1920'], ['/analytics', 'analytics-1920']]) {
+  for (const [path, name] of [['/finance', 'finance-1920'], ['/costs', 'costs-1920'], ['/payroll', 'payroll-1920'], ['/analytics', 'analytics-1920'], ['/crm', 'crm-1920']]) {
     await financePage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
     await financePage.waitForTimeout(1200);
     await shot(financePage, name);
