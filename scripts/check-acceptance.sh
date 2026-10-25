@@ -158,6 +158,38 @@ sys.exit(0 if ok else 1)
 " 2>/dev/null
 check "Lịch sử Night Audit" $?
 
+
+channels=$(curl -fsS -b "$MGR_JAR" "$API/channels" 2>/dev/null || echo '{}')
+echo "$channels" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+t=d.get('totals',{})
+ok = t.get('ota',0)>=8 and t.get('social',0)>=9 and t.get('mappings',0)>0
+print(f\"  · Kênh: {t.get('channels',0)} · OTA {t.get('ota',0)} · social {t.get('social',0)} · mapping {t.get('mappings',0)} · DLQ {t.get('dlq',0)}\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Channel Manager: 8 OTA + 9 social + mapping" $?
+
+inbox=$(curl -fsS -b "$MGR_JAR" "$API/inbox/conversations?page=1&pageSize=5" 2>/dev/null || echo '{}')
+echo "$inbox" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = len(d.get('items',[]))>0
+print(f\"  · Inbox: {d.get('total',0)} hội thoại · {d.get('counts',{}).get('open',0)} đang mở\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Social Inbox đa kênh" $?
+
+booking=$(curl -fsS "$API/public/booking/availability?propertyCode=GSL-HAN&checkIn=2026-12-28&checkOut=2026-12-30&adults=2" 2>/dev/null || echo '{}')
+echo "$booking" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+ok = len(d.get('rooms',[]))>0
+print(f\"  · Booking engine: {len(d.get('rooms',[]))} hạng phòng còn trống\")
+sys.exit(0 if ok else 1)
+" 2>/dev/null
+check "Booking engine công khai trả phòng trống" $?
+
 rm -f "$MGR_JAR"
 
 echo ""

@@ -15,8 +15,8 @@
 | 0 | Kế hoạch, kiến trúc, ERD, backlog | ✅ Hoàn tất |
 | 1 | Nền tảng: monorepo, DB, auth/2FA, RBAC, audit, design system, seed | ✅ Hoàn tất (Gate 1) |
 | 2 | PMS + Folio + POS + Night Audit + Revenue posting | ✅ Hoàn tất (Gate 2) |
-| 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ⏳ Tiếp theo |
-| 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ⬜ |
+| 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất (Gate 3) |
+| 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ⏳ Tiếp theo |
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
 | 6 | Kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⬜ |
 
@@ -71,6 +71,23 @@ bash scripts/check-acceptance.sh
 ![POS & sơ đồ bàn](docs/evidence/pos-1920.png)
 
 ![Night Audit](docs/evidence/night-audit-1920.png)
+
+---
+
+## Năng lực Giai đoạn 3
+
+- **Channel Manager thật**: 8 adapter OTA (Booking.com, Agoda, Expedia, Airbnb, Traveloka, Trip.com, Google Hotel Ads, Tripadvisor) + 9 adapter social (Facebook, Instagram, Zalo, TikTok, WhatsApp, Telegram, LINE, KakaoTalk, WeChat) sau một interface duy nhất.
+- **ARI 2 chiều**: đẩy tồn phòng & giá theo ngày vào hàng đợi idempotent; worker retry với exponential backoff, ghi sync log và chuyển **DLQ** khi hết lượt; đẩy lại job lỗi bằng một nút.
+- **Kéo booking & webhook**: connector sinh booking thật vào PMS; webhook ký HMAC-SHA256, chống replay nhờ `(channelId, externalId)` unique — gửi lặp chỉ trả về booking cũ.
+- **Booking engine công khai** tại `/book`: tìm phòng trống theo ngày, chọn hạng phòng, nhập thông tin khách, xác nhận tức thì và nhận mã đặt phòng.
+- **Social Commerce Inbox**: 9 kênh chat trong một hộp thư, gán trạng thái, trả lời khách qua adapter, lưu toàn bộ lịch sử.
+- **Attribution**: dashboard hiển thị doanh thu **net sau hoa hồng** và số booking theo từng kênh; mọi con số lấy từ sổ cái.
+
+![Channel Manager](docs/evidence/channels-1920.png)
+
+![Social Inbox](docs/evidence/inbox-1920.png)
+
+![Booking Engine](docs/evidence/booking-engine-1920.png)
 
 ---
 
@@ -151,9 +168,9 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 ## Kiểm thử
 
 - **78 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
-- **15 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, tạo đặt phòng, check-in, POS ghi nợ phòng, night audit + hoa hồng, checkout, thanh toán, hoá đơn, đối soát, 10 request đồng thời, RBAC.
-- `bash scripts/check-acceptance.sh` chạy **25 kiểm tra** Gate 1–2.
-- Ảnh chụp 1920 / 768 / 390 px (22 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
+- **23 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine công khai, inbox trả lời.
+- `bash scripts/check-acceptance.sh` chạy **28 kiểm tra** Gate 1–3.
+- Ảnh chụp 1920 / 768 / 390 px (25 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
 ---
 
