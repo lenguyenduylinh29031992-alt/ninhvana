@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://grandsuite:grandsuite@127.0.0.1:5432/grandsuite?schema=public
+  REDIS_URL: redis://127.0.0.1:6379
+  JWT_ACCESS_SECRET: ci-access-secret-0123456789-0123456789-abcdef
+  JWT_REFRESH_SECRET: ci-refresh-secret-0123456789-0123456789-abcdef
+  COOKIE_SECRET: ci-cookie-secret-0123456789-0123456789-abcdefgh
+  CSRF_SECRET: ci-csrf-secret-0123456789-0123456789-abcdefgh
+  APP_ENCRYPTION_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  PUBLIC_WEB_URL: http://localhost:3000
+  SEED_ADMIN_PASSWORD: GrandSuite@2026
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  verify:
+    name: Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: grandsuite
+          POSTGRES_PASSWORD: grandsuite
+          POSTGRES_DB: grandsuite
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U grandsuite -d grandsuite"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm --filter @grand-suite/shared build
+
+      - name: Generate Prisma client
+        run: pnpm --filter @grand-suite/api exec prisma generate
+
+      - name: Apply database migrations
+        run: pnpm --filter @grand-suite/api exec prisma migrate deploy
+
+      - name: Seed demo data
+        run: pnpm --filter @grand-suite/api seed
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit & integration tests
+        run: pnpm test
+
+      - name: Coverage (shared business logic)
+        run: pnpm --filter @grand-suite/shared test:coverage
+
+      - name: Production build
+        run: pnpm build
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            packages/shared/coverage
+            apps/api/coverage
+          if-no-files-found: ignore

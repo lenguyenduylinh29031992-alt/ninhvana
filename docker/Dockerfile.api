@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1.7
+# Grand Suite API — build and runtime image
+FROM node:24-alpine AS build
+RUN corepack enable && apk add --no-cache openssl
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.base.json ./
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
+COPY packages/shared/package.json packages/shared/
+COPY packages/config/package.json packages/config/
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+RUN pnpm --filter @grand-suite/shared build \
+ && pnpm --filter @grand-suite/api exec prisma generate \
+ && pnpm --filter @grand-suite/api build
+
+FROM node:24-alpine AS runtime
+RUN apk add --no-cache openssl curl tini
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=build /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=build /app/apps/api/package.json ./apps/api/package.json
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/apps/api/prisma ./apps/api/prisma
+COPY --from=build /app/packages/shared/package.json ./packages/shared/package.json
+COPY --from=build /app/packages/shared/dist ./packages/shared/dist
+COPY --from=build /app/packages/shared/node_modules ./packages/shared/node_modules
+COPY docker/api-entrypoint.sh /usr/local/bin/api-entrypoint.sh
+RUN chmod +x /usr/local/bin/api-entrypoint.sh && mkdir -p /app/uploads
+
+WORKDIR /app/apps/api
+EXPOSE 4000
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/api-entrypoint.sh"]
+CMD ["node", "dist/main.js"]
