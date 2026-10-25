@@ -80,6 +80,18 @@ async function shot(page, name, fullPage = false) {
     await shot(opsPage, name);
   }
 
+  const financeContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
+  const financePage = await financeContext.newPage();
+  financePage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  financePage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
+  await login(financePage, 'cfo@grandsuite.vn');
+  for (const [path, name] of [['/finance', 'finance-1920'], ['/costs', 'costs-1920'], ['/payroll', 'payroll-1920']]) {
+    await financePage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
+    await financePage.waitForTimeout(1200);
+    await shot(financePage, name);
+  }
+  await financeContext.close();
+
   const publicContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
   const publicPage = await publicContext.newPage();
   publicPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });

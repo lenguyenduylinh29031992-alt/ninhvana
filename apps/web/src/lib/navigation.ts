@@ -92,11 +92,11 @@ export const NAV_SECTIONS: NavSection[] = [
     key: 'finance',
     labelKey: 'navGroup.finance',
     items: [
-      { href: '/costs', labelKey: 'nav.costs', icon: Receipt, permission: 'expense:view', phase: 4 },
-      { href: '/purchasing', labelKey: 'nav.purchasing', icon: ShoppingCart, permission: 'purchase:view', phase: 4 },
-      { href: '/inventory', labelKey: 'nav.inventory', icon: PackageSearch, permission: 'inventory:view', phase: 4 },
+      { href: '/costs', labelKey: 'nav.costs', icon: Receipt, permission: 'expense:view' },
+      { href: '/purchasing', labelKey: 'nav.purchasing', icon: ShoppingCart, permission: 'purchase:view' },
+      { href: '/inventory', labelKey: 'nav.inventory', icon: PackageSearch, permission: 'inventory:view' },
       { href: '/budgets', labelKey: 'nav.budgets', icon: Wallet, permission: 'budget:view', phase: 4 },
-      { href: '/finance', labelKey: 'nav.finance', icon: BarChart3, permission: 'finance:view', phase: 4 },
+      { href: '/finance', labelKey: 'nav.finance', icon: BarChart3, permission: 'finance:view' },
     ],
   },
   {
@@ -105,7 +105,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/hr', labelKey: 'nav.hr', icon: Users, permission: 'employee:view', phase: 4 },
       { href: '/roster', labelKey: 'nav.roster', icon: CalendarDays, permission: 'roster:view', phase: 4 },
-      { href: '/payroll', labelKey: 'nav.payroll', icon: CreditCard, permission: 'payroll:view', phase: 4 },
+      { href: '/payroll', labelKey: 'nav.payroll', icon: CreditCard, permission: 'payroll:view' },
     ],
   },
   {
