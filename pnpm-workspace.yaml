@@ -18,3 +18,9 @@ onlyBuiltDependencies:
   - "@node-rs/argon2"
   - sharp
   - unrs-resolver
+
+overrides:
+  postcss@<8.5.18: 8.5.18
+  multer@<2.5.0: 2.5.0
+  deepmerge-ts@<8.0.0: 8.0.0
+  zod@<4.6.6: 4.6.6

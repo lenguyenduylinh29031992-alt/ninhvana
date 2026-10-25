@@ -12,7 +12,7 @@
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất | **Gate 3 — PASS** |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L, báo cáo tài chính | ✅ Hoàn tất | **Gate 4 — PASS** |
 | 5 | Dashboard hợp nhất, 24 tháng dữ liệu, report builder, dự báo | ✅ Hoàn tất | **Gate 5 — PASS** |
-| 6 | CRM, kiểm thử toàn diện, bảo mật, PWA offline, tài liệu | ⏳ Tiếp theo | 8/8 tiêu chí |
+| 6 | CRM, kiểm thử, bảo mật, PWA offline, đóng gói | 🟡 Code hoàn tất — chờ Docker daemon | 8/8 tiêu chí |
 
 ---
 
@@ -141,3 +141,27 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 3. Rà soát bảo mật có hệ thống (dependency audit, IDOR, CSP, rate limit endpoint công khai) và vá.
 4. PWA offline: service worker, cache shell, hàng đợi thao tác POS/housekeeping.
 5. Đối chiếu đủ 8 tiêu chí nghiệm thu, cập nhật README/PROGRESS thành Gate 6 PASS.
+
+---
+
+## Giai đoạn 6 — kết quả kiểm thử, bảo mật & PWA (2026-10-25)
+
+### Đã hoàn tất
+
+- **Coverage**: shared 73,5% statements / 74,9% lines; API core 73,0% / 77,1%. Ngưỡng CI đặt 70% cho statements/lines, branches 60%, functions 60%.
+- **Bảo mật**: audit production 0 high/critical sau khi override `postcss ≥8.5.18`, `multer ≥2.5`, `deepmerge-ts ≥8`, `zod ≥4.6.6`; 2 moderate còn lại không nằm trong đường xử lý trực tiếp. Helmet/CSP, CSRF, RBAC, chống IDOR, webhook HMAC và audit chain đều có test.
+- **PWA**: `public/sw.js` cache shell, network-first cho navigation, cache-first cho asset, fallback `/offline`; đăng ký service worker ở production.
+- **E2E**: `apps/web/e2e/flows.mjs` 5/5 PASS, 0 console error.
+- **Docker Compose**: `docker-compose config` PASS (CLI 5.6.1) — cấu hình 6 service hợp lệ.
+- **Acceptance**: 39 kiểm tra (thêm PWA); 82 unit shared + 37 integration API.
+
+### Chưa thể xác minh trong môi trường này
+
+- `docker compose up` cần Docker daemon; máy chỉ có CLI, không có daemon/VM. Đây là tiêu chí nghiệm thu duy nhất chưa chạy thật.
+- 2 cảnh báo moderate từ audit chưa xử lý (không có bản vá tương thích hoặc nằm ngoài runtime).
+
+### Để đóng hoàn toàn
+
+1. Trên máy có Docker: `docker compose up -d --build`, đăng nhập đủ 15 vai trò, chụp log + screenshot.
+2. Chạy `bash scripts/check-acceptance.sh` trong container và lưu evidence.
+3. Cập nhật trạng thái Gate 6 thành PASS.

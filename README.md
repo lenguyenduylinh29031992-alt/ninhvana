@@ -18,7 +18,7 @@
 | 3 | Channel Manager, Booking Engine, Social Inbox, Attribution | ✅ Hoàn tất (Gate 3) |
 | 4 | Chi phí, mua hàng, kho, HRM, lương, P&L | ✅ Hoàn tất (Gate 4) |
 | 5 | Dashboard KPI đầy đủ, report builder, AI, dự báo | ⬜ |
-| 6 | CRM, kiểm thử, bảo mật, PWA, đóng gói | 🟡 Đang hoàn thiện |
+| 6 | CRM, kiểm thử, bảo mật, PWA, đóng gói | 🟡 Hoàn tất code — chờ Docker runtime |
 
 Kế hoạch đầy đủ: [`docs/PLAN.md`](docs/PLAN.md) · Tiến độ & bằng chứng: [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
@@ -133,6 +133,16 @@ bash scripts/check-acceptance.sh
 
 ---
 
+## Giai đoạn 6 — kiểm thử, bảo mật & PWA
+
+- **Coverage lõi**: shared **73,5% statements / 74,9% lines**; API core (accounting, channels, finance, HR, reports, reservations, auth/locks/sequence) **73,0% statements / 77,1% lines** — vượt mốc 70%.
+- **Bảo mật**: `pnpm audit --prod --audit-level high` → **0 high/critical** (2 moderate còn lại); đã override postcss, multer, deepmerge-ts, zod lên bản vá; helmet/CSP, CSRF, RBAC, audit chain và webhook HMAC đã có test.
+- **Browser e2e**: 5/5 luồng PASS — dashboard, đặt phòng, POS thêm món, buồng phòng, report builder.
+- **PWA**: service worker cache shell + trang `/offline`; manifest hợp lệ.
+- **Docker**: `docker-compose config` hợp lệ; **chưa chạy `up`** vì máy không có Docker daemon.
+
+---
+
 ## Tài khoản demo
 
 Mật khẩu chung: **`GrandSuite@2026`** (đổi qua `SEED_ADMIN_PASSWORD` trước khi seed).
@@ -209,9 +219,9 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 
 ## Kiểm thử
 
-- **78 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
+- **82 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
 - **37 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
-- `bash scripts/check-acceptance.sh` chạy **38 kiểm tra** Gate 1–6.
+- `bash scripts/check-acceptance.sh` chạy **39 kiểm tra** Gate 1–6.
 - Ảnh chụp 1920 / 768 / 390 px (31 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 
 ---

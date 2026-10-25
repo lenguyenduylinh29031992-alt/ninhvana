@@ -288,6 +288,13 @@ sys.exit(0 if d.get('count',0)>0 else 1)
 " 2>/dev/null
 check "CRM đánh giá & phản hồi" $?
 
+
+sw=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/sw.js 2>/dev/null || echo 000)
+manifest=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/manifest.webmanifest 2>/dev/null || echo 000)
+echo "  · PWA: sw.js=$sw · manifest=$manifest"
+[ "$sw" = "200" ] && [ "$manifest" = "200" ]
+check "PWA service worker & manifest" $?
+
 rm -f "$MGR_JAR"
 
 echo ""
