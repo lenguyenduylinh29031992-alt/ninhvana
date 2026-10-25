@@ -15,7 +15,7 @@ const DEMO_ACCOUNTS = [
   { email: 'hr@ninhvana.vn', orgWide: true, properties: 2 },
   { email: 'marketing@ninhvana.vn', orgWide: true, properties: 2 },
   { email: 'manager.hanoi@ninhvana.vn', orgWide: false, properties: 1 },
-  { email: 'manager.danang@ninhvana.vn', orgWide: false, properties: 1 },
+  { email: 'manager.ninhvan@ninhvana.vn', orgWide: false, properties: 1 },
   { email: 'frontdesk@ninhvana.vn', orgWide: false, properties: 1 },
   { email: 'housekeeping@ninhvana.vn', orgWide: false, properties: 1 },
   { email: 'chef@ninhvana.vn', orgWide: false, properties: 1 },
@@ -108,7 +108,7 @@ describe('Auth, RBAC, CSRF & audit (integration)', () => {
       .send({ email: 'ceo@ninhvana.vn', password: PASSWORD })
       .expect(200);
     const ceoUser = ceo.body.user as SessionUser;
-    const otherProperty = ceoUser.properties.find((property) => property.code === 'NVN-DAN');
+    const otherProperty = ceoUser.properties.find((property) => property.code === 'NVN-NVT');
     expect(otherProperty).toBeTruthy();
 
     const agent = request.agent(http);

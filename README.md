@@ -22,6 +22,8 @@
 
 Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TEST.md`](docs/HUONG-DAN-TEST.md).
 
+**Bộ cài đặt desktop/mobile:** [`docs/CAI-DAT-APP.md`](docs/CAI-DAT-APP.md) · `dist/`.
+
 Kế hoạch đầy đủ: [`docs/PLAN.md`](docs/PLAN.md) · Tiến độ & bằng chứng: [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 ---
@@ -172,7 +174,7 @@ Mật khẩu chung: **`NinhVaNa@2026`** (đổi qua `SEED_ADMIN_PASSWORD` trư�
 | `cfo@ninhvana.vn` | Nguyễn Văn D | Kế toán trưởng | Toàn tập đoàn |
 | `revenue@ninhvana.vn` | Nguyễn Văn E | Giám đốc doanh thu | Toàn tập đoàn |
 | `manager.hanoi@ninhvana.vn` | Nguyễn Văn F | Giám đốc khách sạn | Khách sạn NinhVaNa |
-| `manager.danang@ninhvana.vn` | Nguyễn Văn G | Giám đốc nhà hàng | NinhVaNa Le Jardin Đà Nẵng |
+| `manager.ninhvan@ninhvana.vn` | Nguyễn Văn G | Giám đốc Beach Club | NinhVaNa Beach Club Ninh Vân |
 | `frontdesk@ninhvana.vn` | Nguyễn Văn H | Lễ tân | Khách sạn NinhVaNa |
 | `housekeeping@ninhvana.vn` | Nguyễn Văn I | Buồng phòng | Khách sạn NinhVaNa |
 | `chef@ninhvana.vn` | Nguyễn Văn J | Bếp trưởng | Khách sạn NinhVaNa |

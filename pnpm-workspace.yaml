@@ -12,6 +12,8 @@ allowBuilds:
   '@node-rs/argon2': true
   sharp: true
   unrs-resolver: true
+  electron: true
+  electron-winstaller: true
 
 onlyBuiltDependencies:
   - "@prisma/client"
@@ -21,6 +23,8 @@ onlyBuiltDependencies:
   - "@node-rs/argon2"
   - sharp
   - unrs-resolver
+  - electron
+  - electron-winstaller
 
 overrides:
   postcss@<8.5.18: 8.5.18

@@ -39,7 +39,7 @@ check "PostgreSQL + Redis healthy" $?
 
 ACCOUNTS=(
   admin chairman ceo cfo revenue hr marketing
-  manager.hanoi manager.danang frontdesk housekeeping chef fnb cashier warehouse
+  manager.hanoi manager.ninhvan frontdesk housekeeping chef fnb cashier warehouse
 )
 i=0
 for account in "${ACCOUNTS[@]}"; do

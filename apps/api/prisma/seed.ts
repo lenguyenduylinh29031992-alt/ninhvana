@@ -86,15 +86,15 @@ const PROPERTIES = [
     serviceChargePct: 5,
   },
   {
-    code: 'NVN-DAN',
-    name: 'NinhVaNa Le Jardin Đà Nẵng',
-    legalName: 'Công ty CP NinhVaNa Đà Nẵng',
+    code: 'NVN-NVT',
+    name: 'NinhVaNa Beach Club Ninh Vân',
+    legalName: 'Công ty CP NinhVaNa Ninh Vân',
     type: 'RESTAURANT' as const,
     starRating: 5,
-    address: '68 Bạch Đằng, Hải Châu',
-    city: 'Đà Nẵng',
-    phone: '+84 236 382 9999',
-    email: 'hello.lejardin@ninhvana.vn',
+    address: 'Ninh Vân, Ninh Hòa',
+    city: 'Khánh Hòa',
+    phone: '+84 258 382 9999',
+    email: 'hello.ninhvan@ninhvana.vn',
     roomCount: 0,
     taxCode: '0401234567',
     checkInTime: '11:00',
@@ -115,7 +115,7 @@ const DEPARTMENTS = {
     { code: 'UTILITIES', name: 'Năng lượng', nameEn: 'Utilities', group: 'UTILITIES' as const, isRevenueCenter: false, sortOrder: 8 },
     { code: 'MAINTENANCE', name: 'Bảo trì', nameEn: 'Maintenance', group: 'MAINTENANCE' as const, isRevenueCenter: false, sortOrder: 9 },
   ],
-  'NVN-DAN': [
+  'NVN-NVT': [
     { code: 'RESTAURANT', name: 'Nhà hàng Le Jardin', nameEn: 'Le Jardin Restaurant', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 1 },
     { code: 'BAR', name: 'Le Jardin Bar', nameEn: 'Le Jardin Bar', group: 'FNB' as const, isRevenueCenter: true, sortOrder: 2 },
     { code: 'ADMIN', name: 'Hành chính', nameEn: 'Administration', group: 'ADMIN' as const, isRevenueCenter: false, sortOrder: 3 },
@@ -238,7 +238,7 @@ const OUTLETS = {
     { code: 'POOL01', name: 'Pool Bar', type: 'POOL' as const, sc: 5, hours: { open: '08:00', close: '19:00' }, sort: 5 },
     { code: 'BAN01', name: 'Grand Ballroom', type: 'BANQUET' as const, sc: 10, hours: null, sort: 6 },
   ],
-  'NVN-DAN': [
+  'NVN-NVT': [
     { code: 'LJ01', name: 'Le Jardin Fine Dining', type: 'RESTAURANT' as const, sc: 5, hours: { open: '11:00', close: '23:00' }, sort: 1 },
     { code: 'LJBAR', name: 'Le Jardin Terrace Bar', type: 'BAR' as const, sc: 5, hours: { open: '16:00', close: '00:00' }, sort: 2 },
   ],
@@ -251,7 +251,7 @@ const DEMO_USERS = [
   { email: 'cfo@ninhvana.vn', fullName: 'Nguyễn Văn D', role: 'CFO', property: null, phone: '+84 90 000 0004' },
   { email: 'revenue@ninhvana.vn', fullName: 'Nguyễn Văn E', role: 'REVENUE_DIRECTOR', property: null, phone: '+84 90 000 0005' },
   { email: 'manager.hanoi@ninhvana.vn', fullName: 'Nguyễn Văn F', role: 'PROPERTY_MANAGER', property: 'NVN-HAN', phone: '+84 90 000 0006' },
-  { email: 'manager.danang@ninhvana.vn', fullName: 'Nguyễn Văn G', role: 'PROPERTY_MANAGER', property: 'NVN-DAN', phone: '+84 90 000 0007' },
+  { email: 'manager.ninhvan@ninhvana.vn', fullName: 'Nguyễn Văn G', role: 'PROPERTY_MANAGER', property: 'NVN-NVT', phone: '+84 90 000 0007' },
   { email: 'frontdesk@ninhvana.vn', fullName: 'Nguyễn Văn H', role: 'FRONT_DESK', property: 'NVN-HAN', phone: '+84 90 000 0008' },
   { email: 'housekeeping@ninhvana.vn', fullName: 'Nguyễn Văn I', role: 'HOUSEKEEPING', property: 'NVN-HAN', phone: '+84 90 000 0009' },
   { email: 'chef@ninhvana.vn', fullName: 'Nguyễn Văn J', role: 'EXEC_CHEF', property: 'NVN-HAN', phone: '+84 90 000 0010' },
@@ -281,8 +281,8 @@ const SETTINGS: Array<{ scope: string; key: string; value: Prisma.InputJsonValue
   { scope: 'NVN-HAN', key: 'rooms.checkOutTime', value: '12:00', category: 'rooms' },
   { scope: 'NVN-HAN', key: 'rooms.smokingFloors', value: [2], category: 'rooms' },
   { scope: 'NVN-HAN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
-  { scope: 'NVN-DAN', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
-  { scope: 'NVN-DAN', key: 'pos.turnTimeMinutes', value: 90, category: 'pos' },
+  { scope: 'NVN-NVT', key: 'pos.serviceChargePct', value: 5, category: 'pos' },
+  { scope: 'NVN-NVT', key: 'pos.turnTimeMinutes', value: 90, category: 'pos' },
 ];
 
 const INTEGRATIONS: Array<[string, string, string]> = [

@@ -177,8 +177,19 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 
 ## Bản sắc NinhVaNa & tài khoản ẩn danh (2026-10-25)
 
-- Đổi thương hiệu hiển thị sang **Khách sạn NinhVaNa / NinhVaNa Group**; mã cơ sở `NVN-HAN`, `NVN-DAN`; email `@ninhvana.vn`; logo NV; PWA manifest và chứng từ.
+- Đổi thương hiệu hiển thị sang **Khách sạn NinhVaNa / NinhVaNa Group**; mã cơ sở `NVN-HAN`, `NVN-NVT`; email `@ninhvana.vn`; logo NV; PWA manifest và chứng từ.
 - 15 tài khoản đổi sang **Nguyễn Văn A → O**, giữ nguyên chức vụ/vai trò và phạm vi cơ sở. Tên nhân sự trong HRM cũng được ẩn danh A → R, giữ phòng ban/chức danh.
 - Tài khoản **Admin riêng**: `admin@ninhvana.vn` / `NinhVaNa@2026`, họ tên Nguyễn Văn A, vai trò **SUPER_ADMIN** với **toàn bộ 102 quyền** — quản lý người dùng, vai trò, cấu hình, tích hợp, audit và mọi nghiệp vụ. Có integration test riêng xác nhận đủ quyền.
 - Dữ liệu khách hàng demo (guest) vẫn giữ tên hư cấu để minh hoạ nghiệp vụ; không phải tài khoản đăng nhập.
 - Đã reset database Docker và seed lại; 39/39 acceptance, 38 integration API, 5/5 browser flows.
+
+
+---
+
+## Địa chỉ Ninh Vân & bộ cài đặt native (2026-10-25)
+
+- Cơ sở thứ hai chuyển từ Đà Nẵng sang **NinhVaNa Beach Club Ninh Vân**, địa chỉ **Ninh Vân, Ninh Hòa, Khánh Hòa**; mã `NVN-NVT`, email quản lý `manager.ninhvan@ninhvana.vn`.
+- **Desktop**: Electron shell trong `apps/desktop`, có màn hình cấu hình máy chủ, menu đổi server, đóng gói `.dmg` (macOS arm64) và `.exe` NSIS (Windows x64). Đã chạy thử app từ DMG và chụp `docs/evidence/desktop-app-1440.png`.
+- **Android**: Capacitor project `apps/mobile`, launcher nhập địa chỉ máy chủ, APK debug-signed tại `dist/NinhVaNa-0.1.0-android.apk`; kiểm tra package `vn.ninhvana.app`, label NinhVaNa.
+- **iOS**: Capacitor iOS project đã tạo, cấu hình ATS/local network, icon/splash; đóng gói source tại `dist/NinhVaNa-0.1.0-ios-source.zip`. **Chưa có .ipa cài trực tiếp** vì máy thiếu iOS platform runtime và Apple signing identity.
+- Hướng dẫn cài: `docs/CAI-DAT-APP.md`; build lại: `scripts/build-apps.sh`.

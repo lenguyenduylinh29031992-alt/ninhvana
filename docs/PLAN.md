@@ -33,7 +33,7 @@
 
 | # | Giả định | Lý do / tác động |
 |---|---|---|
-| A1 | Tập đoàn demo: **NinhVaNa Group** gồm `NVN-HAN` (khách sạn 250 phòng, 5★, Hà Nội: 4 nhà hàng/bar, spa, 3 phòng hội nghị) và `NVN-DAN` (nhà hàng cao cấp độc lập Đà Nẵng, 120 chỗ, 1 bar) | Đúng yêu cầu seed; 2 mô hình vận hành khác nhau để chứng minh đa cơ sở |
+| A1 | Tập đoàn demo: **NinhVaNa Group** gồm `NVN-HAN` (khách sạn 250 phòng, 5★, Hà Nội: 4 nhà hàng/bar, spa, 3 phòng hội nghị) và `NVN-NVT` (nhà hàng cao cấp độc lập Đà Nẵng, 120 chỗ, 1 bar) | Đúng yêu cầu seed; 2 mô hình vận hành khác nhau để chứng minh đa cơ sở |
 | A2 | Năm tài chính = năm dương lịch; báo cáo quản trị theo **business date**; kỳ kế toán tháng | Chuẩn USALI & VAS |
 | A3 | VAT: 8% (dịch vụ lưu trú/ăn uống theo chính sách giảm thuế) và 10% (hàng hoá/khác) — **cấu hình theo `TaxRate`**, không hardcode; phí dịch vụ F&B 5%, spa 5%, rooms 0% (cấu hình) | Tránh sai lệch khi luật đổi |
 | A4 | Giá niêm yết **đã bao gồm** VAT và phí dịch vụ hay **chưa**? → Chọn **chưa bao gồm** (++), thể hiện rõ trên booking engine/POS; có cờ `pricesIncludeTax` theo property để đổi | Thực tế VN: niêm yết ++ tại khách sạn 5★ |

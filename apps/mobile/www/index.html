@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b2239" />
+<title>NinhVaNa</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; min-height: 100vh; min-height: 100dvh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #faf7f2; color: #102a3c; display: flex; flex-direction: column; padding: max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom)); }
+  .top { display: flex; align-items: center; gap: 12px; }
+  .mark { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #b9d3e4; display: grid; place-items: center; font-family: Georgia, serif; color: #1f6699; letter-spacing: .08em; font-size: 14px; }
+  .brand strong { display: block; font-family: Georgia, serif; font-weight: 500; letter-spacing: .18em; font-size: 17px; }
+  .brand span { display: block; margin-top: 3px; font-size: 8px; letter-spacing: .22em; color: #7a878f; text-transform: uppercase; }
+  main { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 460px; width: 100%; margin: 0 auto; }
+  .eyebrow { font-size: 9px; letter-spacing: .24em; text-transform: uppercase; color: #7a878f; margin-bottom: 10px; }
+  h1 { font-family: Georgia, serif; font-weight: 500; font-size: clamp(32px, 9vw, 46px); line-height: 1.08; margin: 0 0 14px; }
+  p { font-size: 13px; line-height: 1.65; color: #65737c; margin: 0 0 26px; }
+  label { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #65737c; margin-bottom: 8px; }
+  input { width: 100%; height: 52px; border: 1px solid #d9d1c3; border-radius: 12px; background: #fffdf9; padding: 0 14px; font-size: 16px; color: #102a3c; outline: none; }
+  input:focus { border-color: #1f6699; box-shadow: 0 0 0 3px rgba(31,102,153,.12); }
+  button { width: 100%; height: 52px; margin-top: 12px; border: 0; border-radius: 12px; background: #1f6699; color: #fff; font-size: 14px; font-weight: 600; }
+  button:active { background: #17557f; }
+  .error { display: none; margin-top: 12px; padding: 10px 12px; border-radius: 9px; background: #fdf0ef; color: #a33d36; font-size: 12px; }
+  .hint { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e8e0d4; font-size: 11px; line-height: 1.65; color: #8a949a; }
+  code { background: #f1ece2; padding: 1px 5px; border-radius: 4px; color: #45545d; }
+  footer { margin-top: 24px; text-align: center; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: #a6adb2; }
+</style>
+</head>
+<body>
+  <div class="top"><div class="mark">NV</div><div class="brand"><strong>NINHVANA</strong><span>Hospitality Operating System</span></div></div>
+  <main>
+    <div class="eyebrow">Kết nối máy chủ</div>
+    <h1>Mở NinhVaNa trên thiết bị của bạn.</h1>
+    <p>Nhập địa chỉ máy chủ đang chạy phần mềm. Điện thoại và máy chủ cần cùng mạng Wi-Fi, hoặc dùng tên miền đã triển khai.</p>
+    <label for="server">Địa chỉ máy chủ</label>
+    <input id="server" type="url" inputmode="url" autocomplete="url" placeholder="http://192.168.1.20:3000" />
+    <button id="open">Kết nối</button>
+    <div class="error" id="error"></div>
+    <div class="hint">Ví dụ: <code>http://192.168.1.20:3000</code> (LAN) hoặc <code>https://app.ninhvana.vn</code>. Địa chỉ được lưu cho lần mở sau.</div>
+  </main>
+  <footer>NinhVaNa · Ninh Vân, Khánh Hòa</footer>
+  <script>
+    const input = document.getElementById('server');
+    const error = document.getElementById('error');
+    const saved = localStorage.getItem('ninhvana.server');
+    input.value = saved || 'http://localhost:3000';
+    function connect() {
+      let url = input.value.trim().replace(/\/$/, '');
+      if (!/^https?:\/\/[^\s]+$/i.test(url)) {
+        error.textContent = 'Địa chỉ phải bắt đầu bằng http:// hoặc https://';
+        error.style.display = 'block';
+        return;
+      }
+      localStorage.setItem('ninhvana.server', url);
+      window.location.replace(url);
+    }
+    document.getElementById('open').addEventListener('click', connect);
+    input.addEventListener('keydown', (event) => { if (event.key === 'Enter') connect(); });
+  </script>
+</body>
+</html>

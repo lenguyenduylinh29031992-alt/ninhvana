@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NinhVaNa — Kết nối máy chủ</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #faf7f2; color: #102a3c; display: grid; place-items: center; padding: 32px; }
+  .card { width: min(560px, 100%); background: #fffdf9; border: 1px solid #e5ddcf; border-radius: 22px; padding: 38px; box-shadow: 0 24px 70px rgba(16, 42, 60, .08); }
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+  .mark { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #b9d3e4; display: grid; place-items: center; font-family: Georgia, serif; font-size: 15px; color: #1f6699; letter-spacing: .08em; }
+  .brand strong { display: block; font-family: Georgia, serif; font-weight: 500; letter-spacing: .16em; font-size: 18px; }
+  .brand span { display: block; margin-top: 4px; font-size: 9px; letter-spacing: .22em; color: #7a878f; text-transform: uppercase; }
+  h1 { font-family: Georgia, serif; font-weight: 500; font-size: 34px; margin: 0 0 8px; }
+  p { color: #65737c; font-size: 13px; line-height: 1.6; margin: 0 0 22px; }
+  label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: #65737c; margin-bottom: 7px; }
+  input { width: 100%; height: 46px; border: 1px solid #d9d1c3; border-radius: 10px; background: #fff; padding: 0 13px; font-size: 14px; color: #102a3c; outline: none; }
+  input:focus { border-color: #1f6699; box-shadow: 0 0 0 3px rgba(31, 102, 153, .12); }
+  button { width: 100%; height: 46px; margin-top: 14px; border: 0; border-radius: 10px; background: #1f6699; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+  button:hover { background: #17557f; }
+  .error { display: none; margin-top: 14px; padding: 10px 12px; border-radius: 8px; background: #fdf0ef; color: #a33d36; font-size: 12px; }
+  .hint { margin-top: 18px; padding-top: 16px; border-top: 1px solid #eee7db; font-size: 11px; color: #8a949a; line-height: 1.6; }
+  code { background: #f2ede4; padding: 1px 5px; border-radius: 4px; color: #45545d; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand"><div class="mark">NV</div><div><strong>NINHVANA</strong><span>Hospitality Operating System</span></div></div>
+    <h1>Kết nối máy chủ</h1>
+    <p>Nhập địa chỉ máy chủ NinhVaNa để mở ứng dụng. Máy chủ có thể chạy trên máy này, trong mạng nội bộ hoặc trên internet.</p>
+    <label for="url">Địa chỉ máy chủ</label>
+    <input id="url" type="url" placeholder="http://localhost:3000" autocomplete="url" />
+    <button id="connect">Kết nối &amp; mở NinhVaNa</button>
+    <div class="error" id="error"></div>
+    <div class="hint">Mặc định khi chạy Docker: <code>http://localhost:3000</code>. Trong mạng LAN: <code>http://192.168.1.20:3000</code>. Có thể đổi lại qua menu <b>NinhVaNa → Đổi máy chủ…</b>.</div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const input = document.getElementById('url');
+    const error = document.getElementById('error');
+    const message = params.get('message');
+    if (message) { error.textContent = message; error.style.display = 'block'; }
+    window.ninhvana.defaultServer().then((url) => { input.value = params.get('url') || url; });
+    document.getElementById('connect').addEventListener('click', async () => {
+      const result = await window.ninhvana.setServer(input.value);
+      if (!result.ok) { error.textContent = result.error; error.style.display = 'block'; }
+    });
+    input.addEventListener('keydown', (event) => { if (event.key === 'Enter') document.getElementById('connect').click(); });
+  </script>
+</body>
+</html>

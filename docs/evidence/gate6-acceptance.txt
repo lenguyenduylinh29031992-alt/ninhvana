@@ -11,7 +11,7 @@
   ✔ Đăng nhập hr@ninhvana.vn
   ✔ Đăng nhập marketing@ninhvana.vn
   ✔ Đăng nhập manager.hanoi@ninhvana.vn
-  ✔ Đăng nhập manager.danang@ninhvana.vn
+  ✔ Đăng nhập manager.ninhvan@ninhvana.vn
   ✔ Đăng nhập frontdesk@ninhvana.vn
   ✔ Đăng nhập housekeeping@ninhvana.vn
   ✔ Đăng nhập chef@ninhvana.vn
@@ -20,7 +20,7 @@
   ✔ Đăng nhập warehouse@ninhvana.vn
   · 2 cơ sở · 250 phòng · 15 tài khoản · 14 vai trò · 8 gói giá
   ✔ Dữ liệu nền (2 cơ sở, 250 phòng, 15 tài khoản)
-  · Chuỗi băm: 76 bản ghi, hợp lệ=True
+  · Chuỗi băm: 262 bản ghi, hợp lệ=True
   ✔ Nhật ký kiểm toán toàn vẹn
   · Lễ tân: 20 đến · 120 đang ở · 40 trả phòng
   ✔ Bàn lễ tân trả về danh sách đến/ở/đi
@@ -30,7 +30,7 @@
   ✔ POS outlets & sơ đồ bàn
   · Buồng phòng: 12 công việc
   ✔ Bảng công việc buồng phòng
-  · Doanh thu 33,784,360,000 ₫ · bộ phận 33,784,360,000 ₫ · kênh 33,784,360,000 ₫ · khớp=True
+  · Doanh thu 33,631,550,000 ₫ · bộ phận 33,631,550,000 ₫ · kênh 33,631,550,000 ₫ · khớp=True
   ✔ Đối soát Dashboard = bộ phận = kênh = sổ cái
   · Night audit: 14 ngày đã khoá sổ
   ✔ Lịch sử Night Audit
@@ -40,23 +40,23 @@
   ✔ Social Inbox đa kênh
   · Booking engine: 12 hạng phòng còn trống
   ✔ Booking engine công khai trả phòng trống
-  · P&L: doanh thu 28,022,350,000 ₫ · lương 456,465,866 ₫ · GOP 24,398,132,636 ₫ · GOPPAR 3,903,701 ₫
+  · P&L: doanh thu 27,935,960,000 ₫ · lương 456,465,866 ₫ · GOP 24,318,838,045 ₫ · GOPPAR 3,891,014 ₫
   ✔ P&L / GOP / GOPPAR từ sổ cái
-  · Cân đối: tài sản 1,559,307,196,862 ₫ · nợ 204,810,385,658 ₫ · vốn 1,354,496,811,203 ₫ · lệch 0.16 ₫
+  · Cân đối: tài sản 1,576,946,154,122 ₫ · nợ 207,198,285,268 ₫ · vốn 1,369,747,868,853 ₫ · lệch 0.16 ₫
   ✔ Bảng cân đối kế toán cân bằng
   · Công nợ NCC: 458,000,000 ₫ · 6 hoá đơn
   ✔ Tuổi nợ phải trả nhà cung cấp
-  · Bảng lương: 2 kỳ · 2026-10
+  · Bảng lương: 3 kỳ · 2027-01
   ✔ Bảng lương đã hạch toán
-  · Kho: 10 mặt hàng · giá trị 932,500,000 ₫
+  · Kho: 10 mặt hàng · giá trị 933,300,000 ₫
   ✔ Tồn kho & giá vốn
-  · Hợp nhất: 24 tháng · doanh thu 28,022,350,000 ₫ · GOP 24,398,132,636 ₫ · dự báo 6 tháng · MAPE 19.7% · 139 ms
+  · Hợp nhất: 24 tháng · doanh thu 27,935,960,000 ₫ · GOP 24,318,838,045 ₫ · dự báo 6 tháng · MAPE 15.7% · 96 ms
   ✔ Dashboard hợp nhất 24 tháng + dự báo + <2s
   · Report builder: 6 mẫu báo cáo
   ✔ Report builder templates
   · CSV header: ﻿"Bộ phận","Doanh thu","Chi phí","Lợi nhuận","Biên"
   ✔ Xuất CSV báo cáo
-  · CRM: 180 khách · 4 phân khúc
+  · CRM: 200 khách · 4 phân khúc
   ✔ CRM phân khúc khách hàng
   · Đánh giá: 24 · trung bình 4.38 sao
   ✔ CRM đánh giá & phản hồi

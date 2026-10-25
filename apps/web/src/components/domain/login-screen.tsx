@@ -36,7 +36,7 @@ const DEMO_ACCOUNTS = [
   { email: 'cfo@ninhvana.vn', name: 'Nguyễn Văn D', role: 'Kế toán trưởng', group: 'Lãnh đạo' },
   { email: 'revenue@ninhvana.vn', name: 'Nguyễn Văn E', role: 'GĐ doanh thu', group: 'Lãnh đạo' },
   { email: 'manager.hanoi@ninhvana.vn', name: 'Nguyễn Văn F', role: 'GĐ khách sạn NinhVaNa', group: 'Cơ sở' },
-  { email: 'manager.danang@ninhvana.vn', name: 'Nguyễn Văn G', role: 'GĐ Le Jardin', group: 'Cơ sở' },
+  { email: 'manager.ninhvan@ninhvana.vn', name: 'Nguyễn Văn G', role: 'GĐ Beach Club', group: 'Cơ sở' },
   { email: 'frontdesk@ninhvana.vn', name: 'Nguyễn Văn H', role: 'Lễ tân', group: 'Cơ sở' },
   { email: 'housekeeping@ninhvana.vn', name: 'Nguyễn Văn I', role: 'Buồng phòng', group: 'Cơ sở' },
   { email: 'chef@ninhvana.vn', name: 'Nguyễn Văn J', role: 'Bếp trưởng', group: 'Cơ sở' },

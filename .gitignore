@@ -48,3 +48,15 @@ pnpm-debug.log*
 # Prisma
 apps/api/prisma/*.db
 apps/api/prisma/dev.db*
+
+# Native app build artifacts
+apps/desktop/release/
+apps/desktop/build/icon.iconset/
+apps/mobile/android/.gradle/
+apps/mobile/android/app/build/
+apps/mobile/android/build/
+apps/mobile/android/local.properties
+apps/mobile/ios/App/Pods/
+apps/mobile/ios/App/build/
+apps/mobile/ios/App/App.xcworkspace/xcuserdata/
+apps/mobile/ios/App/App.xcodeproj/xcuserdata/
