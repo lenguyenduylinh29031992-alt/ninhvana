@@ -33,6 +33,7 @@ import { PosModule } from './modules/pos/pos.module';
 import { HousekeepingModule } from './modules/housekeeping/housekeeping.module';
 import { GuestsModule } from './modules/guests/guests.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
+import { RatesModule } from './modules/rates/rates.module';
 import { ChannelsModule } from './modules/channels/channels.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { InboxModule } from './modules/inbox/inbox.module';
@@ -134,6 +135,7 @@ import { ExportsModule } from './modules/exports/exports.module';
     HousekeepingModule,
     GuestsModule,
     RoomsModule,
+    RatesModule,
     ChannelsModule,
     BookingModule,
     InboxModule,

@@ -24,6 +24,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Rà soát module & giai đoạn:** [`docs/ROADMAP-AUDIT.md`](docs/ROADMAP-AUDIT.md).
 
+**Loại phòng & duyệt giá:** [`docs/ROOM-TYPES-RATES.md`](docs/ROOM-TYPES-RATES.md).
+
 **Cơ cấu bộ phận & doanh thu:** [`docs/ORG-STRUCTURE.md`](docs/ORG-STRUCTURE.md).
 
 **Nhân sự Marketing TikTok:** [`docs/MARKETING-TIKTOK-HR.md`](docs/MARKETING-TIKTOK-HR.md).

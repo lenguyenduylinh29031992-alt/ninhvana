@@ -193,18 +193,12 @@ type RoomTypeSeed = {
 };
 
 const ROOM_TYPES: RoomTypeSeed[] = [
-  { code: 'STD-Q', name: 'Superior Queen', nameEn: 'Superior Queen', baseRate: 2_650_000, sizeSqm: 32, bedType: 'Queen', maxAdults: 2, maxChildren: 1, count: 30, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'PARKING'] },
-  { code: 'STD-T', name: 'Superior Twin', nameEn: 'Superior Twin', baseRate: 2_650_000, sizeSqm: 32, bedType: '2 Twin', maxAdults: 2, maxChildren: 1, count: 30, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'PARKING'] },
-  { code: 'DLX-K', name: 'Deluxe King', nameEn: 'Deluxe King', baseRate: 3_200_000, sizeSqm: 42, bedType: 'King', maxAdults: 2, maxChildren: 1, count: 45, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'WORKSPACE', 'POOL'] },
-  { code: 'DLX-T', name: 'Deluxe Twin', nameEn: 'Deluxe Twin', baseRate: 3_200_000, sizeSqm: 42, bedType: '2 Twin', maxAdults: 2, maxChildren: 1, count: 35, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'WORKSPACE', 'POOL'] },
-  { code: 'PRM-K', name: 'Premier King', nameEn: 'Premier King', baseRate: 4_100_000, sizeSqm: 48, bedType: 'King', maxAdults: 2, maxChildren: 2, count: 25, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'WORKSPACE', 'POOL', 'BATHTUB'] },
-  { code: 'PRM-T', name: 'Premier Twin', nameEn: 'Premier Twin', baseRate: 4_100_000, sizeSqm: 48, bedType: '2 Twin', maxAdults: 2, maxChildren: 2, count: 20, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'WORKSPACE', 'POOL', 'BATHTUB'] },
-  { code: 'EXE-C', name: 'Executive Club Room', nameEn: 'Executive Club Room', baseRate: 5_600_000, sizeSqm: 55, bedType: 'King', maxAdults: 2, maxChildren: 1, count: 25, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'WORKSPACE', 'POOL', 'BATHTUB', 'LOUNGE'] },
-  { code: 'JUN-S', name: 'Junior Suite', nameEn: 'Junior Suite', baseRate: 6_800_000, sizeSqm: 68, bedType: 'King', maxAdults: 3, maxChildren: 2, count: 18, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'WORKSPACE', 'POOL', 'BATHTUB', 'LOUNGE', 'BALCONY'] },
-  { code: 'FAM-S', name: 'Family Suite', nameEn: 'Family Suite', baseRate: 7_400_000, sizeSqm: 82, bedType: 'King + 2 Twin', maxAdults: 4, maxChildren: 2, count: 10, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'POOL', 'BATHTUB', 'BALCONY', 'KITCHENETTE'] },
-  { code: 'RES-S', name: 'Residence Suite', nameEn: 'Residence Suite', baseRate: 8_900_000, sizeSqm: 96, bedType: 'King', maxAdults: 3, maxChildren: 2, count: 2, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'WORKSPACE', 'POOL', 'BATHTUB', 'LOUNGE', 'BALCONY', 'KITCHENETTE'] },
-  { code: 'GDN-V', name: 'Garden Villa', nameEn: 'Garden Villa', baseRate: 9_500_000, sizeSqm: 120, bedType: 'King', maxAdults: 3, maxChildren: 2, count: 6, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'POOL', 'BATHTUB', 'BALCONY', 'KITCHENETTE', 'SPA'] },
-  { code: 'PSL-V', name: 'Pool Villa', nameEn: 'Pool Villa', baseRate: 12_500_000, sizeSqm: 160, bedType: 'King', maxAdults: 4, maxChildren: 2, count: 4, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'POOL', 'BATHTUB', 'BALCONY', 'KITCHENETTE', 'SPA', 'LOUNGE'] },
+  { code: 'DORM-A1', name: 'Dormitory A1 — giường tầng', nameEn: 'A1 Bunk Dormitory', baseRate: 850_000, sizeSqm: 28, bedType: 'Bunk beds', maxAdults: 6, maxChildren: 0, count: 6, amenities: ['WIFI', 'AC', 'LOCKER', 'BREAKFAST', 'POOL'] },
+  { code: 'DORM-A2', name: 'Dormitory A2 — giường tầng', nameEn: 'A2 Bunk Dormitory', baseRate: 950_000, sizeSqm: 30, bedType: 'Bunk beds', maxAdults: 6, maxChildren: 0, count: 6, amenities: ['WIFI', 'AC', 'LOCKER', 'BREAKFAST', 'POOL'] },
+  { code: 'VIEW-A2', name: 'Phòng View trước A2', nameEn: 'A2 Front View Room', baseRate: 2_200_000, sizeSqm: 32, bedType: 'King', maxAdults: 2, maxChildren: 1, count: 2, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'POOL'] },
+  { code: 'CONNECT-A2', name: 'Connecting Room A2', nameEn: 'A2 Connecting Room', baseRate: 3_200_000, sizeSqm: 46, bedType: 'King + Twin', maxAdults: 4, maxChildren: 1, count: 1, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'POOL'] },
+  { code: 'DOUBLE-A3', name: 'Phòng đôi A3', nameEn: 'A3 Double Room', baseRate: 2_200_000, sizeSqm: 34, bedType: 'King', maxAdults: 2, maxChildren: 1, count: 10, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'POOL'] },
+  { code: 'FAMILY-A3', name: 'Phòng gia đình gác lửng A3', nameEn: 'A3 Family Mezzanine', baseRate: 3_500_000, sizeSqm: 55, bedType: 'King + 2 Twin', maxAdults: 4, maxChildren: 2, count: 2, amenities: ['WIFI', 'AC', 'TV', 'MINIBAR', 'SAFE', 'BREAKFAST', 'POOL', 'KITCHENETTE'] },
 ];
 
 const RATE_PLANS = [
@@ -677,14 +671,15 @@ async function main(): Promise<void> {
 
   // Hotel rooms, floors, rate plans
   const hotelId = propertyIds.get('NVN')!;
-  const floorCapacity = [32, 32, 31, 31, 31, 31, 31, 31];
+  const floorCapacity = [6, 9, 12];
+  const floorNames = ['A1 — Tầng trệt', 'A2 — Tầng 2', 'A3 — Tầng 3'];
   const floors: Array<{ id: string; number: number; capacity: number }> = [];
   for (const [index, capacity] of floorCapacity.entries()) {
     const number = index + 1;
     const floor = await prisma.floor.upsert({
       where: { propertyId_number: { propertyId: hotelId, number } },
-      update: { name: `Tầng ${number}` },
-      create: { propertyId: hotelId, number, name: `Tầng ${number}`, sortOrder: number },
+      update: { name: floorNames[index] ?? `Tầng ${number}` },
+      create: { propertyId: hotelId, number, name: floorNames[index] ?? `Tầng ${number}`, sortOrder: number },
     });
     floors.push({ id: floor.id, number, capacity });
   }

@@ -156,7 +156,7 @@ async function shot(page, name, fullPage = false) {
   adminPage.on('console', (msg) => { if (msg.type() === 'error' && !msg.text().includes('503')) problems.push(`console: ${msg.text()}`); });
   adminPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
   await login(adminPage, 'admin@ninhvana.vn');
-  for (const [path, name] of [['/marketing', 'marketing-1920'], ['/property-map', 'property-map-1920'], ['/hr', 'hr-1920'], ['/revenue', 'revenue-1920']]) {
+  for (const [path, name] of [['/marketing', 'marketing-1920'], ['/property-map', 'property-map-1920'], ['/hr', 'hr-1920'], ['/revenue', 'revenue-1920'], ['/rate-approvals', 'rate-approvals-1920']]) {
     await adminPage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
     await adminPage.waitForTimeout(1400);
     await shot(adminPage, name, true);

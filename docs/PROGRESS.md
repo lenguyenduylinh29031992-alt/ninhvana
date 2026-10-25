@@ -282,3 +282,12 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Chọn phòng ở trang đặt phòng công khai và hộp thoại đặt phòng giờ có viền xanh, nền xanh nhạt, ring và nhãn **Đã chọn**.
 - Dark mode: bật `color-scheme: dark`, đặt nền input/select/textarea theo `surface`, chữ theo `ink`, xử lý placeholder/autofill và option của select.
 - Ảnh kiểm chứng: `docs/evidence/reservations-1920-dark.png`.
+
+
+## Loại phòng, duyệt giá & chống zoom mobile (2026-10-25)
+
+- Cấu hình 27 phòng/6 loại phòng đúng sơ đồ A1/A2/A3: DORM-A1 (6), DORM-A2 (6), VIEW-A2 (2), CONNECT-A2 (1), DOUBLE-A3 (10), FAMILY-A3 (2).
+- Thêm quy trình `RateChangeRequest`/`RateApproval`: chỉ vai trò cấp cao được đề xuất/duyệt; gửi chữ ký online tới Tài chính, Kinh doanh, Ban giám đốc; duyệt xong mới áp dụng giá và biểu giá BAR.
+- Trang `/rate-approvals`; chặn API với vai trò không cấp cao.
+- Mobile: khóa zoom viewport, input 16px, thanh icon `position: fixed` + `translateZ(0)`; đã kiểm tra ở 390px.
+- Ảnh: `docs/evidence/rate-approvals-1920.png`, `docs/evidence/room-selected-390.png`, `docs/evidence/mobile-zoom-390.png`.

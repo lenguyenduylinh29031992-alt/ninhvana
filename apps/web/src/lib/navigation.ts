@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  BadgeCheck,
   BarChart3,
   BookUser,
   Bot,
@@ -83,6 +84,7 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'navGroup.commercial',
     items: [
       { href: '/revenue', labelKey: 'nav.revenue', icon: TrendingUp, permission: 'finance:view' },
+      { href: '/rate-approvals', labelKey: 'nav.rateApprovals', icon: BadgeCheck, permission: 'rate:update' },
       { href: '/night-audit', labelKey: 'nav.nightAudit', icon: ClipboardCheck, permission: 'night-audit:view' },
       { href: '/channels', labelKey: 'nav.channels', icon: Radio, permission: 'channel:view' },
       { href: '/inbox', labelKey: 'nav.inbox', icon: Inbox, permission: 'inbox:view' },

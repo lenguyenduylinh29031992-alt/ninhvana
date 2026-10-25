@@ -209,7 +209,7 @@ export default function BookingEnginePage() {
             {availability.data.rooms.map((room) => {
               const isSelected = selected?.roomTypeId === room.roomTypeId;
               return (
-              <Card key={room.roomTypeId} className={cn('overflow-hidden transition-all', isSelected && 'border-2 border-brand ring-2 ring-brand/25 shadow-md')}>
+              <Card key={room.roomTypeId} className={cn('overflow-hidden transition-all', isSelected && 'border-2 border-brand bg-brand-soft/35 ring-2 ring-brand/25 shadow-md')}>
                 <CardContent className="grid gap-4 p-4 md:grid-cols-[180px_1fr_auto] md:items-center">
                   <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-brand-soft to-muted">
                     <BedDouble className="size-8 text-brand" />

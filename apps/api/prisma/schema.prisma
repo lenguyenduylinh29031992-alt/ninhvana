@@ -740,6 +740,7 @@ model RoomType {
   rooms               Room[]
   amenities           RoomTypeAmenity[]
   rates               RatePlanRate[]
+  rateRequests        RateChangeRequest[]
   reservationRooms    ReservationRoom[]
   channelRoomMappings ChannelRoomMapping[]
 
@@ -995,6 +996,53 @@ model Company {
   allotments   Allotment[]
 
   @@index([orgId, name])
+}
+
+enum RateRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model RateChangeRequest {
+  id             String            @id @default(cuid())
+  orgId          String
+  propertyId     String
+  roomTypeId     String
+  currentRate    Decimal           @db.Decimal(18, 2)
+  proposedRate   Decimal           @db.Decimal(18, 2)
+  effectiveFrom  DateTime          @db.Date
+  effectiveTo    DateTime?         @db.Date
+  reason         String
+  status         RateRequestStatus @default(PENDING)
+  requestedById  String
+  requestedByName String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  roomType  RoomType       @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+  approvals RateApproval[]
+
+  @@index([propertyId, status, createdAt])
+}
+
+model RateApproval {
+  id             String            @id @default(cuid())
+  requestId      String
+  departmentCode String
+  departmentName String
+  status         RateRequestStatus @default(PENDING)
+  approverId     String?
+  approverName   String?
+  signature      String?
+  comment        String?
+  decidedAt      DateTime?
+  createdAt      DateTime          @default(now())
+
+  request RateChangeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, departmentCode])
+  @@index([departmentCode, status])
 }
 
 // ───────────────────────── Reservations ─────────────────────────

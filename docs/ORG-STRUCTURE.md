@@ -38,3 +38,8 @@ Trang `/hr` có 22 thẻ bộ phận. Nhấp vào thẻ sẽ:
 ## Ghi chú phân quyền
 
 Hiện phân quyền theo vai trò + cơ sở (`UserPropertyRole`). Chưa gắn quyền theo từng bộ phận để tránh thay đổi RBAC đột ngột. Khi cần, có thể thêm `departmentId` vào phân quyền người dùng và kiểm tra quyền theo bộ phận mà không đổi dữ liệu kế toán.
+
+
+## Loại phòng & duyệt giá
+
+Xem [`ROOM-TYPES-RATES.md`](ROOM-TYPES-RATES.md): 27 phòng theo A1/A2/A3, 6 loại phòng; thay đổi giá chỉ dành cho lãnh đạo cấp cao và phải qua chữ ký duyệt của các bộ phận liên quan.

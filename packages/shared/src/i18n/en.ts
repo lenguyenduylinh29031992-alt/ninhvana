@@ -145,6 +145,7 @@ export const en: Record<TranslationKey, string> = {
   'nav.pos': 'Restaurant & POS',
   'nav.kds': 'Kitchen Display',
   'nav.banquet': 'Banquet & Events',
+  'nav.rateApprovals': 'Rate approvals',
   'nav.revenue': 'Revenue',
   'nav.nightAudit': 'Night Audit',
   'nav.channels': 'Channels',

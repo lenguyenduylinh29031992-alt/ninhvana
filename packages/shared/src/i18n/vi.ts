@@ -147,6 +147,7 @@ export const vi = {
   'nav.pos': 'Nhà hàng & bán hàng',
   'nav.kds': 'Màn hình bếp',
   'nav.banquet': 'Tiệc & sự kiện',
+  'nav.rateApprovals': 'Duyệt giá phòng',
   'nav.revenue': 'Doanh thu',
   'nav.nightAudit': 'Kiểm toán đêm',
   'nav.channels': 'Kênh bán',
