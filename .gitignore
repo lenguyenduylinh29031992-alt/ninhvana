@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.turbo/
+
+# Build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+!.env.test.example
+*.pem
+*.key
+secrets/
+
+# Local runtime data (never commit)
+.dev/
+tmp/
+uploads/
+backups/
+
+# Test & coverage
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.nyc_output/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/prisma/dev.db*
