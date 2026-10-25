@@ -20,7 +20,7 @@
   ✔ Đăng nhập warehouse@ninhvana.vn
   · 2 cơ sở · 250 phòng · 15 tài khoản · 14 vai trò · 8 gói giá
   ✔ Dữ liệu nền (2 cơ sở, 250 phòng, 15 tài khoản)
-  · Chuỗi băm: 262 bản ghi, hợp lệ=True
+  · Chuỗi băm: 292 bản ghi, hợp lệ=True
   ✔ Nhật ký kiểm toán toàn vẹn
   · Lễ tân: 20 đến · 120 đang ở · 40 trả phòng
   ✔ Bàn lễ tân trả về danh sách đến/ở/đi
@@ -50,7 +50,7 @@
   ✔ Bảng lương đã hạch toán
   · Kho: 10 mặt hàng · giá trị 933,300,000 ₫
   ✔ Tồn kho & giá vốn
-  · Hợp nhất: 24 tháng · doanh thu 27,935,960,000 ₫ · GOP 24,318,838,045 ₫ · dự báo 6 tháng · MAPE 15.7% · 96 ms
+  · Hợp nhất: 24 tháng · doanh thu 27,935,960,000 ₫ · GOP 24,318,838,045 ₫ · dự báo 6 tháng · MAPE 15.7% · 109 ms
   ✔ Dashboard hợp nhất 24 tháng + dự báo + <2s
   · Report builder: 6 mẫu báo cáo
   ✔ Report builder templates

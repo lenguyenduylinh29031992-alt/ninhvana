@@ -137,6 +137,17 @@ bash scripts/check-acceptance.sh
 
 ---
 
+## Marketing Workspace & sơ đồ khu vực
+
+- **Marketing** (`/marketing`): mục lớn → mục con chi tiết, thêm bằng nút **+** cạnh từng mục; trạng thái, kênh, ngân sách, ghi chú; cây mặc định gồm Chiến dịch, Nội dung & thương hiệu, Kênh & đối tác, Ngân sách & ROI, Chăm sóc khách hàng.
+- **Sơ đồ khu vực** (`/property-map`): Khu A — Nhà chính trung tâm (A1 tầng trệt: cổng đón khách, lễ tân, 6 dormitory, hồ bơi/view biển; A2: 6 dormitory, 2 view, 1 connecting; A3: 10 phòng đôi, 2 family gác lửng, 1 sảnh chung), Khu B Bagalog, Khu C Bếp & Quầy Bar, Khu D Hồ Bơi.
+- **Xuất dữ liệu**: Excel `.xlsx`, Word `.docx`, CSV UTF-8 và Google Sheets (sao chép TSV rồi dán vào `sheets.new`) cho marketing, sơ đồ khu vực, đặt phòng, khách, buồng phòng, CRM, lương, kênh, sổ nhật ký, hoá đơn NCC và tài khoản.
+
+![Marketing Workspace](docs/evidence/marketing-1920.png)
+![Sơ đồ khu vực](docs/evidence/property-map-1920.png)
+
+---
+
 ## Giai đoạn 6 — kiểm thử, bảo mật & PWA
 
 - **Coverage lõi**: shared **73,5% statements / 74,9% lines**; API core (accounting, channels, finance, HR, reports, reservations, auth/locks/sequence) **73,0% statements / 77,1% lines** — vượt mốc 70%.
@@ -241,7 +252,7 @@ docs/           PLAN, PROGRESS, ảnh chụp giao diện
 ## Kiểm thử
 
 - **82 unit test** cho tiền tệ, thuế (VAT + phí dịch vụ ++/inclusive), ngày nghiệp vụ, RBAC, định giá lưu trú, bút toán kép, zod schema.
-- **38 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
+- **41 integration test** trên PostgreSQL thật: 15 vai trò, CSRF, chéo cơ sở, audit chain, luồng khách hoàn chỉnh, 10 request đồng thời, webhook idempotent + chữ ký, ARI retry/DLQ, booking engine, inbox, P&L/GOP/GOPPAR, cân đối, payroll, mua hàng, dashboard 24 tháng, dự báo và CSV.
 - `bash scripts/check-acceptance.sh` chạy **39 kiểm tra** Gate 1–6.
 - Ảnh chụp 1920 / 768 / 390 px (32 ảnh màn hình): [`docs/evidence/`](docs/evidence/).
 

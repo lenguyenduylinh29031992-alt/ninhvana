@@ -153,6 +153,8 @@ export const en: Record<TranslationKey, string> = {
   'nav.payroll': 'Payroll',
   'nav.roster': 'Roster',
   'nav.crm': 'CRM',
+  'nav.marketing': 'Marketing',
+  'nav.propertyMap': 'Property map',
   'nav.reviews': 'Reviews',
   'nav.reports': 'Reports',
   'nav.assistant': 'AI Assistant',

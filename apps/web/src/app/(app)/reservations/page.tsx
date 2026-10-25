@@ -15,6 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FieldError, Input, NativeSelect, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ExportMenu } from '@/components/domain/export-menu';
 import { PageHeader } from '@/components/ui/feedback';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -57,7 +58,7 @@ export default function ReservationsPage() {
         eyebrow="Vận hành · Đặt phòng"
         title="Danh sách đặt phòng"
         description="Tìm theo mã, tên khách, email hoặc số điện thoại."
-        actions={<Button size="sm" onClick={() => setBookingOpen(true)} disabled={!propertyId || !can('reservation:create')}><Plus /> Đặt phòng</Button>}
+        actions={<div className="flex items-center gap-2"><ExportMenu dataset="reservations" label="Xuất" /><Button size="sm" onClick={() => setBookingOpen(true)} disabled={!propertyId || !can('reservation:create')}><Plus /> Đặt phòng</Button></div>}
       />
 
       <Card>

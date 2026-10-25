@@ -180,7 +180,7 @@ Lưu ý iOS:
 |---|---|
 | `pnpm lint` | ESLint toàn monorepo |
 | `pnpm typecheck` | TypeScript API/Web/Shared |
-| `pnpm test` | 82 unit shared + 38 integration API |
+| `pnpm test` | 82 unit shared + 41 integration API |
 | `pnpm build` | Build production toàn bộ |
 | `pnpm --filter @grand-suite/shared test:coverage` | Coverage shared (≥70%) |
 | `pnpm --filter @grand-suite/api exec vitest run --coverage` | Coverage lõi API (≥70%) |

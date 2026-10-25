@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { ExportMenu } from '@/components/domain/export-menu';
 import { PageHeader } from '@/components/ui/feedback';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -62,7 +63,7 @@ export default function GuestsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Vận hành · Khách hàng" title="Hồ sơ khách" description="Lịch sử lưu trú, chi tiêu và hạng thành viên." actions={<Badge tone="outline"><Users className="size-3" /> {list.data?.total ?? 0} khách</Badge>} />
+      <PageHeader eyebrow="Vận hành · Khách hàng" title="Hồ sơ khách" description="Lịch sử lưu trú, chi tiêu và hạng thành viên." actions={<div className="flex items-center gap-2"><ExportMenu dataset="guests" label="Xuất" /><Badge tone="outline"><Users className="size-3" /> {list.data?.total ?? 0} khách</Badge></div>} />
       <Card>
         <CardContent className="space-y-3 p-4">
           <div className="relative max-w-md">

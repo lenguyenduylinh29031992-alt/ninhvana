@@ -14,6 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FieldError, Input, NativeSelect } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ExportMenu } from '@/components/domain/export-menu';
 import { PageHeader } from '@/components/ui/feedback';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PermissionNotice } from '@/components/domain/permission-notice';
@@ -41,7 +42,7 @@ export default function CostsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Cost Control" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null} />
+      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Cost Control" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={<div className="flex items-center gap-2"><ExportMenu dataset="supplier-invoices" label="Xuất chi phí" />{can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null}</div>} />
       <div className="grid gap-3 sm:grid-cols-3">
         <Kpi icon={Receipt} label="Chi phí đã ghi" value={formatMoney(totalExpense)} hint={`${expenses.data?.length ?? 0} chứng từ`} />
         <Kpi icon={Boxes} label="Giá trị tồn kho" value={formatMoney(stockValue)} hint={`${stock.data?.length ?? 0} mặt hàng`} />

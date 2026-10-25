@@ -11,6 +11,7 @@ import { useActiveProperty } from '@/lib/property-context';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { ExportMenu } from '@/components/domain/export-menu';
 import { PageHeader } from '@/components/ui/feedback';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PermissionNotice } from '@/components/domain/permission-notice';
@@ -63,7 +64,8 @@ export default function HousekeepingPage() {
         title="Bảng công việc buồng phòng"
         description="Cập nhật theo phòng, dùng tốt trên điện thoại của nhân viên."
         actions={
-          <div className="flex gap-1">
+          <div className="flex flex-wrap items-center gap-1">
+            <ExportMenu dataset="housekeeping" label="Xuất" />
             <Button size="sm" variant={filter === 'ACTIVE' ? 'primary' : 'secondary'} onClick={() => setFilter('ACTIVE')}>
               Đang xử lý ({(board.data?.counts.pending ?? 0) + (board.data?.counts.inProgress ?? 0) + (board.data?.counts.blocked ?? 0)})
             </Button>

@@ -143,5 +143,23 @@ async function shot(page, name, fullPage = false) {
   await context.close();
 }
 
+// Marketing workspace and property map — admin
+{
+  const adminContext = await browser.newContext({ viewport: { width: 1920, height: 1080 }, locale: 'vi-VN' });
+  const adminPage = await adminContext.newPage();
+  adminPage.on('console', (msg) => { if (msg.type() === 'error') problems.push(`console: ${msg.text()}`); });
+  adminPage.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
+  await login(adminPage, 'admin@ninhvana.vn');
+  for (const [path, name] of [['/marketing', 'marketing-1920'], ['/property-map', 'property-map-1920']]) {
+    await adminPage.goto(`${base}${path}`, { waitUntil: 'domcontentloaded' });
+    await adminPage.waitForTimeout(1400);
+    await shot(adminPage, name, true);
+  }
+  await adminPage.setViewportSize({ width: 390, height: 844 });
+  await adminPage.goto(`${base}/marketing`, { waitUntil: 'domcontentloaded' });
+  await adminPage.waitForTimeout(1000);
+  await shot(adminPage, 'marketing-390');
+}
+
 await browser.close();
 console.info(problems.length ? `PROBLEMS:\n${problems.join('\n')}` : 'No console/page errors.');

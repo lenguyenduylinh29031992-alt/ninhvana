@@ -155,6 +155,8 @@ export const vi = {
   'nav.payroll': 'Tiền lương',
   'nav.roster': 'Xếp ca',
   'nav.crm': 'CRM',
+  'nav.marketing': 'Marketing',
+  'nav.propertyMap': 'Khu vực',
   'nav.reviews': 'Đánh giá',
   'nav.reports': 'Báo cáo',
   'nav.assistant': 'Trợ lý AI',

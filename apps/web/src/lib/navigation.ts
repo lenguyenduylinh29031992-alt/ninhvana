@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Megaphone,
+  Map,
   PackageSearch,
   Radio,
   Receipt,
@@ -67,6 +68,7 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'navGroup.operations',
     items: [
       { href: '/front-desk', labelKey: 'nav.frontDesk', icon: DoorOpen, permission: 'reservation:view' },
+      { href: '/property-map', labelKey: 'nav.propertyMap', icon: Map, permission: 'property:view' },
       { href: '/tape-chart', labelKey: 'nav.tapeChart', icon: CalendarDays, permission: 'reservation:view' },
       { href: '/reservations', labelKey: 'nav.reservations', icon: BookUser, permission: 'reservation:view' },
       { href: '/guests', labelKey: 'nav.guests', icon: Users, permission: 'guest:view' },
@@ -85,6 +87,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/channels', labelKey: 'nav.channels', icon: Radio, permission: 'channel:view' },
       { href: '/inbox', labelKey: 'nav.inbox', icon: Inbox, permission: 'inbox:view' },
       { href: '/crm', labelKey: 'nav.crm', icon: Gem, permission: 'crm:view' },
+      { href: '/marketing', labelKey: 'nav.marketing', icon: Megaphone, permission: 'marketing:view' },
       { href: '/reviews', labelKey: 'nav.reviews', icon: Star, permission: 'review:view', phase: 4 },
     ],
   },

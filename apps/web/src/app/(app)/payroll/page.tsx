@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ExportMenu } from '@/components/domain/export-menu';
 import { PageHeader } from '@/components/ui/feedback';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PermissionNotice } from '@/components/domain/permission-notice';
@@ -42,7 +43,7 @@ export default function PayrollPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Nhân sự · Tiền lương" title="HR & Payroll" description="Bảng lương theo bộ phận, hạch toán chi phí lương và thanh toán." />
+      <PageHeader eyebrow="Nhân sự · Tiền lương" title="HR & Payroll" description="Bảng lương theo bộ phận, hạch toán chi phí lương và thanh toán." actions={<ExportMenu dataset="payroll" label="Xuất lương" />} />
       <div className="grid gap-3 sm:grid-cols-3">
         <Kpi icon={Users} label="Nhân sự hoạt động" value={headcount} hint={`${employees.data?.length ?? 0} hồ sơ`} />
         <Kpi icon={BadgeDollarSign} label="Quỹ lương kỳ gần nhất" value={formatMoney(latest?.gross ?? 0)} hint={latest ? `Kỳ ${latest.period} · ${latest.status}` : 'Chưa có kỳ lương'} />

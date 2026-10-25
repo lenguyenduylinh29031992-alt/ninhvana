@@ -13,6 +13,7 @@ import {
   UserX,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ExportMenu } from '@/components/domain/export-menu';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -125,12 +126,15 @@ export default function UsersPage() {
         title={t('nav.users')}
         description="Tài khoản, vai trò theo cơ sở và trạng thái truy cập. Mọi thay đổi đều được ghi vào nhật ký kiểm toán."
         actions={
-          canManage ? (
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <UserPlus />
-              Thêm người dùng
-            </Button>
-          ) : null
+          <div className="flex items-center gap-2">
+            <ExportMenu dataset="users" label="Xuất tài khoản" />
+            {canManage ? (
+              <Button size="sm" onClick={() => setCreateOpen(true)}>
+                <UserPlus />
+                Thêm người dùng
+              </Button>
+            ) : null}
+          </div>
         }
       />
 

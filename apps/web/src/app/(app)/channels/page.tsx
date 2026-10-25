@@ -9,6 +9,7 @@ import { useAccess } from '@/lib/session';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { ExportMenu } from '@/components/domain/export-menu';
 import { PageHeader } from '@/components/ui/feedback';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -77,10 +78,10 @@ export default function ChannelsPage() {
         title="Channel Manager"
         description="Đồng bộ tồn phòng & giá (ARI) hai chiều với OTA và mạng xã hội. Connector mock chạy đầy đủ retry, backoff và dead-letter queue."
         actions={
-          <Badge tone={data?.totals.dlq ? 'danger' : 'success'}>
+          <div className="flex items-center gap-2"><ExportMenu dataset="channels" label="Xuất" /><Badge tone={data?.totals.dlq ? 'danger' : 'success'}>
             {data?.totals.dlq ? <TriangleAlert className="size-3" /> : <Cable className="size-3" />}
             {data?.totals.dlq ?? 0} job lỗi
-          </Badge>
+          </Badge></div>
         }
       />
 

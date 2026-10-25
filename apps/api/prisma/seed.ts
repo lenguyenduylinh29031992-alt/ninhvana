@@ -548,6 +548,45 @@ async function main(): Promise<void> {
     propertyIds.set(definition.code, property.id);
   }
 
+
+  // Property map: zones A–D and floors A1–A3.
+  const centralPropertyId = propertyIds.get('NVN-HAN');
+  if (centralPropertyId) {
+    const areas = [
+      { code: 'A', parentCode: null, name: 'Khu A — Nhà chính trung tâm', nameEn: 'Zone A — Central House', kind: 'BUILDING', floorLabel: null, roomCount: 27, sortOrder: 1, description: 'Nhà chính của NinhVaNa: đón khách, lưu trú và kết nối ra hồ bơi, view biển.', features: { gate: 'Cổng đón khách', lobby: 'Quầy lễ tân', pool: 'Hồ bơi', seaView: 'View biển' } },
+      { code: 'A1', parentCode: 'A', name: 'A1 — Tầng trệt', nameEn: 'A1 — Ground floor', kind: 'FLOOR', floorLabel: 'Tầng trệt', roomCount: 6, sortOrder: 2, description: 'Trước là cổng đón khách; quầy lễ tân đón khách; 6 phòng dormitory giường tầng; phía sau là hồ bơi và view biển.', features: { dormRooms: 6, reception: true, gate: true, pool: true, seaView: true } },
+      { code: 'A2', parentCode: 'A', name: 'A2 — Tầng 2', nameEn: 'A2 — Second floor', kind: 'FLOOR', floorLabel: 'Tầng 2', roomCount: 9, sortOrder: 3, description: '6 phòng dormitory giường tầng, 2 phòng view trước và 1 phòng Connecting room.', features: { dormRooms: 6, viewRooms: 2, connectingRooms: 1 } },
+      { code: 'A3', parentCode: 'A', name: 'A3 — Tầng 3', nameEn: 'A3 — Third floor', kind: 'FLOOR', floorLabel: 'Tầng 3', roomCount: 12, sortOrder: 4, description: '10 phòng đôi, 2 phòng gia đình có gác lửng và 1 sảnh chung.', features: { doubleRooms: 10, familyMezzanineRooms: 2, commonHall: 1 } },
+      { code: 'B', parentCode: null, name: 'Khu B — Bagalog', nameEn: 'Zone B — Bagalog', kind: 'BUILDING', floorLabel: null, roomCount: 0, sortOrder: 5, description: 'Khu Bagalog trong khuôn viên NinhVaNa.', features: {} },
+      { code: 'C', parentCode: null, name: 'Khu C — Bếp & Quầy Bar', nameEn: 'Zone C — Kitchen & Bar', kind: 'FNB', floorLabel: null, roomCount: 0, sortOrder: 6, description: 'Khu bếp vận hành và quầy bar phục vụ khách.', features: {} },
+      { code: 'D', parentCode: null, name: 'Khu D — Hồ Bơi', nameEn: 'Zone D — Swimming Pool', kind: 'POOL', floorLabel: null, roomCount: 0, sortOrder: 7, description: 'Hồ bơi và khu vực thư giãn ngoài trời.', features: {} },
+    ] as const;
+    for (const area of areas) {
+      await prisma.propertyArea.upsert({
+        where: { propertyId_code: { propertyId: centralPropertyId, code: area.code } },
+        update: { name: area.name, description: area.description, roomCount: area.roomCount, features: area.features },
+        create: { orgId: org.id, propertyId: centralPropertyId, ...area },
+      });
+    }
+  }
+
+  // Marketing workspace: default pillars, each with sub-items.
+  if ((await prisma.marketingItem.count({ where: { orgId: org.id } })) === 0) {
+    const pillars = [
+      { title: 'Chiến dịch', description: 'Kế hoạch khuyến mãi, ưu đãi theo mùa và theo phân khúc.', status: 'IN_PROGRESS', children: ['Ưu đãi cuối năm', 'Combo Ninh Vân 2N1Đ', 'Retarget khách đã ở'] },
+      { title: 'Nội dung & thương hiệu', description: 'Lịch nội dung, hình ảnh, câu chuyện thương hiệu NinhVaNa.', status: 'IN_PROGRESS', children: ['Lịch content tháng 11', 'Bộ ảnh Ninh Vân', 'Nhận diện logo & màu sắc'] },
+      { title: 'Kênh & đối tác', description: 'OTA, KOL/KOC, báo chí và đối tác phân phối.', status: 'PLANNED', children: ['Booking.com', 'KOL review Ninh Vân', 'Hợp tác travel agency'] },
+      { title: 'Ngân sách & ROI', description: 'Theo dõi chi phí, hiệu quả và attribution theo kênh.', status: 'PLANNED', children: ['Ngân sách Q4', 'Báo cáo ROI tháng'] },
+      { title: 'Chăm sóc khách hàng', description: 'Email, SMS và chương trình khách quay lại.', status: 'PLANNED', children: ['Email sau lưu trú', 'Ưu đãi sinh nhật'] },
+    ];
+    for (const [index, pillar] of pillars.entries()) {
+      const root = await prisma.marketingItem.create({ data: { orgId: org.id, title: pillar.title, description: pillar.description, status: pillar.status, sortOrder: index + 1 } });
+      for (const [childIndex, title] of pillar.children.entries()) {
+        await prisma.marketingItem.create({ data: { orgId: org.id, parentId: root.id, title, status: 'PLANNED', sortOrder: childIndex + 1 } });
+      }
+    }
+  }
+
   // Settings
   for (const setting of SETTINGS) {
     await prisma.systemSetting.upsert({

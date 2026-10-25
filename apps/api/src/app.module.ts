@@ -41,6 +41,8 @@ import { ProcurementModule } from './modules/procurement/procurement.module';
 import { HrModule } from './modules/hr/hr.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { CrmModule } from './modules/crm/crm.module';
+import { MarketingModule } from './modules/marketing/marketing.module';
+import { ExportsModule } from './modules/exports/exports.module';
 
 @Module({
   imports: [
@@ -140,6 +142,8 @@ import { CrmModule } from './modules/crm/crm.module';
     HrModule,
     ReportsModule,
     CrmModule,
+    MarketingModule,
+    ExportsModule,
   ],
   providers: [
     // Order matters: rate limit → authentication → CSRF → authorisation.
