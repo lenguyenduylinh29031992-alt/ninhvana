@@ -172,6 +172,7 @@ export const vi = {
   'nav.roles': 'Vai trò & quyền',
   'nav.audit': 'Nhật ký hệ thống',
   'nav.integrations': 'Tích hợp',
+  'nav.updates': 'Cập nhật phần mềm',
   'nav.settings': 'Cấu hình',
   'nav.bookingEngine': 'Công cụ đặt phòng',
   'nav.mySchedule': 'Lịch của tôi',

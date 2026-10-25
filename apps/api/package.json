@@ -17,7 +17,9 @@
     "prisma:reset": "prisma migrate reset --force",
     "prisma:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
-    "db:clear": "tsx prisma/reset-operations.ts"
+    "db:clear": "tsx prisma/reset-operations.ts",
+    "db:demo-test": "tsx prisma/demo-test-data.ts",
+    "db:demo-test:clear": "tsx prisma/demo-test-data.ts --clear"
   },
   "dependencies": {
     "@grand-suite/shared": "workspace:*",

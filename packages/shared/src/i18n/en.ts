@@ -170,6 +170,7 @@ export const en: Record<TranslationKey, string> = {
   'nav.roles': 'Roles & permissions',
   'nav.audit': 'Audit log',
   'nav.integrations': 'Integrations',
+  'nav.updates': 'Software updates',
   'nav.settings': 'Settings',
   'nav.bookingEngine': 'Booking Engine',
   'nav.mySchedule': 'My schedule',

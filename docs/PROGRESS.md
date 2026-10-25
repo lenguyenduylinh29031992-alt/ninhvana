@@ -291,3 +291,17 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Trang `/rate-approvals`; chặn API với vai trò không cấp cao.
 - Mobile: khóa zoom viewport, input 16px, thanh icon `position: fixed` + `translateZ(0)`; đã kiểm tra ở 390px.
 - Ảnh: `docs/evidence/rate-approvals-1920.png`, `docs/evidence/room-selected-390.png`, `docs/evidence/mobile-zoom-390.png`.
+
+
+## Dữ liệu thử, cập nhật & phiên bản (2026-10-26)
+
+- Thêm dữ liệu demo có marker `DEMO-TEST`: 4 khách, 4 đặt phòng, 3 buồng phòng, 3 đánh giá, 2 chiến dịch, 2 chi phí; xoá bằng `demo-test-data.ts --clear`.
+- Trang `/updates`: phiên bản máy chủ, uptime, hướng dẫn cập nhật theo thiết bị, lịch sử phát hành.
+- Rà soát gói cài: web/iOS Simulator đã cập nhật; APK Android và DMG/EXE desktop cần build lại để có launcher bảo trì mới.
+
+
+## Demo data, update center & desktop packages (2026-10-26)
+
+- Thêm bộ dữ liệu demo có marker, tạo/xoá bằng `demo-test-data.ts`; 4 khách, 4 đặt phòng, 3 buồng phòng, 3 review, 2 campaign, 2 expense.
+- Thêm trang `/updates` theo dõi phiên bản/uptime/lịch sử phát hành và hướng dẫn cập nhật web, desktop, iOS, Android.
+- Build lại DMG macOS và bộ cài Windows từ source; APK Android vẫn là bản cũ do thiếu SDK.

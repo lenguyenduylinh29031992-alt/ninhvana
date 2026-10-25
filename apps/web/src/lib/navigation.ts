@@ -15,6 +15,7 @@ import {
   Gem,
   Inbox,
   LayoutDashboard,
+  RefreshCw,
   ListChecks,
   Megaphone,
   Map,
@@ -130,6 +131,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/audit', labelKey: 'nav.audit', icon: ScrollText, permission: 'audit:view' },
       { href: '/settings', labelKey: 'nav.settings', icon: Settings, permission: 'settings:view' },
       { href: '/settings/integrations', labelKey: 'nav.integrations', icon: Boxes, permission: 'integration:view' },
+      { href: '/updates', labelKey: 'nav.updates', icon: RefreshCw, permission: 'dashboard:view' },
     ],
   },
 ];
