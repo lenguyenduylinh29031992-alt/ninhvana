@@ -39,6 +39,7 @@ import { InboxModule } from './modules/inbox/inbox.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { ProcurementModule } from './modules/procurement/procurement.module';
 import { HrModule } from './modules/hr/hr.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -136,6 +137,7 @@ import { HrModule } from './modules/hr/hr.module';
     FinanceModule,
     ProcurementModule,
     HrModule,
+    ReportsModule,
   ],
   providers: [
     // Order matters: rate limit → authentication → CSRF → authorisation.

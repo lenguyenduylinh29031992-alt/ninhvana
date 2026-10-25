@@ -4,16 +4,23 @@ import { PERMISSIONS } from '@grand-suite/shared';
 import { CurrentUser, Permissions } from '../../common/auth/decorators';
 import type { AuthUser } from '../../common/auth/auth.types';
 import { DashboardService } from './dashboard.service';
+import { ConsolidatedService } from './consolidated.service';
 
 @ApiTags('dashboard')
 @Controller('dashboard')
 export class DashboardController {
-  constructor(private readonly dashboard: DashboardService) {}
+  constructor(private readonly dashboard: DashboardService, private readonly consolidated: ConsolidatedService) {}
 
   @Get('overview')
   @Permissions(PERMISSIONS.DASHBOARD_VIEW)
   overview(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) {
     return this.dashboard.overview(actor, propertyId && propertyId !== 'ALL' ? propertyId : null);
+  }
+
+  @Get('consolidated')
+  @Permissions(PERMISSIONS.DASHBOARD_VIEW)
+  consolidatedView(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) {
+    return this.consolidated.get(actor, propertyId && propertyId !== 'ALL' ? propertyId : null);
   }
 
   @Get('stats')
