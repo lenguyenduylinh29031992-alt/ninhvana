@@ -1,0 +1,19 @@
+{
+  "name": "Grand Suite — Hospitality Operating System",
+  "short_name": "Grand Suite",
+  "description": "Hệ thống quản trị khách sạn & nhà hàng 5 sao",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#17130F",
+  "orientation": "any",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
