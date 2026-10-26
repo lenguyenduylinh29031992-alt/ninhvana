@@ -357,3 +357,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Đổi URL mặc định mobile/desktop sang `https://ninhvana.lenguyenduylinh29031992.workers.dev/login`.
 - Rebuild APK Android, iOS Simulator, DMG macOS và bộ cài Windows với URL mới.
 - Trang `/updates` hiển thị link test hiện tại.
+
+
+## Phương án VPS miễn phí (2026-10-26)
+
+- Rà soát free tier: Oracle Always Free là lựa chọn 0 đồng khả thi nhất nhưng cần tài khoản/thẻ xác minh.
+- Ghi hướng dẫn dùng `sslip.io` miễn phí thay tên miền riêng, Worker vẫn giữ link workers.dev.
+- Chưa thể deploy vì chưa có IP/SSH/tài khoản VPS.
