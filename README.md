@@ -24,6 +24,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Rà soát module & giai đoạn:** [`docs/ROADMAP-AUDIT.md`](docs/ROADMAP-AUDIT.md).
 
+**Android:** [`docs/ANDROID-SETUP.md`](docs/ANDROID-SETUP.md).
+
 **Dữ liệu thử & phiên bản:** [`docs/DEMO-DATA.md`](docs/DEMO-DATA.md) · [`docs/OS-VERSIONS.md`](docs/OS-VERSIONS.md).
 
 **Loại phòng & duyệt giá:** [`docs/ROOM-TYPES-RATES.md`](docs/ROOM-TYPES-RATES.md).

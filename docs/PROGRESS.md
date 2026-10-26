@@ -305,3 +305,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Thêm bộ dữ liệu demo có marker, tạo/xoá bằng `demo-test-data.ts`; 4 khách, 4 đặt phòng, 3 buồng phòng, 3 review, 2 campaign, 2 expense.
 - Thêm trang `/updates` theo dõi phiên bản/uptime/lịch sử phát hành và hướng dẫn cập nhật web, desktop, iOS, Android.
 - Build lại DMG macOS và bộ cài Windows từ source; APK Android vẫn là bản cũ do thiếu SDK.
+
+
+## Android SDK & APK (2026-10-26)
+
+- Cài Android command-line tools, platform-tools, Android 35 và build-tools 35.0.0.
+- Sync Capacitor assets mới và build APK thành công.
+- `dist/NinhVaNa-0.1.0-android.apk`: `vn.ninhvana.app`, version 0.1.0, minSdk 23 / targetSdk 35, debug-signed.
+- Hướng dẫn: `docs/ANDROID-SETUP.md`.

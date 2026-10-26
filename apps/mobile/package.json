@@ -6,7 +6,8 @@
   "scripts": {
     "sync": "cap sync",
     "add:android": "cap add android",
-    "add:ios": "cap add ios"
+    "add:ios": "cap add ios",
+    "build:android": "cap sync android && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.0",
