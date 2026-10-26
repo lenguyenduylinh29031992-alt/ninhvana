@@ -329,3 +329,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Android APK rebuild sau khi sync launcher mới.
 - Thêm hàng đợi offline và thanh trạng thái; tự đồng bộ khi online.
 - Thêm compose production + Caddy + hướng dẫn VPS; websocket same-origin cho production.
+
+
+## Badge thông báo theo mục/tài khoản (2026-10-26)
+
+- Thêm `UserSectionRead` và API `/notifications/badges`, `/notifications/read`.
+- Sidebar desktop và thanh mobile hiển thị số cập nhật chưa đọc theo từng mục; tự đánh dấu đã đọc khi mở mục.
+- Ảnh: `docs/evidence/nav-badges-1920.png`, `docs/evidence/nav-badges-390.png`.

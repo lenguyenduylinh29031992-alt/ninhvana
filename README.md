@@ -30,6 +30,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Dữ liệu thử & phiên bản:** [`docs/DEMO-DATA.md`](docs/DEMO-DATA.md) · [`docs/OS-VERSIONS.md`](docs/OS-VERSIONS.md).
 
+**Badge theo mục:** [`docs/NAV-BADGES.md`](docs/NAV-BADGES.md).
+
 **Loại phòng & duyệt giá:** [`docs/ROOM-TYPES-RATES.md`](docs/ROOM-TYPES-RATES.md).
 
 **Cơ cấu bộ phận & doanh thu:** [`docs/ORG-STRUCTURE.md`](docs/ORG-STRUCTURE.md).

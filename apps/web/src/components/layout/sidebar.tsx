@@ -10,6 +10,7 @@ import { Avatar } from '@/components/ui/primitives';
 import { useI18n } from '@/lib/i18n';
 import { NAV_SECTIONS, type NavItem } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
+import { useNavBadges } from '@/lib/nav-badges';
 
 export function Sidebar({
   user,
@@ -26,6 +27,7 @@ export function Sidebar({
   const { t, locale } = useI18n();
   const permissions = user.permissions ?? [];
   const primaryRole = user.roles[0]?.roleCode ?? '';
+  const { data: badgeData } = useNavBadges();
 
   const allowed = (item: NavItem): boolean => {
     if (item.permission && !hasPermission(permissions, item.permission)) return false;
@@ -93,6 +95,11 @@ export function Sidebar({
                       <>
                         <Icon className="size-4 shrink-0" aria-hidden />
                         <span className="flex-1 truncate">{t(item.labelKey as never)}</span>
+                        {(badgeData?.badges[item.href] ?? 0) > 0 ? (
+                          <span className="min-w-5 rounded-full bg-brand px-1.5 py-0.5 text-center text-[9px] font-semibold text-white" aria-label={`${badgeData?.badges[item.href]} cập nhật mới`}>
+                            {(badgeData?.badges[item.href] ?? 0) > 99 ? '99+' : badgeData?.badges[item.href]}
+                          </span>
+                        ) : null}
                         {item.phase ? (
                           <span className="rounded border border-sidebar-line px-1 py-0.5 text-[8px] uppercase tracking-wide text-sidebar-muted">
                             GĐ{item.phase}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { clearOfflineQueue } from '@/lib/offline-sync';
+import { useMarkSectionRead } from '@/lib/nav-badges';
 import { useAccess } from '@/lib/session';
 import { useRealtime } from '@/lib/realtime';
 import { PropertyProvider } from '@/lib/property-context';
@@ -17,6 +18,7 @@ import { SystemHealth } from './system-health';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  useMarkSectionRead();
   const access = useAccess();
   const router = useRouter();
   const queryClient = useQueryClient();

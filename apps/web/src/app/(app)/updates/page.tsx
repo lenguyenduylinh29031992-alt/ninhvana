@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 interface Health { status: string; version?: string; environment?: string; uptimeSeconds?: number; timestamp?: string }
 const RELEASES = [
-  { date: '2026-10-26', version: '0.1.0', title: 'Loại phòng, duyệt giá & dữ liệu thử', items: ['27 phòng theo sơ đồ A1/A2/A3', 'Quy trình ký duyệt giá phòng trực tuyến', 'Dữ liệu demo có thể xoá cho khách/đặt phòng/CRM/chi phí', 'Khoá zoom và cố định thanh icon mobile', 'Sửa tương phản form ở giao diện tối', 'Tự tìm máy chủ và hàng đợi offline', 'Bộ cài VPS/Caddy cho chạy 24/7'] },
+  { date: '2026-10-26', version: '0.1.0', title: 'Loại phòng, duyệt giá & dữ liệu thử', items: ['27 phòng theo sơ đồ A1/A2/A3', 'Quy trình ký duyệt giá phòng trực tuyến', 'Dữ liệu demo có thể xoá cho khách/đặt phòng/CRM/chi phí', 'Khoá zoom và cố định thanh icon mobile', 'Sửa tương phản form ở giao diện tối', 'Tự tìm máy chủ và hàng đợi offline', 'Bộ cài VPS/Caddy cho chạy 24/7', 'Badge số cập nhật chưa đọc theo tài khoản'] },
   { date: '2026-10-25', version: '0.1.0', title: 'Marketing TikTok & nhân sự', items: ['Kênh TikTok và 4 mục nội dung', 'Bộ phận Marketing TikTok', 'Chấm công và bảng lương Marketing', 'Icon điều hướng theo bộ phận'] },
   { date: '2026-10-24', version: '0.1.0', title: 'Nền tảng vận hành', items: ['PMS, POS, kênh bán, CRM, kế toán', 'Bảo trì đa nền tảng', 'Phân quyền và audit log'] },
 ];
