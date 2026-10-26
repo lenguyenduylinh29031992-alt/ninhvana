@@ -24,6 +24,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Rà soát module & giai đoạn:** [`docs/ROADMAP-AUDIT.md`](docs/ROADMAP-AUDIT.md).
 
+**Chạy thử:** [`docs/TESTING.md`](docs/TESTING.md).
+
 **Android:** [`docs/ANDROID-SETUP.md`](docs/ANDROID-SETUP.md).
 
 **Triển khai 24/7:** [`docs/DEPLOY-VPS.md`](docs/DEPLOY-VPS.md) · **Offline:** [`docs/OFFLINE-SYNC.md`](docs/OFFLINE-SYNC.md).
