@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CheckCircle2, Monitor, RefreshCw, Server, ShieldCheck, Smartphone, Sparkles } from 'lucide-react';
+import { CheckCircle2, ExternalLink, Monitor, RefreshCw, Server, ShieldCheck, Smartphone, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/ui/feedback';
 import { cn } from '@/lib/utils';
 
 interface Health { status: string; version?: string; environment?: string; uptimeSeconds?: number; timestamp?: string }
+const TEST_URL = 'https://ninhvana.lenguyenduylinh29031992.workers.dev/login';
 const RELEASES = [
   { date: '2026-10-26', version: '0.1.0', title: 'Loại phòng, duyệt giá & dữ liệu thử', items: ['27 phòng theo sơ đồ A1/A2/A3', 'Quy trình ký duyệt giá phòng trực tuyến', 'Dữ liệu demo có thể xoá cho khách/đặt phòng/CRM/chi phí', 'Khoá zoom và cố định thanh icon mobile', 'Sửa tương phản form ở giao diện tối', 'Tự tìm máy chủ và hàng đợi offline', 'Bộ cài VPS/Caddy cho chạy 24/7', 'Badge số cập nhật chưa đọc theo tài khoản'] },
   { date: '2026-10-25', version: '0.1.0', title: 'Marketing TikTok & nhân sự', items: ['Kênh TikTok và 4 mục nội dung', 'Bộ phận Marketing TikTok', 'Chấm công và bảng lương Marketing', 'Icon điều hướng theo bộ phận'] },
@@ -41,13 +42,14 @@ export default function UpdatesPage() {
   useEffect(() => { void check(); }, []);
 
   return <div className="space-y-4">
-    <PageHeader eyebrow="Hệ thống · Phiên bản" title="Cập nhật phần mềm" description="Theo dõi phiên bản máy chủ, xem tính năng mới và hướng dẫn cập nhật trên từng thiết bị." actions={<Button size="sm" variant="secondary" onClick={() => void check()} disabled={checking}><RefreshCw className={cn('size-4', checking && 'animate-spin')} /> Kiểm tra cập nhật</Button>} />
+    <PageHeader eyebrow="Hệ thống · Phiên bản" title="Cập nhật phần mềm" description="Theo dõi phiên bản máy chủ, xem tính năng mới và hướng dẫn cập nhật trên từng thiết bị." actions={<div className="flex flex-wrap gap-2"><Button size="sm" variant="secondary" onClick={() => void check()} disabled={checking}><RefreshCw className={cn('size-4', checking && 'animate-spin')} /> Kiểm tra cập nhật</Button><Button size="sm" onClick={() => window.open('https://ninhvana.lenguyenduylinh29031992.workers.dev/login', '_blank')}><ExternalLink className="size-4" /> Mở bản Cloudflare</Button></div>} />
     <div className="grid gap-3 sm:grid-cols-3">
       <Card><CardContent className="p-4"><div className="flex items-start justify-between"><p className="label-xs">Phiên bản máy chủ</p><Server className="size-4 text-brand" /></div><p className="mt-2 font-display text-2xl text-ink">{health?.version ?? '—'}</p><p className="mt-1 text-[10px] text-muted-foreground">{health?.environment ?? 'Đang kiểm tra'} · {health?.status === 'ok' ? 'Hoạt động' : 'Chưa kết nối'}</p></CardContent></Card>
       <Card><CardContent className="p-4"><div className="flex items-start justify-between"><p className="label-xs">Thời gian chạy</p><ShieldCheck className="size-4 text-brand" /></div><p className="mt-2 font-display text-2xl text-ink">{uptime(health?.uptimeSeconds)}</p><p className="mt-1 text-[10px] text-muted-foreground">Máy chủ hiện tại</p></CardContent></Card>
       <Card><CardContent className="p-4"><div className="flex items-start justify-between"><p className="label-xs">Lần kiểm tra gần nhất</p><CheckCircle2 className="size-4 text-forest" /></div><p className="mt-2 font-display text-2xl text-ink">{lastCheck}</p><p className="mt-1 text-[10px] text-muted-foreground">Tự kiểm tra lại bằng nút phía trên</p></CardContent></Card>
     </div>
     <Card><CardContent className="p-4"><div className="flex items-center justify-between gap-2"><div><p className="font-display text-xl text-ink">Cập nhật giao diện web</p><p className="text-[10px] text-muted-foreground">Bản web luôn dùng phiên bản máy chủ mới sau khi triển khai.</p></div><Button size="sm" onClick={() => window.location.reload()}><RefreshCw className="size-4" /> Tải lại giao diện</Button></div></CardContent></Card>
+    <Card><CardContent className="p-4"><p className="font-display text-xl text-ink">Link test hiện tại</p><p className="mt-1 break-all font-mono text-[11px] text-brand">{TEST_URL}</p><p className="mt-1 text-[10px] text-muted-foreground">Tên miền miễn phí Cloudflare · không cần mua domain</p></CardContent></Card>
     <Card><CardContent className="p-4"><p className="font-display text-xl text-ink">Hướng dẫn theo thiết bị</p><div className="mt-3 grid gap-3 md:grid-cols-2">
       <Platform icon={Monitor} title="Desktop — macOS / Windows / Linux" text="Mở bản cài mới (DMG/EXE), kéo ứng dụng vào Applications hoặc chạy bộ cài. Ứng dụng desktop tải giao diện từ máy chủ; không cần cài lại khi chỉ cập nhật tính năng web." />
       <Platform icon={Monitor} title="Web — mọi hệ điều hành" text="Nhấn Tải lại giao diện. Nếu máy chủ vừa được triển khai, bản mới xuất hiện ngay khi tải lại trang." />

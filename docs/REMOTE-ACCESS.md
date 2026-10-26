@@ -27,17 +27,17 @@ Sau đó nhấn **Kết nối**. Nếu vẫn lỗi:
    - Safari mở được → app đang lưu URL cũ; sửa URL trong app.
    - Safari không mở được → lỗi router/AP isolation, dùng tunnel bên dưới.
 
-## Cách khác: Cloudflare Tunnel (4G/5G/Wi-Fi khác)
+## Cách khác: Cloudflare Worker (4G/5G/Wi-Fi khác)
 
-Đã dựng tunnel công khai:
+URL test miễn phí:
 
 ```text
-https://ohio-note-holes-jam.trycloudflare.com
+https://ninhvana.lenguyenduylinh29031992.workers.dev/login
 ```
 
 Nhập URL này vào ô **Địa chỉ máy chủ** trong app iPhone, nhấn **Kết nối**. Không cần chung Wi-Fi; dùng được 4G/5G.
 
-Điều kiện: Mac đang bật, web cổng 3000 đang chạy và tiến trình cloudflared còn sống. URL Quick Tunnel đổi mỗi lần khởi động lại.
+Hiện Worker proxy về tunnel của Mac, nên Mac + web + cloudflared vẫn phải chạy. URL Workers ổn định hơn quick tunnel cũ; đổi origin sang VPS để bỏ phụ thuộc Mac.
 
 Khởi động lại tunnel:
 

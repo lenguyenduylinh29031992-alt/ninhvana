@@ -350,3 +350,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 
 - Chốt dùng `ninhvana.lenguyenduylinh29031992.workers.dev` cho bản test, không cần mua domain.
 - Thêm GitHub Pages redirect tại `docs/index.html` để có URL `github.io` miễn phí khi repo được push.
+
+
+## Reset URL test Cloudflare (2026-10-26)
+
+- Đổi URL mặc định mobile/desktop sang `https://ninhvana.lenguyenduylinh29031992.workers.dev/login`.
+- Rebuild APK Android, iOS Simulator, DMG macOS và bộ cài Windows với URL mới.
+- Trang `/updates` hiển thị link test hiện tại.

@@ -21,7 +21,7 @@ docker compose up -d --build
 # hoặc local: pnpm dev
 ```
 
-- Desktop mặc định mở `http://localhost:3000`.
+- Desktop mặc định mở `https://ninhvana.lenguyenduylinh29031992.workers.dev/login`.
 - Lần đầu mở, nếu chưa kết nối được, app hiện màn hình **Kết nối máy chủ** để nhập địa chỉ.
 - Đổi máy chủ về sau: menu **NinhVaNa → Đổi máy chủ…**.
 
@@ -42,7 +42,7 @@ Yêu cầu: macOS 12+, Apple Silicon (bản arm64). Kết nối `localhost:3000`
 3. Nếu SmartScreen cảnh báo: **More info → Run anyway** (bản demo chưa ký số).
 4. Mở **NinhVaNa** từ Start Menu/Desktop.
 
-Máy chủ có thể chạy trên chính máy Windows (`http://localhost:3000`) hoặc máy khác trong LAN (`http://192.168.1.20:3000`).
+Máy chủ có thể chạy trên chính máy Windows (`http://localhost:3000`) hoặc máy khác trong LAN (`http://192.168.1.20:3000`). Bản test dùng URL Cloudflare `/login`.
 
 ## Android
 
@@ -50,7 +50,7 @@ Máy chủ có thể chạy trên chính máy Windows (`http://localhost:3000`) 
 2. Cài đặt: cho phép **Install unknown apps** cho ứng dụng quản lý tệp/Chrome.
 3. Mở **NinhVaNa**. Nhập địa chỉ máy chủ, ví dụ:
    - Cùng Wi-Fi với Mac/PC: `http://192.168.1.20:3000`
-   - Máy chủ đã public: `https://app.ninhvana.vn`
+   - Máy chủ đã public: `https://ninhvana.lenguyenduylinh29031992.workers.dev`
 4. Địa chỉ được lưu lại cho các lần sau.
 
 Lưu ý: điện thoại và máy chủ phải cùng mạng, firewall mở cổng 3000; không dùng `localhost` trên điện thoại.

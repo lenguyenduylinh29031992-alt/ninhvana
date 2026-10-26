@@ -63,7 +63,7 @@ cp .env.example .env          # điền secret thật nếu triển khai ngoài 
 docker compose up -d --build
 ```
 
-- Web: <http://localhost:3000>
+- Web: <https://ninhvana.lenguyenduylinh29031992.workers.dev/login>
 - API + Swagger: <http://localhost:4000/api/docs>
 - MailHog (email demo): <http://localhost:8025>
 
