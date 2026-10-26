@@ -1,0 +1,6 @@
+name = "ninhvana"
+main = "cloudflare/worker.js"
+compatibility_date = "2026-10-26"
+
+[vars]
+ORIGIN_URL = "https://ohio-note-holes-jam.trycloudflare.com"

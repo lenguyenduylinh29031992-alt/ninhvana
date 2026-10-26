@@ -336,3 +336,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Thêm `UserSectionRead` và API `/notifications/badges`, `/notifications/read`.
 - Sidebar desktop và thanh mobile hiển thị số cập nhật chưa đọc theo từng mục; tự đánh dấu đã đọc khi mở mục.
 - Ảnh: `docs/evidence/nav-badges-1920.png`, `docs/evidence/nav-badges-390.png`.
+
+
+## Cloudflare Worker gateway (2026-10-26)
+
+- Deploy Worker `ninhvana` tại `https://ninhvana.lenguyenduylinh29031992.workers.dev`.
+- Worker proxy HTTP/WebSocket tới origin; đã test đăng nhập dashboard qua URL Cloudflare.
+- Thêm `wrangler.toml`, `cloudflare/worker.js`, tài liệu tên miền riêng.
+- Chưa có zone/tên miền riêng; tài khoản cần thêm domain để gắn custom domain.
