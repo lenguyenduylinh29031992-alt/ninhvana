@@ -18,6 +18,7 @@ export default {
     headers.set('x-forwarded-proto', incoming.protocol.replace(':', ''));
     headers.set('x-forwarded-for', request.headers.get('cf-connecting-ip') ?? '');
 
+    const isWebSocket = request.headers.get('upgrade')?.toLowerCase() === 'websocket';
     let upstream;
     try {
       upstream = await fetch(new Request(target.toString(), {
@@ -30,6 +31,7 @@ export default {
       return maintenance(incoming.host);
     }
 
+    if (isWebSocket) return upstream;
     if (upstream.status >= 500) return maintenance(incoming.host, upstream.status);
 
     const responseHeaders = new Headers(upstream.headers);
