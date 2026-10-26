@@ -28,7 +28,7 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Android:** [`docs/ANDROID-SETUP.md`](docs/ANDROID-SETUP.md).
 
-**Cloudflare:** [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md).
+**Cloudflare test:** https://ninhvana.lenguyenduylinh29031992.workers.dev ·  [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md).
 
 **Triển khai 24/7:** [`docs/DEPLOY-VPS.md`](docs/DEPLOY-VPS.md) · **Offline:** [`docs/OFFLINE-SYNC.md`](docs/OFFLINE-SYNC.md).
 

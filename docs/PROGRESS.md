@@ -344,3 +344,9 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Worker proxy HTTP/WebSocket tới origin; đã test đăng nhập dashboard qua URL Cloudflare.
 - Thêm `wrangler.toml`, `cloudflare/worker.js`, tài liệu tên miền riêng.
 - Chưa có zone/tên miền riêng; tài khoản cần thêm domain để gắn custom domain.
+
+
+## Tên miền test miễn phí (2026-10-26)
+
+- Chốt dùng `ninhvana.lenguyenduylinh29031992.workers.dev` cho bản test, không cần mua domain.
+- Thêm GitHub Pages redirect tại `docs/index.html` để có URL `github.io` miễn phí khi repo được push.

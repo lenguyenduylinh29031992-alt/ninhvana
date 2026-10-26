@@ -53,11 +53,14 @@ npx wrangler@latest versions upload --var ORIGIN_URL:https://app.ninhvana.vn
 # hoặc sửa wrangler.toml rồi deploy
 ```
 
-## Tên miền riêng
+## Tên miền riêng (không bắt buộc)
 
-Tài khoản Cloudflare hiện **chưa có zone/tên miền** nào. `workers.dev` là tên miền miễn phí của Worker.
+Bản test dùng tên miền miễn phí:
+```text
+https://ninhvana.lenguyenduylinh29031992.workers.dev
+```
 
-Muốn dùng `app.ninhvana.vn`:
+Không cần mua tên miền. Nếu sau này muốn dùng `app.ninhvana.vn`:
 
 1. Mua/đăng ký tên miền (Cloudflare Registrar hoặc nhà cung cấp khác).
 2. Thêm domain vào Cloudflare, đổi nameserver theo hướng dẫn.
