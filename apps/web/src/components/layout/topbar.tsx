@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { api } from '@/lib/api';
+import { clearOfflineQueue } from '@/lib/offline-sync';
 import { useI18n } from '@/lib/i18n';
 import { useActiveProperty } from '@/lib/property-context';
 import { useTheme } from '@/lib/theme';
@@ -70,6 +71,7 @@ export function Topbar({
   const logout = async () => {
     try {
       await api('/auth/logout', { method: 'POST' });
+      clearOfflineQueue();
     } catch {
       /* clearing cookies client-side still signs the user out visually */
     }

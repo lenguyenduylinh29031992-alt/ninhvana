@@ -313,3 +313,19 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Sync Capacitor assets mới và build APK thành công.
 - `dist/NinhVaNa-0.1.0-android.apk`: `vn.ninhvana.app`, version 0.1.0, minSdk 23 / targetSdk 35, debug-signed.
 - Hướng dẫn: `docs/ANDROID-SETUP.md`.
+
+
+## Offline queue, tự tìm máy chủ & VPS (2026-10-26)
+
+- Launcher mobile có nút **Tự động tìm**: thử URL đã lưu, máy chủ công khai, `ninhvana.local`; gợi ý URL nào phản hồi.
+- Thêm hàng đợi thao tác ghi offline + thanh trạng thái + tự đồng bộ khi online; xoá queue khi đăng xuất.
+- Thêm `docker-compose.prod.yml`, `Caddyfile`, `.env.prod.example`, hướng dẫn VPS để không phụ thuộc Mac.
+- Tài liệu: `OFFLINE-SYNC.md`, `DEPLOY-VPS.md`, `REMOTE-ACCESS.md`.
+
+
+## iOS simulator / auto discovery / offline (2026-10-26)
+
+- Build lại iOS Simulator với launcher tự tìm máy chủ; cài và chạy trên `NinhVaNa iPhone`.
+- Android APK rebuild sau khi sync launcher mới.
+- Thêm hàng đợi offline và thanh trạng thái; tự đồng bộ khi online.
+- Thêm compose production + Caddy + hướng dẫn VPS; websocket same-origin cho production.

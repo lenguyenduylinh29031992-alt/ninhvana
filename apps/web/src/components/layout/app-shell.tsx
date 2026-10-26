@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { clearOfflineQueue } from '@/lib/offline-sync';
 import { useAccess } from '@/lib/session';
 import { useRealtime } from '@/lib/realtime';
 import { PropertyProvider } from '@/lib/property-context';
@@ -11,6 +12,7 @@ import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { CommandMenu } from './command-menu';
 import { MobileTabBar } from './mobile-tab-bar';
+import { OfflineSyncBar } from './offline-sync-bar';
 import { SystemHealth } from './system-health';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -29,6 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await api('/auth/logout', { method: 'POST' });
+      clearOfflineQueue();
     } catch {
       /* ignore */
     }
@@ -69,7 +72,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onOpenCommand={() => setCommandOpen(true)}
             realtimeConnected={connected}
           />
-          <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pb-28 pt-6 md:px-6 lg:px-8 lg:pb-6">
+          <OfflineSyncBar />
+        <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pb-28 pt-6 md:px-6 lg:px-8 lg:pb-6">
             {children}
           </main>
           <footer className="mx-auto w-full max-w-[1600px] px-4 pb-28 pt-2 lg:pb-6 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 md:px-6 lg:px-8">

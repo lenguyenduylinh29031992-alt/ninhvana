@@ -26,6 +26,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Android:** [`docs/ANDROID-SETUP.md`](docs/ANDROID-SETUP.md).
 
+**Triển khai 24/7:** [`docs/DEPLOY-VPS.md`](docs/DEPLOY-VPS.md) · **Offline:** [`docs/OFFLINE-SYNC.md`](docs/OFFLINE-SYNC.md).
+
 **Dữ liệu thử & phiên bản:** [`docs/DEMO-DATA.md`](docs/DEMO-DATA.md) · [`docs/OS-VERSIONS.md`](docs/OS-VERSIONS.md).
 
 **Loại phòng & duyệt giá:** [`docs/ROOM-TYPES-RATES.md`](docs/ROOM-TYPES-RATES.md).

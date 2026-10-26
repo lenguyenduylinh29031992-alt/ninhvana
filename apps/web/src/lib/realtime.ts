@@ -10,7 +10,10 @@ function socketUrl(): string {
   const configured = process.env.NEXT_PUBLIC_WS_URL;
   if (configured) return configured;
   if (typeof window === 'undefined') return 'http://127.0.0.1:4000';
-  return `${window.location.protocol}//${window.location.hostname}:4000`;
+  // Local Next dev runs web on :3000 and API on :4000. In production Caddy
+  // proxies /socket.io on the same public origin.
+  if (window.location.port === '3000') return `${window.location.protocol}//${window.location.hostname}:4000`;
+  return window.location.origin;
 }
 
 interface RealtimeEnvelope {

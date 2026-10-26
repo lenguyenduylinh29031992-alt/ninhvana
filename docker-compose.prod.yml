@@ -1,0 +1,145 @@
+name: ninhvana-prod
+
+# Production stack for a VPS. Put this file + docker/ + Caddyfile + .env.prod on
+# the server, point DNS A/AAAA at the VPS, then run:
+#   docker compose -f docker-compose.prod.yml up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-grandsuite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.prod}
+      POSTGRES_DB: ${POSTGRES_DB:-grandsuite}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory', '256mb', '--maxmemory-policy', 'allkeys-lru']
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-grandsuite}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-grandsuite}?schema=public
+      REDIS_URL: redis://redis:6379
+      PUBLIC_WEB_URL: https://${APP_DOMAIN:?set APP_DOMAIN in .env.prod}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?set JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?set JWT_REFRESH_SECRET}
+      COOKIE_SECRET: ${COOKIE_SECRET:?set COOKIE_SECRET}
+      CSRF_SECRET: ${CSRF_SECRET:?set CSRF_SECRET}
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?set APP_ENCRYPTION_KEY}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?set SEED_ADMIN_PASSWORD}
+      SEED_ON_START: 'false'
+      SEED_HISTORY_ON_START: 'false'
+      SEED_FINANCE_ON_START: 'false'
+      SEED_LONG_ON_START: 'false'
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      STORAGE_LOCAL_DIR: /app/uploads
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:4000/api/v1/health/live']
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        API_INTERNAL_URL: http://api:4000
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_URL: http://api:4000
+      NEXT_PUBLIC_APP_URL: https://${APP_DOMAIN}
+      NEXT_PUBLIC_WS_URL: https://${APP_DOMAIN}
+      TZ: Asia/Ho_Chi_Minh
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+      - api
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-grandsuite}
+      PGDATABASE: ${POSTGRES_DB:-grandsuite}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    volumes:
+      - backups:/backups
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - |
+        while true; do
+          stamp=$$(date +%Y%m%d-%H%M)
+          tmp="/backups/ninhvana-$$stamp.sql.tmp"
+          if pg_dump --no-owner --clean --if-exists -f "$$tmp"; then
+            mv "$$tmp" "/backups/ninhvana-$$stamp.sql"
+            echo "backup ok: $$stamp"
+          else
+            echo "backup failed: $$stamp" >&2
+          fi
+          find /backups -name 'ninhvana-*.sql' -mtime +$${BACKUP_RETENTION_DAYS} -delete
+          sleep 86400
+        done
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+  backups:
+  caddy_data:
+  caddy_config:

@@ -51,12 +51,13 @@
   <main>
     <div class="eyebrow">Kết nối máy chủ</div>
     <h1>Mở NinhVaNa trên thiết bị của bạn.</h1>
-    <p>Nhập địa chỉ máy chủ đang chạy phần mềm. Điện thoại và máy chủ cần cùng mạng Wi-Fi, hoặc dùng tên miền đã triển khai.</p>
+    <p>Nhập địa chỉ máy chủ hoặc để ứng dụng tự tìm máy chủ công khai / máy chủ trong mạng nội bộ.</p>
     <label for="server">Địa chỉ máy chủ</label>
-    <input id="server" type="url" inputmode="url" autocomplete="url" placeholder="http://192.168.1.20:3000" />
-    <button id="open">Kết nối</button>
+    <input id="server" type="url" inputmode="url" autocomplete="url" placeholder="https://app.ninhvana.vn" />
+    <div class="discover-row"><button id="open" type="button">Kết nối</button><button id="discover" class="secondary" type="button">Tự động tìm</button></div>
     <div class="error" id="error"></div>
-    <div class="hint">Ví dụ: <code>http://192.168.1.20:3000</code> (LAN) hoặc <code>https://app.ninhvana.vn</code>. Địa chỉ được lưu cho lần mở sau.</div>
+    <div class="discovery" id="discovery"></div>
+    <div class="hint">Ưu tiên tên miền công khai để dùng được 4G/5G. <code>ninhvana.local</code> chỉ hoạt động khi cùng Wi-Fi và máy chủ bật mDNS. Địa chỉ được lưu cho lần mở sau.</div>
   </main>
   <footer>NinhVaNa · Ninh Vân, Khánh Hòa</footer>
   <div class="maintenance" id="maintenance" hidden>
@@ -83,7 +84,44 @@
     let timer = null;
     let currentUrl = '';
 
-    input.value = localStorage.getItem('ninhvana.server') || 'https://ohio-note-holes-jam.trycloudflare.com';
+    const PUBLIC_FALLBACK = localStorage.getItem('ninhvana.public') || 'https://ohio-note-holes-jam.trycloudflare.com';
+    const LOCAL_FALLBACK = 'http://ninhvana.local:3000';
+    input.value = localStorage.getItem('ninhvana.server') || PUBLIC_FALLBACK;
+    const discovery = document.getElementById('discovery');
+    const discoverButton = document.getElementById('discover');
+
+    function candidates() {
+      return [...new Set([localStorage.getItem('ninhvana.server'), input.value.trim(), PUBLIC_FALLBACK, LOCAL_FALLBACK].filter(Boolean).map((url) => url.replace(/\/$/, '')))];
+    }
+
+    function renderCandidates(rows) {
+      discovery.innerHTML = rows.map((row) => `<button type="button" class="suggestion" data-url="${row.url}"><span>${row.label}</span><code>${row.url.replace(/^https?:\/\//, '')}</code><b>${row.ok ? 'Sẵn sàng' : 'Không phản hồi'}</b></button>`).join('');
+      discovery.querySelectorAll('.suggestion').forEach((node) => node.addEventListener('click', () => { input.value = node.dataset.url; connect(); }));
+    }
+
+    async function autoDiscover() {
+      discoverButton.disabled = true;
+      discoverButton.textContent = 'Đang tìm…';
+      discovery.innerHTML = '<p class="discovering">Đang kiểm tra máy chủ công khai và máy chủ nội bộ…</p>';
+      const rows = [];
+      for (const url of candidates()) {
+        const ok = await probe(url);
+        rows.push({ url, ok, label: url === PUBLIC_FALLBACK ? 'Máy chủ công khai' : url === LOCAL_FALLBACK ? 'Máy chủ nội bộ (mDNS)' : 'Đã lưu / đang nhập' });
+        if (ok) {
+          localStorage.setItem('ninhvana.server', url);
+          input.value = url;
+          renderCandidates(rows);
+          hideMaintenance();
+          window.location.replace(url);
+          return;
+        }
+      }
+      renderCandidates(rows);
+      discoverButton.disabled = false;
+      discoverButton.textContent = 'Tự động tìm';
+      error.textContent = 'Không tìm thấy máy chủ. Kiểm tra 4G/Wi-Fi rồi thử lại.';
+      error.style.display = 'block';
+    }
 
     function formatElapsed(seconds) {
       const h = Math.floor(seconds / 3600);
@@ -147,6 +185,7 @@
     }
 
     document.getElementById('open').addEventListener('click', connect);
+    discoverButton.addEventListener('click', autoDiscover);
     input.addEventListener('keydown', (event) => { if (event.key === 'Enter') connect(); });
     retry.addEventListener('click', async () => {
       if (!currentUrl) return;

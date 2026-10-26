@@ -2,6 +2,7 @@
 
 import { HEADERS } from '@grand-suite/shared';
 import { readCookie } from './utils';
+import { enqueue, pendingMutations } from './offline-sync';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -94,6 +95,10 @@ export async function api<T = unknown>(path: string, options: RequestOptions = {
     });
   } catch (error) {
     if ((error as Error).name === 'AbortError') throw error;
+    if (method !== 'GET' && !path.startsWith('/auth/')) {
+      enqueue(path, method, body);
+      throw new ApiError(0, 'OFFLINE_QUEUED', `Không có mạng. Thay đổi đã được lưu trên thiết bị và sẽ tự đồng bộ (${pendingMutations()} mục).`);
+    }
     throw new ApiError(0, 'NETWORK', 'Không kết nối được máy chủ.');
   }
 

@@ -60,3 +60,26 @@ Quick Tunnel là URL công khai, ai biết URL đều thấy trang đăng nhập
 - **Cùng văn phòng:** dùng IP LAN cố định (đặt DHCP reservation cho Mac).
 - **Ngoài văn phòng:** Cloudflare Named Tunnel + tên miền, hoặc VPS/Docker.
 - **Không nên** mở cổng 3000 trực tiếp ra Internet.
+
+
+## Tự động tìm máy chủ (mobile)
+
+Launcher mới trong `apps/mobile/www` có nút **Tự động tìm**:
+1. Thử địa chỉ đã lưu.
+2. Thử máy chủ công khai (mặc định Cloudflare quick tunnel hoặc URL bạn cấu hình).
+3. Thử `http://ninhvana.local:3000` (mDNS trong cùng Wi-Fi).
+
+Nếu tìm thấy, app tự mở và lưu URL. Nếu không, app hiện gợi ý các địa chỉ đã thử. Nút này chỉ tìm các địa chỉ đã biết; nó không quét toàn bộ subnet Wi-Fi.
+
+`ninhvana.local` cần bật mDNS trên Mac:
+```bash
+sudo scutil --set LocalHostName ninhvana
+```
+Tên này vẫn chỉ dùng trong cùng mạng Wi-Fi. Ngoài Wi-Fi phải dùng tên miền công khai.
+
+## Không phụ thuộc Mac
+Xem `docs/DEPLOY-VPS.md`. Bản chất IP LAN do Wi-Fi cấp và không thể truy cập từ ngoài; muốn dùng 4G/5G cần tên miền công khai (VPS hoặc tunnel có tên miền cố định).
+
+
+## Offline
+Xem `docs/OFFLINE-SYNC.md`: app đã có hàng đợi thao tác ghi và tự đồng bộ khi có mạng; để offline toàn bộ dữ liệu cần local-first database.
