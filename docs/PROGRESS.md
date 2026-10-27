@@ -364,3 +364,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Rà soát free tier: Oracle Always Free là lựa chọn 0 đồng khả thi nhất nhưng cần tài khoản/thẻ xác minh.
 - Ghi hướng dẫn dùng `sslip.io` miễn phí thay tên miền riêng, Worker vẫn giữ link workers.dev.
 - Chưa thể deploy vì chưa có IP/SSH/tài khoản VPS.
+
+
+## Sửa app bảo trì do tunnel hết hạn (2026-10-27)
+
+- Quick tunnel cũ không còn DNS; Worker trả 530/maintenance.
+- Khởi động tunnel mới, cập nhật `ORIGIN_URL`, deploy lại Worker; app login hoạt động.
+- Sửa script lấy URL tunnel bằng `strings` để tránh log nhị phân.

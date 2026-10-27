@@ -24,7 +24,8 @@ Cloudflare Worker **không chạy được** NestJS + PostgreSQL + Redis trực 
 - App NestJS/Next.js + DB vẫn phải chạy ở một origin (Mac tunnel hoặc VPS).
 - Hiện `ORIGIN_URL` trỏ tới Cloudflare quick tunnel của Mac:
   - Dùng được ngay để test.
-  - **Vẫn phụ thuộc Mac đang chạy** và URL tunnel có thể đổi.
+  - **Vẫn phụ thuộc Mac đang chạy** và URL tunnel có thể đổi sau khi cloudflared restart.
+  - Khi tunnel đổi, chạy `bash scripts/start-tunnel.sh` rồi cập nhật `ORIGIN_URL` và `npx wrangler deploy`.
 - Muốn không phụ thuộc Mac: deploy `docs/DEPLOY-VPS.md`, sau đó đổi `ORIGIN_URL` sang `https://app.ninhvana.vn` (hoặc IP VPS) và deploy lại Worker.
 
 ## Cấu hình
@@ -37,7 +38,7 @@ main = "cloudflare/worker.js"
 compatibility_date = "2026-10-26"
 
 [vars]
-ORIGIN_URL = "https://ohio-note-holes-jam.trycloudflare.com"
+ORIGIN_URL = "https://<quick-tunnel-hiện-tại>.trycloudflare.com"
 ```
 
 Deploy:

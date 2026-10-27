@@ -83,3 +83,20 @@ Xem `docs/DEPLOY-VPS.md`. Bản chất IP LAN do Wi-Fi cấp và không thể tr
 
 ## Offline
 Xem `docs/OFFLINE-SYNC.md`: app đã có hàng đợi thao tác ghi và tự đồng bộ khi có mạng; để offline toàn bộ dữ liệu cần local-first database.
+
+
+## Khi app hiện trang bảo trì
+
+Nguyên nhân thường gặp: quick tunnel đã đổi URL nhưng Worker vẫn trỏ URL cũ.
+
+```bash
+cd "/Users/tt/Documents/deepseek-harness/QLDN NINHVANA"
+bash scripts/start-tunnel.sh
+# lấy URL mới trong .dev/cloudflared.log, cập nhật ORIGIN_URL trong wrangler.toml
+npx wrangler@latest deploy
+```
+
+Sau đó mở lại:
+```text
+https://ninhvana.lenguyenduylinh29031992.workers.dev/login
+```
