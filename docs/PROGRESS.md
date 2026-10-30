@@ -379,3 +379,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Nút **Đồng bộ Google Sheet** + trạng thái nguồn/dòng/lần cuối trong trang Nhân sự.
 - Thêm bảng `GoogleSheetSync`; API `/hr/sheets/status`, `/hr/sheets/sync`.
 - Chi phí đi chợ hiện tải nguồn/đối soát, chưa tự ghi sổ.
+
+
+## Nút cập nhật Google Sheet theo từng phần (2026-10-30)
+
+- Thêm nút **Cập nhật chấm công**, **Cập nhật lương** và **Cập nhật** trên từng thẻ nguồn.
+- API `POST /hr/sheets/:key/sync` chỉ kéo đúng một sheet.
+- Nút tổng vẫn đồng bộ cả 3 nguồn.

@@ -71,9 +71,10 @@ export class GoogleSheetSyncService implements OnModuleInit {
     return this.prisma.googleSheetSync.findMany({ orderBy: { key: 'asc' } });
   }
 
-  async sync(actor: AuthUser, propertyId?: string) {
+  async sync(actor: AuthUser, propertyId?: string, key?: string) {
     if (propertyId) await this.assertProperty(actor, propertyId);
-    return this.syncAll('manual');
+    if (key && !(key in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
+    return this.syncAll('manual', key);
   }
 
   private async assertProperty(actor: AuthUser, propertyId: string) {
@@ -81,13 +82,14 @@ export class GoogleSheetSyncService implements OnModuleInit {
     if (!exists) throw new AppError(ERROR_CODES.NOT_FOUND, 'Không tìm thấy cơ sở', 404);
   }
 
-  async syncAll(trigger: 'auto' | 'manual') {
+  async syncAll(trigger: 'auto' | 'manual', onlyKey?: string) {
     if (this.running) return { skipped: true, reason: 'Đang đồng bộ' };
     this.running = true;
     const property = await this.prisma.property.findFirstOrThrow({ where: { code: 'NVN' } });
     const result: Array<{ key: string; ok: boolean; rows: number; message?: string }> = [];
     try {
       for (const [key, source] of Object.entries(SOURCES)) {
+        if (onlyKey && key !== onlyKey) continue;
         try {
           const response = await fetch(source.url, { headers: { 'user-agent': 'NinhVaNa-SheetSync/1.0' }, signal: AbortSignal.timeout(20_000) });
           if (!response.ok) throw new Error(`Google Sheet HTTP ${response.status}`);

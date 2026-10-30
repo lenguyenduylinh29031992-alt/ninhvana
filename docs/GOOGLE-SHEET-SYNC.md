@@ -20,9 +20,21 @@ Các sheet phải để chế độ **Anyone with the link can view** hoặc dù
   - Lương: cập nhật lương cơ bản, gross, tạm ứng, thực lãnh vào kỳ lương.
   - Chi phí: tải và lưu trạng thái nguồn; chưa tự ghi sổ chi phí.
 - Trang **Nhân sự** có:
-  - Nút **Đồng bộ Google Sheet**
+  - Nút **Đồng bộ Google Sheet** (tất cả nguồn)
+  - Nút **Cập nhật chấm công** ngay trên bảng chấm công
+  - Nút **Cập nhật lương** ngay trên bảng nhân sự/lương
+  - Nút **Cập nhật** trên từng thẻ nguồn Google Sheet
   - Trạng thái lần đồng bộ gần nhất, số dòng, lỗi nếu có
 - Bảng trạng thái: `GoogleSheetSync`.
+
+## API cập nhật riêng từng nguồn
+
+```text
+POST /api/v1/hr/sheets/sync                 # tất cả
+POST /api/v1/hr/sheets/attendance/sync      # chấm công
+POST /api/v1/hr/sheets/payroll/sync         # lương
+POST /api/v1/hr/sheets/shopping/sync        # chi phí
+```
 
 ## Tắt tự động
 

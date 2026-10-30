@@ -19,6 +19,9 @@ export class HrController {
   @Post('sheets/sync') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
   syncSheets(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) { return this.sheets.sync(actor, propertyId); }
 
+  @Post('sheets/:key/sync') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
+  syncSheet(@CurrentUser() actor: AuthUser, @Param('key') key: string, @Query('propertyId') propertyId?: string) { return this.sheets.sync(actor, propertyId, key); }
+
   @Get('departments') @Permissions(PERMISSIONS.PAYROLL_VIEW)
   departments(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) {
     return this.hr.departments(actor, propertyId);

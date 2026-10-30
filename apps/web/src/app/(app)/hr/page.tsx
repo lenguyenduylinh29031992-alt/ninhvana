@@ -52,7 +52,7 @@ export default function HrPage() {
   const departments = useQuery<Department[]>({ queryKey: ['departments', propertyId], queryFn: () => api(`/hr/departments?propertyId=${propertyId}`), enabled });
   const sheetStatus = useQuery<SheetSync[]>({ queryKey: ['sheet-sync', propertyId], queryFn: () => api(`/hr/sheets/status?propertyId=${propertyId}`), enabled, refetchInterval: 60_000 });
   const queryClient = useQueryClient();
-  const syncSheets = useMutation({ mutationFn: () => api('/hr/sheets/sync?propertyId=' + propertyId, { method: 'POST', body: {} }), onSuccess: async () => { toast.success('Đã đồng bộ Google Sheet'); await Promise.all([queryClient.invalidateQueries({ queryKey: ['sheet-sync'] }), queryClient.invalidateQueries({ queryKey: ['attendance'] }), queryClient.invalidateQueries({ queryKey: ['payroll'] }), queryClient.invalidateQueries({ queryKey: ['employees'] })]); }, onError: (error) => toast.error(error instanceof Error ? error.message : 'Không đồng bộ được Google Sheet') });
+  const syncSheets = useMutation({ mutationFn: (key?: 'attendance' | 'payroll' | 'shopping') => api(key ? `/hr/sheets/${key}/sync?propertyId=${propertyId}` : `/hr/sheets/sync?propertyId=${propertyId}`, { method: 'POST', body: {} }), onSuccess: async () => { toast.success('Đã đồng bộ Google Sheet'); await Promise.all([queryClient.invalidateQueries({ queryKey: ['sheet-sync'] }), queryClient.invalidateQueries({ queryKey: ['attendance'] }), queryClient.invalidateQueries({ queryKey: ['payroll'] }), queryClient.invalidateQueries({ queryKey: ['employees'] })]); }, onError: (error) => toast.error(error instanceof Error ? error.message : 'Không đồng bộ được Google Sheet') });
   if (!can('payroll:view')) return <PermissionNotice />;
 
   const selectedDepartment = (departments.data ?? []).find((department) => department.code === selectedCode);
@@ -90,7 +90,7 @@ export default function HrPage() {
         <CardContent className="p-0">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
             <div><p className="font-display text-lg text-ink">Nhân viên — {selectedDepartment?.name ?? 'Chưa chọn bộ phận'}</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">Mã nhân viên · họ tên · vị trí · trạng thái</p></div>
-            <Badge tone="brand">{team.length} nhân sự</Badge>
+            <div className="flex items-center gap-2">{isTikTok ? <Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate('payroll')}>{syncSheets.isPending ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />} Cập nhật lương</Button> : null}<Badge tone="brand">{team.length} nhân sự</Badge></div>
           </div>
           <Table>
             <TableHeader><TableRow><TableHead className="pl-4">Mã</TableHead><TableHead>Họ tên</TableHead><TableHead>Vị trí</TableHead><TableHead>Trạng thái</TableHead><TableHead className="text-right">Lương cơ bản</TableHead>{isTikTok ? <><TableHead className="text-right">Tạm ứng</TableHead><TableHead className="pr-4 text-right">Thực lãnh 10/2026</TableHead></> : null}</TableRow></TableHeader>
@@ -131,7 +131,7 @@ export default function HrPage() {
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
           <div><p className="font-display text-lg text-ink">Bảng chấm công — tháng 10/2026</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">● đủ công · ◐ nửa công · — nghỉ tuần</p></div>
-          <a href={SHEETS.attendance} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[11px] text-brand hover:underline">Mở Google Sheet <ExternalLink className="size-3" /></a>
+          <div className="flex items-center gap-2"><Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate('attendance')}>{syncSheets.isPending ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />} Cập nhật chấm công</Button><a href={SHEETS.attendance} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[11px] text-brand hover:underline">Mở Google Sheet <ExternalLink className="size-3" /></a></div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1180px] border-collapse text-[11px]">
@@ -162,9 +162,9 @@ export default function HrPage() {
       )}
 
       <div className="grid gap-3 md:grid-cols-3">
-        <SourceCard title="Chấm công & lịch nghỉ" href={SHEETS.attendance} note="Nguồn: bảng theo dõi công tháng 10/2026" />
-        <SourceCard title="Bảng lương & tạm ứng" href={SHEETS.payroll} note="Nguồn: bảng lương thực lãnh tháng 10/2026" />
-        <SourceCard title="Chi phí đi chợ TikTok" href={SHEETS.shopping} note="Nguồn: chi phí team TikTok tháng 11/2026" />
+        <SourceCard title="Chấm công & lịch nghỉ" href={SHEETS.attendance} note="Nguồn: bảng theo dõi công tháng 10/2026" onSync={() => syncSheets.mutate('attendance')} syncing={syncSheets.isPending} />
+        <SourceCard title="Bảng lương & tạm ứng" href={SHEETS.payroll} note="Nguồn: bảng lương thực lãnh tháng 10/2026" onSync={() => syncSheets.mutate('payroll')} syncing={syncSheets.isPending} />
+        <SourceCard title="Chi phí đi chợ TikTok" href={SHEETS.shopping} note="Nguồn: chi phí team TikTok tháng 11/2026" onSync={() => syncSheets.mutate('shopping')} syncing={syncSheets.isPending} />
       </div>
     </div>
   );
@@ -174,6 +174,6 @@ function Kpi({ icon: Icon, label, value, hint }: { icon: typeof Users; label: st
   return <Card><CardContent className="p-4"><div className="flex items-start justify-between"><p className="label-xs">{label}</p><Icon className="size-4 text-brand" /></div><p className="mt-2 font-display text-2xl text-ink">{value}</p><p className="mt-1 text-[10px] text-muted-foreground">{hint}</p></CardContent></Card>;
 }
 
-function SourceCard({ title, href, note }: { title: string; href: string; note: string }) {
-  return <a href={href} target="_blank" rel="noreferrer" className="card-surface flex items-center justify-between gap-3 p-4 transition hover:border-brand/40"><div><p className="text-sm font-medium text-ink">{title}</p><p className="mt-1 text-[10px] text-muted-foreground">{note}</p></div><ExternalLink className="size-4 shrink-0 text-brand" /></a>;
+function SourceCard({ title, href, note, onSync, syncing }: { title: string; href: string; note: string; onSync: () => void; syncing: boolean }) {
+  return <div className="card-surface flex items-center justify-between gap-3 p-4"><a href={href} target="_blank" rel="noreferrer" className="min-w-0 flex-1 transition hover:text-brand"><p className="text-sm font-medium text-ink">{title}</p><p className="mt-1 text-[10px] text-muted-foreground">{note}</p></a><Button size="sm" variant="secondary" disabled={syncing} onClick={onSync}>{syncing ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />} Cập nhật</Button><ExternalLink className="size-4 shrink-0 text-brand" /></div>;
 }
