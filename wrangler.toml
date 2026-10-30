@@ -3,4 +3,4 @@ main = "cloudflare/worker.js"
 compatibility_date = "2026-10-26"
 
 [vars]
-ORIGIN_URL = "https://stem-seminars-hotels-holmes.trycloudflare.com"
+ORIGIN_URL = "https://interact-hotels-fuel-citizenship.trycloudflare.com"
