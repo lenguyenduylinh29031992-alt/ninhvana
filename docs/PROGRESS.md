@@ -371,3 +371,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Quick tunnel cũ không còn DNS; Worker trả 530/maintenance.
 - Khởi động tunnel mới, cập nhật `ORIGIN_URL`, deploy lại Worker; app login hoạt động.
 - Sửa script lấy URL tunnel bằng `strings` để tránh log nhị phân.
+
+
+## Tự động đồng bộ Google Sheet (2026-10-30)
+
+- Thêm `GoogleSheetSyncService`: tự đồng bộ chấm công/lương Marketing TikTok mỗi 15 phút.
+- Nút **Đồng bộ Google Sheet** + trạng thái nguồn/dòng/lần cuối trong trang Nhân sự.
+- Thêm bảng `GoogleSheetSync`; API `/hr/sheets/status`, `/hr/sheets/sync`.
+- Chi phí đi chợ hiện tải nguồn/đối soát, chưa tự ghi sổ.

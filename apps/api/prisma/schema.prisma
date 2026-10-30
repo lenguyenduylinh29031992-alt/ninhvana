@@ -299,6 +299,16 @@ model User {
   @@index([lastLoginAt])
 }
 
+model GoogleSheetSync {
+  key          String   @id
+  url          String
+  lastSyncedAt DateTime?
+  status       String   @default("IDLE")
+  message      String?
+  rows         Int      @default(0)
+  updatedAt    DateTime @updatedAt
+}
+
 model UserSectionRead {
   id        String   @id @default(cuid())
   userId    String

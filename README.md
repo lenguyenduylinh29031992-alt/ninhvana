@@ -34,6 +34,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Triển khai 24/7:** [`docs/DEPLOY-VPS.md`](docs/DEPLOY-VPS.md) · **Offline:** [`docs/OFFLINE-SYNC.md`](docs/OFFLINE-SYNC.md).
 
+**Google Sheet sync:** [`docs/GOOGLE-SHEET-SYNC.md`](docs/GOOGLE-SHEET-SYNC.md).
+
 **Dữ liệu thử & phiên bản:** [`docs/DEMO-DATA.md`](docs/DEMO-DATA.md) · [`docs/OS-VERSIONS.md`](docs/OS-VERSIONS.md).
 
 **Badge theo mục:** [`docs/NAV-BADGES.md`](docs/NAV-BADGES.md).

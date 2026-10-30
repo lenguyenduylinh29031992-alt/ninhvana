@@ -6,11 +6,18 @@ import { CurrentUser, Permissions } from '../../common/auth/decorators';
 import type { AuthUser } from '../../common/auth/auth.types';
 import { ZodValidationPipe } from '../../common/http/zod-validation.pipe';
 import { HrService } from './hr.service';
+import { GoogleSheetSyncService } from './google-sheet-sync.service';
 
 @ApiTags('hr')
 @Controller('hr')
 export class HrController {
-  constructor(private readonly hr: HrService) {}
+  constructor(private readonly hr: HrService, private readonly sheets: GoogleSheetSyncService) {}
+
+  @Get('sheets/status') @Permissions(PERMISSIONS.PAYROLL_VIEW)
+  sheetStatus(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) { return this.sheets.status(actor, propertyId); }
+
+  @Post('sheets/sync') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
+  syncSheets(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) { return this.sheets.sync(actor, propertyId); }
 
   @Get('departments') @Permissions(PERMISSIONS.PAYROLL_VIEW)
   departments(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) {

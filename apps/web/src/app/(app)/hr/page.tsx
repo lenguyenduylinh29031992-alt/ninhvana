@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { CalendarCheck2, ExternalLink, HandCoins, Users } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CalendarCheck2, ExternalLink, HandCoins, Loader2, RefreshCw, Users } from 'lucide-react';
 import { api } from '@/lib/api';
+import { toast } from 'sonner';
 import { formatMoney } from '@/lib/format';
 import { useAccess } from '@/lib/session';
 import { useActiveProperty } from '@/lib/property-context';
 import { ExportMenu } from '@/components/domain/export-menu';
 import { PermissionNotice } from '@/components/domain/permission-notice';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/feedback';
 import { cn } from '@/lib/utils';
@@ -20,6 +22,7 @@ interface Attendance { id: string; employeeId: string; date: string; hours: numb
 interface Department { code: string; name: string; nameEn: string | null; division: string; group: string; isRevenueCenter: boolean; sortOrder: number }
 interface PayrollLine { employeeId: string; employeeCode: string; employeeName: string; gross: number; advanceAmount: number; net: number }
 interface Run { id: string; period: string; status: string; gross: number; net: number; deductions: number; lines: PayrollLine[] }
+interface SheetSync { key: string; lastSyncedAt: string | null; status: string; message: string | null; rows: number }
 
 const SHEETS = {
   attendance: 'https://docs.google.com/spreadsheets/d/1jb5s3KvVwZJyDqTr4_QZI7gUeKJS9WAyM_9jz6blBLE/edit?gid=536156494#gid=536156494',
@@ -47,6 +50,9 @@ export default function HrPage() {
   const attendance = useQuery<Attendance[]>({ queryKey: ['attendance', propertyId, MONTH_START, MONTH_END], queryFn: () => api(`/hr/attendance?propertyId=${propertyId}&from=${MONTH_START}&to=${MONTH_END}`), enabled });
   const runs = useQuery<Run[]>({ queryKey: ['payroll', propertyId], queryFn: () => api(`/hr/payroll?propertyId=${propertyId}`), enabled });
   const departments = useQuery<Department[]>({ queryKey: ['departments', propertyId], queryFn: () => api(`/hr/departments?propertyId=${propertyId}`), enabled });
+  const sheetStatus = useQuery<SheetSync[]>({ queryKey: ['sheet-sync', propertyId], queryFn: () => api(`/hr/sheets/status?propertyId=${propertyId}`), enabled, refetchInterval: 60_000 });
+  const queryClient = useQueryClient();
+  const syncSheets = useMutation({ mutationFn: () => api('/hr/sheets/sync?propertyId=' + propertyId, { method: 'POST', body: {} }), onSuccess: async () => { toast.success('Đã đồng bộ Google Sheet'); await Promise.all([queryClient.invalidateQueries({ queryKey: ['sheet-sync'] }), queryClient.invalidateQueries({ queryKey: ['attendance'] }), queryClient.invalidateQueries({ queryKey: ['payroll'] }), queryClient.invalidateQueries({ queryKey: ['employees'] })]); }, onError: (error) => toast.error(error instanceof Error ? error.message : 'Không đồng bộ được Google Sheet') });
   if (!can('payroll:view')) return <PermissionNotice />;
 
   const selectedDepartment = (departments.data ?? []).find((department) => department.code === selectedCode);
@@ -66,8 +72,13 @@ export default function HrPage() {
         eyebrow="Nhân sự · Cơ cấu bộ phận"
         title="Nhân sự & chấm công"
         description={`${selectedDepartment?.name ?? 'Chọn bộ phận'} — danh sách nhân viên, vị trí và chấm công tháng 10/2026. Chọn một bộ phận bên dưới để xem danh sách tương ứng.`}
-        actions={<div className="flex flex-wrap items-center gap-2"><ExportMenu dataset="employees" label="Xuất nhân sự" /><ExportMenu dataset="payroll" label="Xuất lương" /></div>}
+        actions={<div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate()}>{syncSheets.isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} Đồng bộ Google Sheet</Button><ExportMenu dataset="employees" label="Xuất nhân sự" /><ExportMenu dataset="payroll" label="Xuất lương" /></div>}
       />
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-line bg-surface px-3 py-2 text-[10px] text-muted-foreground">
+        <span className="font-medium text-ink">Đồng bộ Google Sheet tự động mỗi 15 phút</span>
+        {(sheetStatus.data ?? []).map((source) => <span key={source.key} className="flex items-center gap-1"><span className={source.status === 'OK' ? 'text-forest' : 'text-danger'}>●</span>{source.key === 'attendance' ? 'Chấm công' : source.key === 'payroll' ? 'Lương' : 'Chi phí'}: {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'chưa đồng bộ'} · {source.rows} dòng</span>)}
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={Users} label="Nhân sự bộ phận" value={String(team.length)} hint={selectedDepartment?.name ?? 'Chưa chọn bộ phận'} />
         <Kpi icon={CalendarCheck2} label="Đang hoạt động" value={String(activeCount)} hint={`${team.length - activeCount} tạm dừng`} />
