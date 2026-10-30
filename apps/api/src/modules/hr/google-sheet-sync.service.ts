@@ -7,7 +7,7 @@ import { PrismaService } from '../../common/prisma/prisma.module';
 type CsvRow = string[];
 
 const SOURCES = {
-  attendance: { url: 'https://docs.google.com/spreadsheets/d/1jb5s3KvVwZJyDqTr4_QZI7gUeKJS9WAyM_9jz6blBLE/gviz/tq?tqx=out:csv&gid=536156494', label: 'Chấm công TikTok 10/2026' },
+  attendance: { url: 'https://docs.google.com/spreadsheets/d/1jb5s3KvVwZJyDqTr4_QZI7gUeKJS9WAyM_9jz6blBLE/export?format=csv&gid=536156494', label: 'Chấm công TikTok 10/2026' },
   payroll: { url: 'https://docs.google.com/spreadsheets/d/1bBYbKMhKxJkMJxVV2boIrO4lPYnCHrC-RKTiMWpppVE/gviz/tq?tqx=out:csv&gid=0', label: 'Lương & tạm ứng TikTok 10/2026' },
   shopping: { url: 'https://docs.google.com/spreadsheets/d/15H1_7oQ28ejuHiIOXlmZeeZDpN02eajQGLynmPhxjM4/gviz/tq?tqx=out:csv&gid=1350094361', label: 'Chi phí đi chợ TikTok 11/2026' },
 } as const;

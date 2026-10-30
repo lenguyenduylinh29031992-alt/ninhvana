@@ -386,3 +386,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Thêm nút **Cập nhật chấm công**, **Cập nhật lương** và **Cập nhật** trên từng thẻ nguồn.
 - API `POST /hr/sheets/:key/sync` chỉ kéo đúng một sheet.
 - Nút tổng vẫn đồng bộ cả 3 nguồn.
+
+
+## Sửa thiếu ngày 29–30/10 khi đồng bộ chấm công (2026-10-30)
+
+- Google gviz CSV bỏ các cột T5–T7 của tuần cuối nên app chỉ có đến 28/10.
+- Chuyển nguồn chấm công sang `export?format=csv` (đầy đủ cột ngày).
+- Đồng bộ lại: 84 dòng, có đủ 27–30/10 cho 3 nhân sự.

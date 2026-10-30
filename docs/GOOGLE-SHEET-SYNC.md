@@ -8,7 +8,10 @@
 | Lương & tạm ứng Marketing TikTok | Google Sheet tháng 10/2026 | 15 phút |
 | Chi phí đi chợ TikTok | Google Sheet tháng 11/2026 | 15 phút |
 
-Các sheet phải để chế độ **Anyone with the link can view** hoặc dùng CSV export công khai. API tải CSV bằng `gviz/tq?tqx=out:csv`.
+Các sheet phải để chế độ **Anyone with the link can view** hoặc dùng CSV export công khai.
+
+- Chấm công dùng `export?format=csv` để lấy đủ các cột ngày (gviz có thể bỏ cột ẩn/T5–T7).
+- Lương dùng `gviz/tq?tqx=out:csv`.
 
 ## Cách hoạt động
 
