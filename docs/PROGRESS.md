@@ -400,3 +400,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Đồng bộ sidebar, topbar, page header, card, bảng và button.
 - Tăng độ thoáng và độ đọc, giữ tông coastal ivory/navy.
 - Kiểm tra 30 route chính trên desktop và mobile, không lỗi.
+
+
+## Tách Grand Spa thành mục riêng (2026-10-31)
+
+- Thêm nhóm **SPA & CHĂM SÓC** và mục **Grand Spa** (`/spa`).
+- Tách outlet SPA khỏi POS Nhà hàng; POS chỉ còn RESTAURANT/BAR.
+- Trang Spa có phòng trị liệu, liệu trình, khách lẻ, gửi yêu cầu/thanh toán.
+- Mobile: nhân sự SPA vào thẳng `/spa`.

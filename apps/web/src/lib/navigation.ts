@@ -81,6 +81,13 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    key: 'spa',
+    labelKey: 'navGroup.spa',
+    items: [
+      { href: '/spa', labelKey: 'nav.spa', icon: Sparkles, permission: 'pos:view' },
+    ],
+  },
+  {
     key: 'commercial',
     labelKey: 'navGroup.commercial',
     items: [

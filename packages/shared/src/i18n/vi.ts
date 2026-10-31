@@ -144,6 +144,7 @@ export const vi = {
   'nav.reservations': 'Đặt phòng',
   'nav.guests': 'Khách hàng',
   'nav.housekeeping': 'Buồng phòng',
+  'nav.spa': 'Grand Spa',
   'nav.pos': 'Nhà hàng & bán hàng',
   'nav.kds': 'Màn hình bếp',
   'nav.banquet': 'Tiệc & sự kiện',
@@ -181,6 +182,7 @@ export const vi = {
   'nav.myTasks': 'Công việc của tôi',
 
   'navGroup.overview': 'Tổng quan',
+  'navGroup.spa': 'Spa & chăm sóc',
   'navGroup.operations': 'Vận hành',
   'navGroup.commercial': 'Thương mại',
   'navGroup.finance': 'Tài chính',

@@ -36,7 +36,7 @@ const DEPARTMENTS: Record<string, Tab & { slot: Slot }> = {
   ROOM_SERVICE: { slot: 'sales', href: '/pos', label: 'Dịch vụ phòng', icon: UtensilsCrossed, match: ['/pos'], permission: 'pos:view' },
   BAGALOG: { slot: 'sales', href: '/pos', label: 'Bagalog', icon: Package, match: ['/pos'], permission: 'pos:view' },
   POOL: { slot: 'sales', href: '/pos', label: 'Hồ bơi', icon: UtensilsCrossed, match: ['/pos'], permission: 'pos:view' },
-  SPA: { slot: 'sales', href: '/pos', label: 'Spa', icon: Sparkles, match: ['/pos'], permission: 'pos:view' },
+  SPA: { slot: 'sales', href: '/spa', label: 'Grand Spa', icon: Sparkles, match: ['/spa'], permission: 'pos:view' },
   EVENTS: { slot: 'sales', href: '/banquet', label: 'Sự kiện', icon: CalendarDays, match: ['/banquet'], permission: 'banquet:view' },
   SALES: { slot: 'marketing', href: '/channels', label: 'Kinh doanh', icon: Radio, match: ['/channels', '/crm'], permission: 'channel:view' },
   TIKTOK: { slot: 'marketing', href: '/marketing', label: 'TikTok', icon: Megaphone, match: ['/marketing'], permission: 'marketing:view' },

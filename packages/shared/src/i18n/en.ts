@@ -142,6 +142,7 @@ export const en: Record<TranslationKey, string> = {
   'nav.reservations': 'Reservations',
   'nav.guests': 'Guests',
   'nav.housekeeping': 'Housekeeping',
+  'nav.spa': 'Grand Spa',
   'nav.pos': 'Restaurant & POS',
   'nav.kds': 'Kitchen Display',
   'nav.banquet': 'Banquet & Events',
@@ -179,6 +180,7 @@ export const en: Record<TranslationKey, string> = {
   'nav.myTasks': 'My tasks',
 
   'navGroup.overview': 'Overview',
+  'navGroup.spa': 'Spa & wellness',
   'navGroup.operations': 'Operations',
   'navGroup.commercial': 'Commercial',
   'navGroup.finance': 'Finance',
