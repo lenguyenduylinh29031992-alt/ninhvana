@@ -67,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <PropertyProvider properties={access.user.properties}>
       <div className="min-h-screen bg-canvas">
         <Sidebar user={access.user} open={mobileOpen} onClose={() => setMobileOpen(false)} onLogout={() => void logout()} />
-        <div className="flex min-h-screen flex-col lg:pl-[264px]">
+        <div className="flex min-h-screen flex-col lg:pl-[252px]">
           <Topbar
             user={access.user}
             onOpenMobileNav={() => setMobileOpen(true)}
@@ -75,10 +75,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             realtimeConnected={connected}
           />
           <OfflineSyncBar />
-        <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pb-28 pt-6 md:px-6 lg:px-8 lg:pb-6">
+        <main className="mx-auto w-full max-w-[1560px] flex-1 px-4 pb-28 pt-7 md:px-7 lg:px-10 lg:pb-8">
             {children}
           </main>
-          <footer className="mx-auto w-full max-w-[1600px] px-4 pb-28 pt-2 lg:pb-6 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 md:px-6 lg:px-8">
+          <footer className="mx-auto w-full max-w-[1560px] px-4 pb-28 pt-3 md:px-7 lg:px-10 lg:pb-6 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 md:px-6 lg:px-8">
             NinhVaNa · Hệ thống quản trị khách sạn · v0.1
           </footer>
         </div>

@@ -50,12 +50,12 @@ export function Sidebar({
       ) : null}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col bg-sidebar text-sidebar-ink transition-transform duration-300 ease-luxe lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex w-[252px] flex-col bg-sidebar text-sidebar-ink transition-transform duration-300 ease-luxe lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
         aria-label="Điều hướng chính"
       >
-        <div className="flex h-16 items-center gap-3 border-b border-sidebar-line px-5">
+        <div className="flex h-[68px] items-center gap-3 border-b border-sidebar-line px-5">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-sidebar-ink/30 font-display text-[15px] tracking-wide text-sidebar-ink">
             NV
           </span>
@@ -84,7 +84,7 @@ export function Sidebar({
             if (items.length === 0) return null;
             return (
               <div key={section.key} className="mb-5">
-                <p className="mb-1.5 px-2.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-sidebar-muted/80">
+                <p className="mb-1.5 px-2.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-sidebar-muted/70">
                   {t(section.labelKey as never)}
                 </p>
                 <ul className="space-y-0.5">
@@ -127,9 +127,9 @@ export function Sidebar({
                             href={item.href}
                             onClick={onClose}
                             className={cn(
-                              'relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors',
+                              'relative flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-[13px] transition-colors',
                               active
-                                ? 'bg-white/[0.07] font-medium text-sidebar-ink'
+                                ? 'bg-gradient-to-r from-white/[0.10] to-white/[0.03] font-medium text-sidebar-ink shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]'
                                 : 'text-sidebar-muted hover:bg-white/[0.04] hover:text-sidebar-ink',
                             )}
                             aria-current={active ? 'page' : undefined}

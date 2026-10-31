@@ -50,13 +50,13 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <div className={cn('flex flex-col gap-3 md:flex-row md:items-end md:justify-between', className)}>
-      <div>
-        {eyebrow ? <p className="label-xs mb-2">{eyebrow}</p> : null}
-        <h1 className="font-display text-3xl font-medium tracking-tight text-ink md:text-4xl">{title}</h1>
-        {description ? <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p> : null}
+    <div className={cn('flex flex-col gap-4 pb-1 2xl:flex-row 2xl:items-end 2xl:justify-between', className)}>
+      <div className="min-w-0">
+        {eyebrow ? <p className="label-xs mb-2.5 flex items-center gap-2 before:h-px before:w-5 before:bg-brand/60">{eyebrow}</p> : null}
+        <h1 className="font-display text-[2.15rem] font-medium leading-[1.04] tracking-[-0.02em] text-ink md:text-[2.65rem]">{title}</h1>
+        {description ? <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">{description}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex flex-wrap items-center gap-2 2xl:justify-end">{actions}</div> : null}
     </div>
   );
 }

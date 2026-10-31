@@ -393,3 +393,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Google gviz CSV bỏ các cột T5–T7 của tuần cuối nên app chỉ có đến 28/10.
 - Chuyển nguồn chấm công sang `export?format=csv` (đầy đủ cột ngày).
 - Đồng bộ lại: 84 dòng, có đủ 27–30/10 cho 3 nhân sự.
+
+
+## Chuẩn hóa toàn bộ giao diện (2026-10-31)
+
+- Đồng bộ sidebar, topbar, page header, card, bảng và button.
+- Tăng độ thoáng và độ đọc, giữ tông coastal ivory/navy.
+- Kiểm tra 30 route chính trên desktop và mobile, không lỗi.

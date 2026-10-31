@@ -99,6 +99,7 @@
 
   body {
     @apply bg-canvas text-ink font-sans antialiased;
+    font-size: 14px;
     font-feature-settings: 'cv11', 'ss01';
     text-rendering: optimizeLegibility;
   }
@@ -160,7 +161,8 @@
   }
 
   .card-surface {
-    @apply rounded-xl border border-line bg-surface shadow-card;
+    @apply rounded-2xl border border-line/80 bg-surface;
+    box-shadow: 0 1px 2px hsl(var(--ink) / 0.03), 0 18px 40px -32px hsl(var(--ink) / 0.22);
   }
 
   .hairline {
@@ -172,7 +174,7 @@
   }
 
   .data-grid-row {
-    @apply border-b border-line/70 transition-colors hover:bg-muted/50;
+    @apply border-b border-line/60 transition-colors hover:bg-brand-soft/25;
   }
 
   .shimmer {
