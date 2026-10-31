@@ -149,6 +149,7 @@ export class UsersService {
         orgId: actor.orgId,
         email: input.email,
         fullName: input.fullName,
+        departmentCode: input.departmentCode ?? null,
         phone: input.phone,
         locale: input.locale,
         avatarUrl: input.avatarUrl,

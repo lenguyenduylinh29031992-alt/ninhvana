@@ -14,6 +14,12 @@ function asDate(value: string) {
 export class OperationsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async departmentScope(actor: AuthUser) {
+    const user = await this.prisma.user.findUnique({ where: { id: actor.id }, select: { departmentCode: true } });
+    const elevated = actor.orgWide || actor.roles.some((role) => ['SUPER_ADMIN','CHAIRMAN','CEO','CFO','HR_MANAGER','PROPERTY_MANAGER'].includes(role.roleCode));
+    return elevated ? undefined : user?.departmentCode ?? undefined;
+  }
+
   private async propertyId(actor: AuthUser, requested?: string) {
     const property = await this.prisma.property.findFirst({
       where: { orgId: actor.orgId, ...(requested ? { id: requested } : {}) },
@@ -26,8 +32,9 @@ export class OperationsService {
 
   async budgets(actor: AuthUser, requested?: string, period?: string) {
     const propertyId = await this.propertyId(actor, requested);
+    const department = await this.departmentScope(actor);
     const rows = await this.prisma.budgetLine.findMany({
-      where: { orgId: actor.orgId, propertyId, ...(period ? { period } : {}) },
+      where: { orgId: actor.orgId, propertyId, ...(department ? { department } : {}), ...(period ? { period } : {}) },
       orderBy: [{ period: 'desc' }, { department: 'asc' }, { category: 'asc' }],
     });
     const summary = rows.reduce(
@@ -42,6 +49,8 @@ export class OperationsService {
 
   async saveBudget(actor: AuthUser, input: { propertyId?: string; department: string; period: string; category: string; planned: number; actual?: number; notes?: string }) {
     const propertyId = await this.propertyId(actor, input.propertyId);
+    const scope = await this.departmentScope(actor);
+    if (scope && input.department !== scope) throw new AppError(ERROR_CODES.FORBIDDEN, 'Chỉ được lập ngân sách cho bộ phận của mình', 403);
     if (!input.department?.trim() || !/^\d{4}-\d{2}$/.test(input.period) || !input.category?.trim()) {
       throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Thiếu bộ phận, kỳ hoặc danh mục', 422);
     }
@@ -54,7 +63,8 @@ export class OperationsService {
 
   async shifts(actor: AuthUser, requested?: string, from?: string, to?: string) {
     const propertyId = await this.propertyId(actor, requested);
-    const where: Prisma.ShiftAssignmentWhereInput = { orgId: actor.orgId, propertyId };
+    const department = await this.departmentScope(actor);
+    const where: Prisma.ShiftAssignmentWhereInput = { orgId: actor.orgId, propertyId, ...(department ? { department } : {}) };
     if (from || to) where.date = { ...(from ? { gte: asDate(from) } : {}), ...(to ? { lte: asDate(to) } : {}) };
     const rows = await this.prisma.shiftAssignment.findMany({ where, orderBy: [{ date: 'asc' }, { startTime: 'asc' }] });
     return { propertyId, rows };
@@ -62,6 +72,8 @@ export class OperationsService {
 
   async saveShift(actor: AuthUser, input: { propertyId?: string; department: string; employeeId?: string; employeeName: string; date: string; startTime: string; endTime: string; role?: string; notes?: string }) {
     const propertyId = await this.propertyId(actor, input.propertyId);
+    const scope = await this.departmentScope(actor);
+    if (scope && input.department !== scope) throw new AppError(ERROR_CODES.FORBIDDEN, 'Chỉ được xếp ca cho bộ phận của mình', 403);
     if (!input.employeeName?.trim() || !input.department?.trim() || !input.startTime || !input.endTime) {
       throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Thiếu nhân viên, bộ phận hoặc giờ ca', 422);
     }

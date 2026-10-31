@@ -41,6 +41,11 @@ export class HrController {
   @Get('employees') @Permissions(PERMISSIONS.PAYROLL_VIEW)
   employees(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) { return this.hr.employees(actor, propertyId); }
 
+  @Post('employees/account') @Permissions(PERMISSIONS.EMPLOYEE_MANAGE)
+  createEmployeeWithAccount(@CurrentUser() actor: AuthUser, @Body() body: {
+    propertyId?: string; code?: string; fullName: string; position: string; department: string; hireDate: string; baseSalary: number; employmentType?: 'OFFICIAL' | 'PROBATION'; email: string; password: string; roleCode?: string; phone?: string;
+  }) { return this.hr.createEmployeeWithAccount(actor, body); }
+
   @Post('employees') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
   createEmployee(@CurrentUser() actor: AuthUser, @Body(new ZodValidationPipe(employeeSchema)) body: z.infer<typeof employeeSchema>) {
     return this.hr.createEmployee(actor, body);

@@ -7,6 +7,7 @@ import { assertPropertyAccess } from '../../common/auth/property-access';
 import { PrismaService } from '../../common/prisma/prisma.module';
 import { SequenceService } from '../../common/sequence/sequence.module';
 import { PostingService } from '../accounting/posting.service';
+import { UsersService } from '../iam/users.service';
 
 
 function dept(value: string): DepartmentGroup {
@@ -32,11 +33,20 @@ export class HrService {
     private readonly posting: PostingService,
     private readonly sequence: SequenceService,
     private readonly audit: AuditService,
+    private readonly users: UsersService,
   ) {}
 
+  private async scope(actor: AuthUser) {
+    const user = await this.prisma.user.findUnique({ where: { id: actor.id }, select: { departmentCode: true } });
+    const roleCodes = actor.roles.map((role) => role.roleCode);
+    const elevated = actor.orgWide || roleCodes.some((code) => ['SUPER_ADMIN','CHAIRMAN','CEO','CFO','HR_MANAGER','PROPERTY_MANAGER'].includes(code));
+    return { department: elevated ? undefined : user?.departmentCode ?? undefined, elevated };
+  }
+
   async departments(actor: AuthUser, propertyId?: string) {
+    const scope = await this.scope(actor);
     return this.prisma.department.findMany({
-      where: { property: { orgId: actor.orgId }, ...(propertyId ? { propertyId } : {}) },
+      where: { property: { orgId: actor.orgId }, ...(propertyId ? { propertyId } : {}), ...(scope.department ? { code: scope.department } : {}) },
       orderBy: [{ division: 'asc' }, { sortOrder: 'asc' }, { name: 'asc' }],
     });
   }
@@ -44,21 +54,25 @@ export class HrService {
   async attendanceRange(actor: AuthUser, propertyId: string, from: string, to: string) {
     assertPropertyAccess(actor, propertyId);
     if (!propertyId || !from || !to) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Thiếu cơ sở hoặc khoảng ngày', 422);
+    const scope = await this.scope(actor);
     return this.prisma.attendance.findMany({
-      where: { employee: { propertyId }, date: { gte: parseIsoDate(from), lte: parseIsoDate(to) } },
+      where: { employee: { propertyId, ...(scope.department ? { department: scope.department } : {}) }, date: { gte: parseIsoDate(from), lte: parseIsoDate(to) } },
       include: { employee: { select: { id: true, code: true, fullName: true, department: true, position: true } } },
       orderBy: [{ employee: { code: 'asc' } }, { date: 'asc' }],
     });
   }
 
   async employees(actor: AuthUser, propertyId?: string) {
+    const scope = await this.scope(actor);
     return this.prisma.employee.findMany({
-      where: { orgId: actor.orgId, ...(propertyId ? { propertyId } : {}) },
+      where: { orgId: actor.orgId, ...(propertyId ? { propertyId } : {}), ...(scope.department ? { department: scope.department } : {}) },
       orderBy: [{ department: 'asc' }, { fullName: 'asc' }],
     });
   }
 
   async createEmployee(actor: AuthUser, input: { propertyId?: string; code: string; fullName: string; position: string; department: string; hireDate: string; baseSalary: number; allowances?: number; dependents?: number; email?: string; phone?: string }) {
+    const scope = await this.scope(actor);
+    if (scope.department && input.department !== scope.department) throw new AppError(ERROR_CODES.FORBIDDEN, 'Chỉ được thêm nhân sự trong bộ phận của mình', 403);
     return this.prisma.employee.create({
       data: { orgId: actor.orgId, propertyId: input.propertyId ?? null, code: input.code, fullName: input.fullName, position: input.position, department: input.department, hireDate: parseIsoDate(input.hireDate), baseSalary: input.baseSalary, allowances: input.allowances ?? 0, dependents: input.dependents ?? 0, email: input.email, phone: input.phone },
     });
@@ -78,9 +92,58 @@ export class HrService {
     });
   }
 
+  async createEmployeeWithAccount(actor: AuthUser, input: {
+    propertyId?: string;
+    code?: string;
+    fullName: string;
+    position: string;
+    department: string;
+    hireDate: string;
+    baseSalary: number;
+    employmentType?: 'OFFICIAL' | 'PROBATION';
+    email: string;
+    password: string;
+    roleCode?: string;
+    phone?: string;
+  }) {
+    const scope = await this.scope(actor);
+    const department = scope.department ?? input.department;
+    const status = input.employmentType === 'PROBATION' ? 'PROBATION' : 'ACTIVE';
+    const officialRoles: Record<string, string> = { FRONT_OFFICE: 'FRONT_DESK', FRONTDESK: 'FRONT_DESK', RECEPTION: 'FRONT_DESK', HOUSEKEEPING: 'HOUSEKEEPING', FNB: 'CASHIER', FB: 'CASHIER', KITCHEN: 'CASHIER', HR: 'HR_MANAGER', SALES: 'MARKETING', MARKETING: 'MARKETING', WAREHOUSE: 'WAREHOUSE', MAINTENANCE: 'HOUSEKEEPING' };
+    const roleCode = input.roleCode || (status === 'PROBATION' ? 'PROBATION' : officialRoles[department] ?? 'HOUSEKEEPING');
+    const propertyId = input.propertyId ?? (await this.propertyId(actor));
+    const code = input.code?.trim() || `NV-${Date.now().toString().slice(-6)}`;
+    const employee = await this.prisma.employee.create({ data: {
+      orgId: actor.orgId, propertyId, code, fullName: input.fullName.trim(), position: input.position.trim(), department,
+      hireDate: parseIsoDate(input.hireDate), baseSalary: new Prisma.Decimal(input.baseSalary), status, email: input.email, phone: input.phone,
+    } });
+    try {
+      const user = await this.users.create(actor, { email: input.email, fullName: input.fullName.trim(), departmentCode: department, phone: input.phone, password: input.password, locale: 'vi', isActive: true, roles: [{ roleCode, propertyId }] });
+      return { employee, user };
+    } catch (error) {
+      await this.prisma.employee.delete({ where: { id: employee.id } });
+      throw error;
+    }
+  }
+
+  private async propertyId(actor: AuthUser) {
+    const property = await this.prisma.property.findFirst({ where: { orgId: actor.orgId }, orderBy: { createdAt: 'asc' }, select: { id: true } });
+    if (!property) throw new AppError(ERROR_CODES.NOT_FOUND, 'Không tìm thấy cơ sở', 404);
+    return property.id;
+  }
+
   async payrollRuns(actor: AuthUser, propertyId: string) {
     assertPropertyAccess(actor, propertyId);
-    return this.prisma.payrollRun.findMany({ where: { propertyId }, include: { lines: true }, orderBy: { period: 'desc' }, take: 24 });
+    const runs = await this.prisma.payrollRun.findMany({ where: { propertyId }, include: { lines: true }, orderBy: { period: 'desc' }, take: 24 });
+    const scope = await this.scope(actor);
+    if (!scope.department) return runs;
+    return runs.map((run) => {
+      const lines = run.lines.filter((line) => line.department === scope.department);
+      const gross = lines.reduce((sum, line) => sum + Number(line.gross), 0);
+      const net = lines.reduce((sum, line) => sum + Number(line.net), 0);
+      const deductions = lines.reduce((sum, line) => sum + Number(line.insuranceEmployee) + Number(line.unionFee) + Number(line.tax), 0);
+      return { ...run, lines, gross, net, deductions };
+    });
   }
 
   async runPayroll(actor: AuthUser, propertyId: string, period: string) {

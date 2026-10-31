@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarCheck2, ExternalLink, HandCoins, Loader2, RefreshCw, Users } from 'lucide-react';
+import { CalendarCheck2, ExternalLink, HandCoins, Loader2, Plus, RefreshCw, Users } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { formatMoney } from '@/lib/format';
@@ -13,6 +13,9 @@ import { PermissionNotice } from '@/components/domain/permission-notice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input, NativeSelect } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { PageHeader } from '@/components/ui/feedback';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -42,7 +45,8 @@ const STATUS_META: Record<string, { label: string; symbol: string; className: st
 
 export default function HrPage() {
   const { can } = useAccess();
-  const [selectedCode, setSelectedCode] = useState('TIKTOK');
+  const [selectedCode, setSelectedCode] = useState('');
+  const [addOpen, setAddOpen] = useState(false);
   const { activeProperty, properties } = useActiveProperty();
   const propertyId = activeProperty?.id ?? properties.find((property) => property.type === 'HOTEL')?.id ?? properties[0]?.id;
   const enabled = Boolean(propertyId) && can('payroll:view');
@@ -53,6 +57,10 @@ export default function HrPage() {
   const sheetStatus = useQuery<SheetSync[]>({ queryKey: ['sheet-sync', propertyId], queryFn: () => api(`/hr/sheets/status?propertyId=${propertyId}`), enabled, refetchInterval: 60_000 });
   const queryClient = useQueryClient();
   const syncSheets = useMutation({ mutationFn: (key?: 'attendance' | 'payroll' | 'shopping') => api(key ? `/hr/sheets/${key}/sync?propertyId=${propertyId}` : `/hr/sheets/sync?propertyId=${propertyId}`, { method: 'POST', body: {} }), onSuccess: async () => { toast.success('Đã đồng bộ Google Sheet'); await Promise.all([queryClient.invalidateQueries({ queryKey: ['sheet-sync'] }), queryClient.invalidateQueries({ queryKey: ['attendance'] }), queryClient.invalidateQueries({ queryKey: ['payroll'] }), queryClient.invalidateQueries({ queryKey: ['employees'] })]); }, onError: (error) => toast.error(error instanceof Error ? error.message : 'Không đồng bộ được Google Sheet') });
+  useEffect(() => {
+    if (!selectedCode && departments.data?.length) setSelectedCode(departments.data.find((department) => department.code === 'TIKTOK')?.code ?? departments.data[0]!.code);
+  }, [departments.data, selectedCode]);
+
   if (!can('payroll:view')) return <PermissionNotice />;
 
   const selectedDepartment = (departments.data ?? []).find((department) => department.code === selectedCode);
@@ -72,7 +80,7 @@ export default function HrPage() {
         eyebrow="Nhân sự · Cơ cấu bộ phận"
         title="Nhân sự & chấm công"
         description={`${selectedDepartment?.name ?? 'Chọn bộ phận'} — danh sách nhân viên, vị trí và chấm công tháng 10/2026. Chọn một bộ phận bên dưới để xem danh sách tương ứng.`}
-        actions={<div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate()}>{syncSheets.isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} Đồng bộ Google Sheet</Button><ExportMenu dataset="employees" label="Xuất nhân sự" /><ExportMenu dataset="payroll" label="Xuất lương" /></div>}
+        actions={<div className="flex flex-wrap items-center gap-2">{can('employee:manage') ? <Button size="sm" onClick={() => setAddOpen(true)}><Plus /> Thêm nhân viên</Button> : null}<Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate()}>{syncSheets.isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} Đồng bộ Google Sheet</Button><ExportMenu dataset="employees" label="Xuất nhân sự" /><ExportMenu dataset="attendance" label="Xuất chấm công" /><ExportMenu dataset="payroll" label="Xuất lương" /></div>}
       />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-line bg-surface px-3 py-2 text-[10px] text-muted-foreground">
         <span className="font-medium text-ink">Đồng bộ Google Sheet tự động mỗi 15 phút</span>
@@ -127,7 +135,6 @@ export default function HrPage() {
         </CardContent>
       </Card>
 
-      {isTikTok ? (
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
           <div><p className="font-display text-lg text-ink">Bảng chấm công — tháng 10/2026</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">● đủ công · ◐ nửa công · — nghỉ tuần</p></div>
@@ -157,9 +164,7 @@ export default function HrPage() {
         </div>
       </Card>
 
-      ) : (
-        <Card><CardContent className="p-6 text-center text-xs text-muted-foreground">Chấm công chi tiết tháng 10/2026 đang được đồng bộ cho bộ phận Marketing TikTok. Chọn bộ phận TikTok để xem bảng công; các bộ phận khác sẽ bổ sung khi có dữ liệu chấm công.</CardContent></Card>
-      )}
+      <AddEmployeeDialog open={addOpen} onOpenChange={setAddOpen} departments={departments.data ?? []} canManage={can('employee:manage')} onSaved={async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ['employees'] }), queryClient.invalidateQueries({ queryKey: ['departments'] })]); }} />
 
       <div className="grid gap-3 md:grid-cols-3">
         <SourceCard title="Chấm công & lịch nghỉ" href={SHEETS.attendance} note="Nguồn: bảng theo dõi công tháng 10/2026" onSync={() => syncSheets.mutate('attendance')} syncing={syncSheets.isPending} />
@@ -168,6 +173,37 @@ export default function HrPage() {
       </div>
     </div>
   );
+}
+
+
+function AddEmployeeDialog({ open, onOpenChange, departments, canManage, onSaved }: { open: boolean; onOpenChange: (open: boolean) => void; departments: Department[]; canManage: boolean; onSaved: () => Promise<void> }) {
+  const [fullName, setFullName] = useState('');
+  const [code, setCode] = useState('');
+  const [department, setDepartment] = useState('');
+  const [position, setPosition] = useState('Nhân viên');
+  const [hireDate, setHireDate] = useState(new Date().toISOString().slice(0, 10));
+  const [baseSalary, setBaseSalary] = useState('6500000');
+  const [employmentType, setEmploymentType] = useState<'OFFICIAL' | 'PROBATION'>('OFFICIAL');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('NinhVaNa@2026');
+  const [error, setError] = useState<string | null>(null);
+  const create = useMutation({
+    mutationFn: () => api('/hr/employees/account', { method: 'POST', body: { fullName, code: code || undefined, department, position, hireDate, baseSalary: Number(baseSalary), employmentType, email, password } }),
+    onSuccess: async () => { toast.success('Đã tạo nhân viên và tài khoản đăng nhập'); setFullName(''); setCode(''); setEmail(''); onOpenChange(false); await onSaved(); },
+    onError: (cause) => setError(cause instanceof Error ? cause.message : 'Không tạo được nhân viên'),
+  });
+  useEffect(() => { if (open && !department && departments[0]) setDepartment(departments[0].code); }, [open, department, departments]);
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent wide><DialogHeader><DialogTitle>Thêm nhân viên & tài khoản</DialogTitle><DialogDescription>Tạo hồ sơ nhân sự và tài khoản đăng nhập. Nhân viên thử việc chỉ có quyền dashboard và đơn nghỉ phép.</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-2">
+    <div><Label>Họ và tên</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+    <div><Label>Mã nhân viên</Label><Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Tự sinh nếu để trống" /></div>
+    <div><Label>Bộ phận</Label><NativeSelect value={department} onChange={(e) => setDepartment(e.target.value)}>{departments.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}</NativeSelect></div>
+    <div><Label>Chức danh</Label><Input value={position} onChange={(e) => setPosition(e.target.value)} /></div>
+    <div><Label>Ngày vào làm</Label><Input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} /></div>
+    <div><Label>Lương cơ bản</Label><Input inputMode="numeric" value={baseSalary} onChange={(e) => setBaseSalary(e.target.value)} /></div>
+    <div><Label>Loại nhân sự</Label><NativeSelect value={employmentType} onChange={(e) => setEmploymentType(e.target.value as 'OFFICIAL' | 'PROBATION')}><option value="OFFICIAL">Chính thức</option><option value="PROBATION">Thử việc</option></NativeSelect></div>
+    <div><Label>Email đăng nhập</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+    <div><Label>Mật khẩu ban đầu</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+  </div>{error ? <p className="mt-2 text-xs text-danger">{error}</p> : null}<div className="mt-4 flex justify-end gap-2"><Button variant="secondary" size="sm" onClick={() => onOpenChange(false)}>Huỷ</Button><Button size="sm" disabled={!canManage || !fullName || !department || !email || create.isPending} onClick={() => create.mutate()}>{create.isPending ? <Loader2 className="animate-spin" /> : <Plus />} Tạo nhân viên</Button></div></DialogContent></Dialog>;
 }
 
 function Kpi({ icon: Icon, label, value, hint }: { icon: typeof Users; label: string; value: string; hint: string }) {

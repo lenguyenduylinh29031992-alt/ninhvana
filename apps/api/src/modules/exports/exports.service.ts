@@ -17,6 +17,12 @@ const STATUS_LABELS: Record<string, string> = {
 export class ExportsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async departmentScope(actor: AuthUser) {
+    const user = await this.prisma.user.findUnique({ where: { id: actor.id }, select: { departmentCode: true } });
+    const elevated = actor.orgWide || actor.roles.some((role) => ['SUPER_ADMIN','CHAIRMAN','CEO','CFO','HR_MANAGER','PROPERTY_MANAGER'].includes(role.roleCode));
+    return elevated ? undefined : user?.departmentCode ?? undefined;
+  }
+
   private async data(actor: AuthUser, dataset: string): Promise<DataSet> {
     switch (dataset) {
       case 'marketing': {
@@ -79,7 +85,12 @@ export class ExportsService {
         };
       }
       case 'payroll': {
+        const department = await this.departmentScope(actor);
         const runs = await this.prisma.payrollRun.findMany({ where: { orgId: actor.orgId }, include: { lines: true }, orderBy: { period: 'desc' }, take: 24 });
+        if (department) {
+          const scoped = runs.map((run) => ({ ...run, lines: run.lines.filter((line) => line.department === department) }));
+          return { title: 'Bảng lương bộ phận', columns: ['Kỳ', 'Trạng thái', 'Nhân viên', 'Tổng gross', 'Khấu trừ', 'Thực lĩnh'], rows: scoped.map((run) => [run.period, run.status, run.lines.length, run.lines.reduce((sum, line) => sum + Number(line.gross), 0), run.lines.reduce((sum, line) => sum + Number(line.insuranceEmployee) + Number(line.unionFee) + Number(line.tax), 0), run.lines.reduce((sum, line) => sum + Number(line.net), 0)]) };
+        }
         return {
           title: 'Bảng lương',
           columns: ['Kỳ', 'Trạng thái', 'Nhân viên', 'Tổng gross', 'Khấu trừ', 'Thực lĩnh'],
@@ -120,12 +131,20 @@ export class ExportsService {
         };
       }
       case 'employees': {
-        const employees = await this.prisma.employee.findMany({ where: { orgId: actor.orgId }, orderBy: { code: 'asc' }, take: 1000 });
+        const department = await this.departmentScope(actor);
+        const employees = await this.prisma.employee.findMany({ where: { orgId: actor.orgId, ...(department ? { department } : {}) }, orderBy: { code: 'asc' }, take: 1000 });
         return {
           title: 'Hồ sơ nhân sự',
           columns: ['Mã', 'Họ tên', 'Bộ phận', 'Chức danh', 'Trạng thái', 'Ngày vào làm'],
           rows: employees.map((employee) => [employee.code, employee.fullName, employee.department, employee.position, employee.status, employee.hireDate?.toISOString().slice(0, 10) ?? '']),
         };
+      }
+      case 'attendance': {
+        const department = await this.departmentScope(actor);
+        const employees = await this.prisma.employee.findMany({ where: { orgId: actor.orgId, ...(department ? { department } : {}) }, select: { id: true, code: true, fullName: true, department: true } });
+        const records = await this.prisma.attendance.findMany({ where: { employeeId: { in: employees.map((employee) => employee.id) } }, orderBy: [{ date: 'desc' }], take: 5000 });
+        const employeeMap = new Map(employees.map((employee) => [employee.id, employee]));
+        return { title: 'Bảng chấm công', columns: ['Ngày', 'Mã NV', 'Họ tên', 'Bộ phận', 'Giờ vào', 'Giờ ra', 'Giờ công', 'Tăng ca', 'Trạng thái', 'Ghi chú'], rows: records.map((record) => { const employee = employeeMap.get(record.employeeId); return [record.date.toISOString().slice(0, 10), employee?.code ?? '', employee?.fullName ?? '', employee?.department ?? '', record.checkIn ?? '', record.checkOut ?? '', Number(record.hours), Number(record.overtimeHours), record.status, record.notes ?? '']; }) };
       }
       default:
         throw new Error(`Unknown dataset: ${dataset}`);
