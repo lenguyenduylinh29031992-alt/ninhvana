@@ -105,7 +105,7 @@ export function MobileTabBar() {
   const isActive = (tab: Tab) => tab.match.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   return (
-    <nav aria-label="Điều hướng di động" className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-line/80 bg-canvas/95 pb-[max(6px,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgba(16,42,60,0.07)] backdrop-blur-xl lg:hidden">
+    <nav aria-label="Điều hướng di động" className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-line/80 bg-canvas pb-[max(10px,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgba(16,42,60,0.07)] backdrop-blur-xl lg:hidden">
       <div className="mx-auto flex h-[62px] max-w-xl items-end px-1">
         <div className="grid flex-1 grid-cols-2 items-end justify-items-stretch gap-1">
           {leftTabs.map((tab) => <MobileTab key={`${tab.href}-${tab.label}`} tab={tab} active={isActive(tab)} count={badgeData?.badges[tab.href] ?? 0} />)}

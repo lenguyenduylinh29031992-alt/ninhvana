@@ -6,12 +6,15 @@
   "server": {
     "androidScheme": "https",
     "cleartext": true,
-    "allowNavigation": ["*"]
+    "allowNavigation": [
+      "*"
+    ]
   },
   "android": {
     "allowMixedContent": true
   },
   "ios": {
-    "contentInset": "automatic"
+    "contentInset": "never",
+    "backgroundColor": "#FAF7F2"
   }
 }

@@ -80,7 +80,7 @@ export function Topbar({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-[68px] items-center gap-3 border-b border-line/80 bg-canvas/90 px-4 backdrop-blur-xl md:px-7 lg:px-10">
+    <header className="sticky top-0 z-30 flex h-[calc(68px+env(safe-area-inset-top))] items-center gap-3 border-b border-line/80 bg-canvas/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl md:px-7 lg:px-10">
       <Button
         variant="ghost"
         size="icon"
