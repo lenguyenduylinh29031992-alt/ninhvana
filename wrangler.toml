@@ -3,4 +3,4 @@ main = "cloudflare/worker.js"
 compatibility_date = "2026-10-26"
 
 [vars]
-ORIGIN_URL = "https://checked-pregnancy-locate-bytes.trycloudflare.com"
+ORIGIN_URL = "https://arguments-twin-cited-permit.trycloudflare.com"

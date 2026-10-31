@@ -408,3 +408,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Tách outlet SPA khỏi POS Nhà hàng; POS chỉ còn RESTAURANT/BAR.
 - Trang Spa có phòng trị liệu, liệu trình, khách lẻ, gửi yêu cầu/thanh toán.
 - Mobile: nhân sự SPA vào thẳng `/spa`.
+
+
+## Watchdog tự phục hồi tunnel (2026-10-31)
+
+- Cloudflare quick tunnel bị xoá phía server (`Tunnel not found`), không thể reconnect.
+- Thêm `scripts/watchdog.sh` chạy trong screen: kiểm tra DB/API/web/tunnel mỗi 30 giây.
+- Tunnel mới dùng `--protocol http2`; tự cập nhật `ORIGIN_URL` và deploy Worker.
+- Đã thử kill cloudflared: watchdog tạo tunnel mới và Worker trả 200 trong ~50 giây.

@@ -10,8 +10,8 @@ fi
 if ! curl -fsS --max-time 3 http://127.0.0.1:3000/login >/dev/null; then
   echo "Web local chưa chạy trên cổng 3000."; exit 1
 fi
-pkill -f "cloudflared tunnel --url http://127.0.0.1:3000" 2>/dev/null || true
-nohup "$BIN" tunnel --url http://127.0.0.1:3000 --no-autoupdate > "$LOG" 2>&1 &
+pkill -f "cloudflared tunnel .*http://127.0.0.1:3000" 2>/dev/null || true
+nohup "$BIN" tunnel --protocol http2 --url http://127.0.0.1:3000 --no-autoupdate > "$LOG" 2>&1 &
 echo $! > "$ROOT/.dev/cloudflared.pid"
 for _ in $(seq 1 20); do
   URL=$(strings "$LOG" | grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' | head -1 || true)
