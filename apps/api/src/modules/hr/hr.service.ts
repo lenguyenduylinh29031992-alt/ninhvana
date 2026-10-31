@@ -109,7 +109,7 @@ export class HrService {
     const scope = await this.scope(actor);
     const department = scope.department ?? input.department;
     const status = input.employmentType === 'PROBATION' ? 'PROBATION' : 'ACTIVE';
-    const officialRoles: Record<string, string> = { FRONT_OFFICE: 'FRONT_DESK', FRONTDESK: 'FRONT_DESK', RECEPTION: 'FRONT_DESK', HOUSEKEEPING: 'HOUSEKEEPING', FNB: 'CASHIER', FB: 'CASHIER', KITCHEN: 'CASHIER', HR: 'HR_MANAGER', SALES: 'MARKETING', MARKETING: 'MARKETING', WAREHOUSE: 'WAREHOUSE', MAINTENANCE: 'HOUSEKEEPING' };
+    const officialRoles: Record<string, string> = { FRONT_OFFICE: 'FRONT_DESK', FRONTDESK: 'FRONT_DESK', RECEPTION: 'FRONT_DESK', HOUSEKEEPING: 'HOUSEKEEPING', FNB: 'CASHIER', FB: 'CASHIER', KITCHEN: 'CASHIER', HR: 'HR_STAFF', SALES: 'MARKETING', MARKETING: 'MARKETING', WAREHOUSE: 'WAREHOUSE', MAINTENANCE: 'HOUSEKEEPING' };
     const roleCode = input.roleCode || (status === 'PROBATION' ? 'PROBATION' : officialRoles[department] ?? 'HOUSEKEEPING');
     const propertyId = input.propertyId ?? (await this.propertyId(actor));
     const code = input.code?.trim() || `NV-${Date.now().toString().slice(-6)}`;
