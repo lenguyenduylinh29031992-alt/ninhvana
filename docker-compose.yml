@@ -87,7 +87,7 @@ services:
       web:
         condition: service_started
     ports:
-      - '10000:10000'
+      - '3000:10000'
     volumes:
       - ./docker/Caddyfile.local:/etc/caddy/Caddyfile:ro
     healthcheck:
@@ -111,7 +111,7 @@ services:
       NEXT_PUBLIC_WS_URL: ${PUBLIC_WS_URL:-http://localhost:4000}
       TZ: Asia/Ho_Chi_Minh
     ports:
-      - '3000:3000'
+      - '3001:3000'
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
