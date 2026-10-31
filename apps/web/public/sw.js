@@ -1,4 +1,4 @@
-const CACHE = 'grand-suite-v1';
+const CACHE = 'grand-suite-v2';
 const PRECACHE = ['/offline', '/manifest.webmanifest', '/icon.svg'];
 
 self.addEventListener('install', (event) => {
@@ -20,8 +20,11 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(request, copy));
+        // Never cache a maintenance/error document: it would survive the outage.
+        if (response.ok && response.status === 200) {
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put(request, copy));
+        }
         return response;
       }).catch(async () => (await caches.match(request)) ?? caches.match('/offline')),
     );
