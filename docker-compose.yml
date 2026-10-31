@@ -78,6 +78,24 @@ services:
       retries: 12
       start_period: 40s
 
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+    ports:
+      - '10000:10000'
+    volumes:
+      - ./docker/Caddyfile.local:/etc/caddy/Caddyfile:ro
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:10000/api/v1/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
   web:
     build:
       context: .
