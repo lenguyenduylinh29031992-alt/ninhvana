@@ -25,3 +25,10 @@
 Ảnh:
 - `docs/evidence/ui-refresh-dashboard-1440.png`
 - `docs/evidence/ui-refresh-hr-1440.png`
+
+
+## Mobile tab bar
+
+- Luôn đủ 2 tab trái + tab trung tâm + 2 tab phải.
+- Tab dự phòng được chọn theo quyền của bộ phận.
+- Ảnh: `docs/evidence/mobile-tabs-balanced-housekeeping-390.png`.

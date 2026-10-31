@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   BedDouble, CalendarDays, Calculator, ChefHat, ConciergeBell, Inbox, LayoutDashboard, MapPinned,
-  Megaphone, Package, Plug, Radio, Settings, Sparkles, Star, Users, UtensilsCrossed, Wallet, Wrench,
+  Megaphone, Package, Plug, Radio, RefreshCw, Settings, Sparkles, Star, Users, UtensilsCrossed, Wallet, Wrench,
 } from 'lucide-react';
 import { useAccess } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { useNavBadges } from '@/lib/nav-badges';
+import { canSeeRevenue } from '@/lib/visibility';
 
 type Icon = typeof LayoutDashboard;
 type Tab = { href: string; label: string; icon: Icon; match: string[]; permission: string };
@@ -47,6 +48,23 @@ const DEPARTMENTS: Record<string, Tab & { slot: Slot }> = {
   ADMIN: { slot: 'ops', href: '/settings', label: 'Cấu hình', icon: Settings, match: ['/settings'], permission: 'settings:view' },
 };
 
+const REVENUE_TABS = new Set(['/marketing', '/crm', '/reviews', '/channels', '/revenue', '/finance', '/rate-approvals', '/night-audit']);
+
+const FALLBACK_TABS: Tab[] = [
+  { href: '/updates', label: 'Cập nhật', icon: RefreshCw, match: ['/updates'], permission: 'dashboard:view' },
+  { href: '/front-desk', label: 'Lễ tân', icon: ConciergeBell, match: ['/front-desk'], permission: 'reservation:view' },
+  { href: '/housekeeping', label: 'Buồng phòng', icon: Sparkles, match: ['/housekeeping'], permission: 'housekeeping:view' },
+  { href: '/property-map', label: 'Cơ sở', icon: MapPinned, match: ['/property-map'], permission: 'property:view' },
+  { href: '/reservations', label: 'Đặt phòng', icon: CalendarDays, match: ['/reservations'], permission: 'reservation:view' },
+  { href: '/costs', label: 'Chi phí', icon: Wallet, match: ['/costs'], permission: 'expense:view' },
+  { href: '/purchasing', label: 'Mua hàng', icon: Package, match: ['/purchasing'], permission: 'purchase:view' },
+  { href: '/inventory', label: 'Kho', icon: Package, match: ['/inventory'], permission: 'inventory:view' },
+  { href: '/hr', label: 'Nhân sự', icon: Users, match: ['/hr'], permission: 'payroll:view' },
+  { href: '/payroll', label: 'Lương', icon: Wallet, match: ['/payroll'], permission: 'payroll:view' },
+  { href: '/reports', label: 'Báo cáo', icon: CalendarDays, match: ['/reports'], permission: 'report:view' },
+  { href: '/settings', label: 'Cấu hình', icon: Settings, match: ['/settings'], permission: 'settings:view' },
+];
+
 export function MobileTabBar() {
   const pathname = usePathname();
   const { can, user } = useAccess();
@@ -64,8 +82,26 @@ export function MobileTabBar() {
     const index = department.slot === 'ops' ? 0 : department.slot === 'sales' ? 1 : department.slot === 'marketing' ? 3 : 4;
     tabs[index] = department;
   }
-  const leftTabs = tabs.slice(0, 2).filter((tab) => can(tab.permission));
-  const rightTabs = tabs.slice(3, 5).filter((tab) => can(tab.permission));
+
+  // The center is always fixed. Fill both sides to exactly two entries so
+  // back-office roles do not get a lopsided bar with an empty right side.
+  const allowed = (tab: Tab) => (!tab.permission || can(tab.permission))
+    && (canSeeRevenue(user?.departmentCode) || !REVENUE_TABS.has(tab.href));
+  const pool = [...tabs, ...FALLBACK_TABS].filter(allowed);
+  const fillSide = (preferred: Tab[], used: Set<string>) => {
+    const result: Tab[] = [];
+    for (const tab of [...preferred, ...pool]) {
+      if (result.length >= 2) break;
+      if (!allowed(tab) || tab.href === CENTER.href || used.has(tab.href)) continue;
+      result.push(tab);
+      used.add(tab.href);
+    }
+    return result;
+  };
+  const used = new Set<string>([CENTER.href]);
+  const leftPreferred = marketingSet ? tabs.slice(0, 2) : [department, BASE.ops, BASE.sales].filter((tab): tab is Tab => Boolean(tab));
+  const leftTabs = fillSide(leftPreferred, used);
+  const rightTabs = fillSide(marketingSet ? tabs.slice(3, 5) : [BASE.marketing, BASE.finance, ...FALLBACK_TABS], used);
   const isActive = (tab: Tab) => tab.match.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   return (

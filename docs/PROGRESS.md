@@ -424,3 +424,10 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Ẩn nhóm Thương mại, dashboard doanh thu/ADR/14 ngày/TRevPAR với buồng phòng, bảo trì, HR, IT, mua hàng, vận hành cơ sở, năng lượng.
 - Command menu cũng lọc; direct URL vẫn bị permission chặn.
 - Kiểm tra admin/frontdesk thấy, housekeeping/HR không thấy.
+
+
+## Cân đối thanh tab mobile (2026-10-31)
+
+- Thanh dưới luôn có 2 mục bên trái + Trung tâm + 2 mục bên phải.
+- Bộ phận không có quyền doanh thu/tiếp thị được lấp bằng mục phù hợp: Cập nhật, Đặt phòng, Lương, Báo cáo…
+- Kiểm tra admin, lễ tân, buồng phòng, nhân sự: đều 5 mục, trung tâm cố định.
