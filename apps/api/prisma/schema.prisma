@@ -156,24 +156,24 @@ model Organization {
 }
 
 model PropertyArea {
-  id          String   @id @default(cuid())
-  orgId       String
-  propertyId  String
-  code        String
-  parentCode  String?
-  name        String
-  nameEn      String?
-  kind        String   @default("BUILDING")
-  floorLabel  String?
-  description String?
-  roomCount   Int      @default(0)
-  features    Json?
+  id               String            @id @default(cuid())
+  orgId            String
+  propertyId       String
+  code             String
+  parentCode       String?
+  name             String
+  nameEn           String?
+  kind             String            @default("BUILDING")
+  floorLabel       String?
+  description      String?
+  roomCount        Int               @default(0)
+  features         Json?
   departmentGroups DepartmentGroup[] @default([])
   departmentCodes  String[]          @default([])
-  sortOrder   Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  sortOrder        Int               @default(0)
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
@@ -300,13 +300,16 @@ model User {
 }
 
 model GoogleSheetSync {
-  key          String   @id
+  key          String    @id
   url          String
+  label        String?
+  department   String    @default("TIKTOK")
+  enabled      Boolean   @default(true)
   lastSyncedAt DateTime?
-  status       String   @default("IDLE")
+  status       String    @default("IDLE")
   message      String?
-  rows         Int      @default(0)
-  updatedAt    DateTime @updatedAt
+  rows         Int       @default(0)
+  updatedAt    DateTime  @updatedAt
 }
 
 model UserSectionRead {
@@ -1029,20 +1032,20 @@ enum RateRequestStatus {
 }
 
 model RateChangeRequest {
-  id             String            @id @default(cuid())
-  orgId          String
-  propertyId     String
-  roomTypeId     String
-  currentRate    Decimal           @db.Decimal(18, 2)
-  proposedRate   Decimal           @db.Decimal(18, 2)
-  effectiveFrom  DateTime          @db.Date
-  effectiveTo    DateTime?         @db.Date
-  reason         String
-  status         RateRequestStatus @default(PENDING)
-  requestedById  String
+  id              String            @id @default(cuid())
+  orgId           String
+  propertyId      String
+  roomTypeId      String
+  currentRate     Decimal           @db.Decimal(18, 2)
+  proposedRate    Decimal           @db.Decimal(18, 2)
+  effectiveFrom   DateTime          @db.Date
+  effectiveTo     DateTime?         @db.Date
+  reason          String
+  status          RateRequestStatus @default(PENDING)
+  requestedById   String
   requestedByName String
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   roomType  RoomType       @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
   approvals RateApproval[]
@@ -2407,44 +2410,107 @@ model PayrollLine {
 // ───────────────────────── CRM ─────────────────────────
 
 model GuestReview {
-  id          String   @id @default(cuid())
-  orgId       String
-  propertyId  String
-  guestId     String?
+  id            String    @id @default(cuid())
+  orgId         String
+  propertyId    String
+  guestId       String?
   reservationId String?
-  channelId   String?
-  rating      Int
-  cleanliness Int?
-  service     Int?
-  location    Int?
-  value       Int?
-  title       String?
-  comment     String?
-  response    String?
+  channelId     String?
+  rating        Int
+  cleanliness   Int?
+  service       Int?
+  location      Int?
+  value         Int?
+  title         String?
+  comment       String?
+  response      String?
   respondedById String?
-  respondedAt DateTime?
-  status      String   @default("NEW")
-  reviewDate  DateTime @db.Date
-  createdAt   DateTime @default(now())
+  respondedAt   DateTime?
+  status        String    @default("NEW")
+  reviewDate    DateTime  @db.Date
+  createdAt     DateTime  @default(now())
 
   @@index([orgId, status, reviewDate])
   @@index([propertyId, reviewDate])
 }
 
 model Campaign {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   orgId           String
   name            String
-  channel         String   @default("EMAIL")
-  segment         String   @default("ALL")
+  channel         String    @default("EMAIL")
+  segment         String    @default("ALL")
   subject         String
   body            String
-  status          String   @default("DRAFT")
+  status          String    @default("DRAFT")
   scheduledAt     DateTime?
   sentAt          DateTime?
-  recipientsCount Int      @default(0)
+  recipientsCount Int       @default(0)
   createdById     String?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
 
   @@index([orgId, status, createdAt])
+}
+
+// ───────────────────────── Budgets, roster & events ─────────────────────────
+
+model BudgetLine {
+  id         String   @id @default(cuid())
+  orgId      String
+  propertyId String
+  department String
+  period     String
+  category   String
+  planned    Decimal  @db.Decimal(18, 2)
+  actual     Decimal  @default(0) @db.Decimal(18, 2)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([propertyId, department, period, category])
+  @@index([orgId, period])
+}
+
+model ShiftAssignment {
+  id           String   @id @default(cuid())
+  orgId        String
+  propertyId   String
+  department   String
+  employeeId   String?
+  employeeName String
+  date         DateTime @db.Date
+  startTime    String
+  endTime      String
+  role         String?
+  status       String   @default("SCHEDULED")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([propertyId, date])
+  @@index([orgId, department, date])
+}
+
+model BanquetEvent {
+  id            String   @id @default(cuid())
+  orgId         String
+  propertyId    String
+  code          String
+  name          String
+  eventDate     DateTime @db.Date
+  startTime     String?
+  endTime       String?
+  venue         String?
+  guests        Int      @default(1)
+  status        String   @default("TENTATIVE")
+  contractValue Decimal  @default(0) @db.Decimal(18, 2)
+  deposit       Decimal  @default(0) @db.Decimal(18, 2)
+  contactName   String?
+  contactPhone  String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([propertyId, code])
+  @@index([propertyId, eventDate])
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS, attendanceSchema, employeeSchema, payrollRunSchema } from '@grand-suite/shared';
 import { z } from 'zod';
@@ -15,6 +15,12 @@ export class HrController {
 
   @Get('sheets/status') @Permissions(PERMISSIONS.PAYROLL_VIEW)
   sheetStatus(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) { return this.sheets.status(actor, propertyId); }
+
+  @Get('sheets/config') @Permissions(PERMISSIONS.PAYROLL_VIEW)
+  sheetConfig(@CurrentUser() actor: AuthUser) { return this.sheets.config(actor); }
+
+  @Put('sheets/config') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
+  updateSheetConfig(@CurrentUser() actor: AuthUser, @Body() body: { key: string; url: string; label?: string; department?: string; enabled?: boolean }) { return this.sheets.updateConfig(actor, body); }
 
   @Post('sheets/sync') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
   syncSheets(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) { return this.sheets.sync(actor, propertyId); }

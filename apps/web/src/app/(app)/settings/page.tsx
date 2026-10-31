@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BadgePercent,
@@ -11,6 +11,8 @@ import {
   Plus,
   Save,
   Settings2,
+  Sheet,
+  RefreshCw,
 } from 'lucide-react';
 import type { ExchangeRateRecord, SettingRecord, TaxRateRecord } from '@grand-suite/shared';
 import { toast } from 'sonner';
@@ -150,6 +152,11 @@ export default function SettingsPage() {
           <TabsTrigger value="templates">
             <FileText className="mr-1.5 size-3.5" /> Mẫu in
           </TabsTrigger>
+          {can('payroll:view') ? (
+            <TabsTrigger value="sheets">
+              <Sheet className="mr-1.5 size-3.5" /> Chấm công & lương
+            </TabsTrigger>
+          ) : null}
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">
@@ -410,6 +417,11 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        {can('payroll:view') ? (
+          <TabsContent value="sheets">
+            <SheetSettings canManage={can('payroll:manage')} />
+          </TabsContent>
+        ) : null}
       </Tabs>
 
       <SettingDialog
@@ -807,3 +819,64 @@ function ExchangeRateDialog({
   );
 }
 
+
+
+interface SheetSource {
+  key: string;
+  url: string;
+  label: string | null;
+  department: string;
+  enabled: boolean;
+  status: string;
+  message: string | null;
+  rows: number;
+  lastSyncedAt: string | null;
+}
+
+function SheetSettings({ canManage }: { canManage: boolean }) {
+  const queryClient = useQueryClient();
+  const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; department: string; enabled: boolean }>>({});
+  const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
+  useEffect(() => {
+    if (!sources.data) return;
+    setDrafts(Object.fromEntries(sources.data.map((source) => [source.key, { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled }])));
+  }, [sources.data]);
+  const save = useMutation({
+    mutationFn: (key: string) => {
+      const draft = drafts[key];
+      return api('/hr/sheets/config', { method: 'PUT', body: { key, url: draft.url, label: draft.label, department: draft.department, enabled: draft.enabled } });
+    },
+    onSuccess: async () => { toast.success('Đã lưu cấu hình Google Sheet'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
+    onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không lưu được cấu hình'),
+  });
+  const syncAll = useMutation({
+    mutationFn: () => api('/hr/sheets/sync', { method: 'POST' }),
+    onSuccess: async () => { toast.success('Đã bắt đầu đồng bộ Google Sheet'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
+    onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không đồng bộ được'),
+  });
+  return (
+    <Card>
+      <CardHeader className="flex-row items-center justify-between">
+        <div><CardTitle>Chấm công & tính lương từ Google Sheet</CardTitle><CardDescription>Mỗi nguồn gắn với một bộ phận. Dán link Google Sheet công khai hoặc link export CSV; hệ thống tự đồng bộ mỗi 15 phút.</CardDescription></div>
+        <Button size="sm" variant="secondary" disabled={!canManage || syncAll.isPending} onClick={() => syncAll.mutate()}><RefreshCw className={syncAll.isPending ? 'animate-spin' : ''} /> Đồng bộ tất cả</Button>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {(sources.data ?? []).map((source) => {
+          const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled };
+          return (
+            <div key={source.key} className="rounded-xl border border-line p-3">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">{source.key === 'attendance' ? 'Chấm công' : source.key === 'payroll' ? 'Tính lương' : 'Chi phí đi chợ'}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
+              <div className="grid gap-2 md:grid-cols-[1.6fr_1fr_1fr_auto]">
+                <div><Label>Link Google Sheet</Label><Input value={draft.url} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, url: e.target.value } }))} /></div>
+                <div><Label>Tên hiển thị</Label><Input value={draft.label} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, label: e.target.value } }))} /></div>
+                <div><Label>Bộ phận</Label><Input value={draft.department} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, department: e.target.value.toUpperCase() } }))} placeholder="TIKTOK" /></div>
+                <div className="flex items-end gap-2"><Button size="sm" disabled={!canManage || save.isPending} onClick={() => save.mutate(source.key)}>Lưu</Button><Button size="sm" variant="secondary" disabled={!canManage} onClick={() => setDrafts((current) => ({ ...current, [source.key]: { ...draft, enabled: !draft.enabled } }))}>{draft.enabled ? 'Tắt' : 'Bật'}</Button></div>
+              </div>
+              {source.message ? <p className="mt-2 text-[10px] text-muted-foreground">{source.message}</p> : null}
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
+}

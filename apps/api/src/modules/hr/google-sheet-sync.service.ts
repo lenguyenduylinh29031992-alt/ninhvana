@@ -71,6 +71,23 @@ export class GoogleSheetSyncService implements OnModuleInit {
     return this.prisma.googleSheetSync.findMany({ orderBy: { key: 'asc' } });
   }
 
+  async config(_actor: AuthUser) {
+    const rows = await this.prisma.googleSheetSync.findMany({ orderBy: { key: 'asc' } });
+    const keys = Object.keys(SOURCES) as Array<keyof typeof SOURCES>;
+    return keys.map((key) => rows.find((row) => row.key === key) ?? { key, url: SOURCES[key].url, label: SOURCES[key].label, department: 'TIKTOK', enabled: true, status: 'IDLE', message: null, rows: 0, lastSyncedAt: null });
+  }
+
+  async updateConfig(actor: AuthUser, input: { key: string; url: string; label?: string; department?: string; enabled?: boolean }) {
+    if (!(input.key in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
+    if (!/^https:\/\/docs\.google\.com\//.test(input.url)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Liên kết phải là Google Sheets', 422);
+    const existing = await this.prisma.googleSheetSync.findUnique({ where: { key: input.key } });
+    return this.prisma.googleSheetSync.upsert({
+      where: { key: input.key },
+      update: { url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || existing?.department || 'TIKTOK', enabled: input.enabled ?? true },
+      create: { key: input.key, url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || 'TIKTOK', enabled: input.enabled ?? true },
+    });
+  }
+
   async sync(actor: AuthUser, propertyId?: string, key?: string) {
     if (propertyId) await this.assertProperty(actor, propertyId);
     if (key && !(key in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
@@ -91,16 +108,20 @@ export class GoogleSheetSyncService implements OnModuleInit {
       for (const [key, source] of Object.entries(SOURCES)) {
         if (onlyKey && key !== onlyKey) continue;
         try {
-          const response = await fetch(source.url, { headers: { 'user-agent': 'NinhVaNa-SheetSync/1.0' }, signal: AbortSignal.timeout(20_000) });
+          const configured = await this.prisma.googleSheetSync.findUnique({ where: { key } });
+          if (configured?.enabled === false) { result.push({ key, ok: true, rows: 0, message: 'Đang tắt' }); continue; }
+          const sourceUrl = configured?.url || source.url;
+          const department = (configured?.department || 'TIKTOK').toUpperCase();
+          const response = await fetch(sourceUrl, { headers: { 'user-agent': 'NinhVaNa-SheetSync/1.0' }, signal: AbortSignal.timeout(20_000) });
           if (!response.ok) throw new Error(`Google Sheet HTTP ${response.status}`);
           const rows = parseCsv(await response.text());
           let imported = rows.filter((row) => row.some((cell) => cell.trim())).length;
           const message = 'Đã tải dữ liệu nguồn';
-          if (key === 'attendance') imported = await this.importAttendance(property, rows);
-          if (key === 'payroll') imported = await this.importPayroll(property, rows);
+          if (key === 'attendance') imported = await this.importAttendance(property, rows, department);
+          if (key === 'payroll') imported = await this.importPayroll(property, rows, department);
           await this.prisma.googleSheetSync.upsert({
-            where: { key }, update: { url: source.url, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
-            create: { key, url: source.url, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
+            where: { key }, update: { url: sourceUrl, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
+            create: { key, url: sourceUrl, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
           });
           result.push({ key, ok: true, rows: imported, message });
         } catch (error) {
@@ -117,18 +138,18 @@ export class GoogleSheetSyncService implements OnModuleInit {
     } finally { this.running = false; }
   }
 
-  private async employee(orgId: string, propertyId: string, name: string, code?: string) {
+  private async employee(orgId: string, propertyId: string, name: string, department: string, code?: string) {
     const fullName = name.trim();
-    const existing = await this.prisma.employee.findFirst({ where: { orgId, fullName, department: 'TIKTOK' } });
+    const existing = await this.prisma.employee.findFirst({ where: { orgId, fullName, department } });
     if (existing) return existing;
     const employeeCode = code || `SHEET-${fullName.replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
     return this.prisma.employee.create({ data: {
-      orgId, propertyId, code: employeeCode, fullName, position: 'Nhân viên Marketing TikTok', department: 'TIKTOK',
+      orgId, propertyId, code: employeeCode, fullName, position: 'Nhân viên', department,
       hireDate: new Date('2026-10-01T00:00:00Z'), baseSalary: new Prisma.Decimal(6_500_000), status: 'ACTIVE',
     } });
   }
 
-  private async importAttendance(property: { id: string; orgId: string }, rows: CsvRow[]) {
+  private async importAttendance(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {
     const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
     const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
     const month = match ? Number(match[1]) : 10;
@@ -152,7 +173,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
         const name = (row[1] ?? '').trim();
         if (!name || normalize(name).startsWith('tổng công') || normalize(name).startsWith('số người') || normalize(name) === 'họ và tên') break;
         if (/^nhân viên\s+\d+$/i.test(name)) { rowIndex += 1; continue; }
-        const employee = await this.employee(property.orgId, property.id, name);
+        const employee = await this.employee(property.orgId, property.id, name, department);
         for (const [column, date] of dateColumns) {
           const meta = statusOf(row[column] ?? '');
           if (!meta) continue;
@@ -170,7 +191,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
     return count;
   }
 
-  private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[]) {
+  private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {
     const header = rows[0] ?? [];
     const title = header[2] ?? '';
     const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
@@ -194,7 +215,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
       const base = money(row[baseCol]);
       const rawNet = money(row[netCol]);
       if (!base || (base < 100_000 && rawNet === 0)) continue;
-      const employee = await this.employee(property.orgId, property.id, name);
+      const employee = await this.employee(property.orgId, property.id, name, department);
       const standardDays = money(row[standardCol]) || 27;
       const workDays = money(row[workCol]);
       const gross = Math.round((base / standardDays) * workDays);
@@ -203,7 +224,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
       await this.prisma.employee.update({ where: { id: employee.id }, data: { baseSalary: new Prisma.Decimal(base) } });
       await this.prisma.payrollLine.create({ data: {
         payrollRunId: run.id, employeeId: employee.id, employeeCode: employee.code, employeeName: name,
-        department: 'TIKTOK', baseSalary: new Prisma.Decimal(base), gross: new Prisma.Decimal(gross),
+        department, baseSalary: new Prisma.Decimal(base), gross: new Prisma.Decimal(gross),
         net: new Prisma.Decimal(net), advanceAmount: new Prisma.Decimal(advance), totalCost: new Prisma.Decimal(gross),
       } });
       count += 1;

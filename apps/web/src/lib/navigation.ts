@@ -79,7 +79,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/housekeeping', labelKey: 'nav.housekeeping', icon: ListChecks, permission: 'housekeeping:view' },
       { href: '/pos', labelKey: 'nav.pos', icon: UtensilsCrossed, permission: 'pos:view' },
       { href: '/pos/kds', labelKey: 'nav.kds', icon: ChefHat, permission: 'kds:view' },
-      { href: '/banquet', labelKey: 'nav.banquet', icon: Sparkles, permission: 'banquet:view', phase: 2 },
+      { href: '/banquet', labelKey: 'nav.banquet', icon: Sparkles, permission: 'banquet:view' },
     ],
   },
   {
@@ -111,7 +111,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/costs', labelKey: 'nav.costs', icon: Receipt, permission: 'expense:view' },
       { href: '/purchasing', labelKey: 'nav.purchasing', icon: ShoppingCart, permission: 'purchase:view' },
       { href: '/inventory', labelKey: 'nav.inventory', icon: PackageSearch, permission: 'inventory:view' },
-      { href: '/budgets', labelKey: 'nav.budgets', icon: Wallet, permission: 'budget:view', phase: 4 },
+      { href: '/budgets', labelKey: 'nav.budgets', icon: Wallet, permission: 'budget:view' },
       { href: '/finance', labelKey: 'nav.finance', icon: BarChart3, permission: 'finance:view' },
     ],
   },
@@ -120,7 +120,7 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'navGroup.people',
     items: [
       { href: '/hr', labelKey: 'nav.hr', icon: Users, permission: 'payroll:view' },
-      { href: '/roster', labelKey: 'nav.roster', icon: CalendarDays, permission: 'roster:view', phase: 4 },
+      { href: '/roster', labelKey: 'nav.roster', icon: CalendarDays, permission: 'roster:view' },
       { href: '/payroll', labelKey: 'nav.payroll', icon: CreditCard, permission: 'payroll:view' },
     ],
   },
@@ -129,7 +129,7 @@ export const NAV_SECTIONS: NavSection[] = [
     labelKey: 'navGroup.intelligence',
     items: [
       { href: '/reports', labelKey: 'nav.reports', icon: FileBarChart, permission: 'report:view' },
-      { href: '/assistant', labelKey: 'nav.assistant', icon: Bot, permission: 'assistant:use', phase: 5 },
+      { href: '/assistant', labelKey: 'nav.assistant', icon: Bot, permission: 'assistant:use' },
     ],
   },
   {
