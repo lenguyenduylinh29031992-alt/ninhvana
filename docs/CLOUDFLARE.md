@@ -5,7 +5,7 @@
 Worker tên `ninhvana` đã được deploy:
 
 ```text
-https://ninhvana.lenguyenduylinh29031992.workers.dev
+https://ninhvana-server.tail1116d8.ts.net
 ```
 
 Đăng nhập admin đã kiểm tra thành công qua URL này.
@@ -58,7 +58,7 @@ npx wrangler@latest versions upload --var ORIGIN_URL:https://app.ninhvana.vn
 
 Bản test dùng tên miền miễn phí:
 ```text
-https://ninhvana.lenguyenduylinh29031992.workers.dev
+https://ninhvana-server.tail1116d8.ts.net
 ```
 
 Không cần mua tên miền. Nếu sau này muốn dùng `app.ninhvana.vn`:
@@ -69,7 +69,7 @@ Không cần mua tên miền. Nếu sau này muốn dùng `app.ninhvana.vn`:
 4. Nhập `app.ninhvana.vn`; Cloudflare tự tạo DNS + chứng chỉ.
 5. Thêm origin này vào `ALLOWED_ORIGINS` của API:
    ```env
-   ALLOWED_ORIGINS=https://app.ninhvana.vn,https://ninhvana.lenguyenduylinh29031992.workers.dev
+   ALLOWED_ORIGINS=https://app.ninhvana.vn,https://ninhvana-server.tail1116d8.ts.net
    ```
 6. Khởi động lại API.
 

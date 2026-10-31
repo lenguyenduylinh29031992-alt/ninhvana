@@ -28,7 +28,7 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Android:** [`docs/ANDROID-SETUP.md`](docs/ANDROID-SETUP.md).
 
-**Cloudflare test:** https://ninhvana.lenguyenduylinh29031992.workers.dev ·  [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md).
+**Cloudflare test:** https://ninhvana-server.tail1116d8.ts.net ·  [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md).
 
 **VPS miễn phí:** [`docs/FREE-VPS.md`](docs/FREE-VPS.md).
 
@@ -73,7 +73,7 @@ cp .env.example .env          # điền secret thật nếu triển khai ngoài 
 docker compose up -d --build
 ```
 
-- Web: <https://ninhvana.lenguyenduylinh29031992.workers.dev/login>
+- Web: <https://ninhvana-server.tail1116d8.ts.net/login>
 - API + Swagger: <http://localhost:4000/api/docs>
 - MailHog (email demo): <http://localhost:8025>
 

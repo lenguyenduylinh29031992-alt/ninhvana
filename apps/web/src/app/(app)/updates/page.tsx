@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/ui/feedback';
 import { cn } from '@/lib/utils';
 
 interface Health { status: string; version?: string; environment?: string; uptimeSeconds?: number; timestamp?: string }
-const TEST_URL = 'https://ninhvana.lenguyenduylinh29031992.workers.dev/login';
+const TEST_URL = 'https://ninhvana-server.tail1116d8.ts.net/login';
 const RELEASES = [
   { date: '2026-10-26', version: '0.1.0', title: 'Loại phòng, duyệt giá & dữ liệu thử', items: ['27 phòng theo sơ đồ A1/A2/A3', 'Quy trình ký duyệt giá phòng trực tuyến', 'Dữ liệu demo có thể xoá cho khách/đặt phòng/CRM/chi phí', 'Khoá zoom và cố định thanh icon mobile', 'Sửa tương phản form ở giao diện tối', 'Tự tìm máy chủ và hàng đợi offline', 'Bộ cài VPS/Caddy cho chạy 24/7', 'Badge số cập nhật chưa đọc theo tài khoản'] },
   { date: '2026-10-25', version: '0.1.0', title: 'Marketing TikTok & nhân sự', items: ['Kênh TikTok và 4 mục nội dung', 'Bộ phận Marketing TikTok', 'Chấm công và bảng lương Marketing', 'Icon điều hướng theo bộ phận'] },
@@ -42,7 +42,7 @@ export default function UpdatesPage() {
   useEffect(() => { void check(); }, []);
 
   return <div className="space-y-4">
-    <PageHeader eyebrow="Hệ thống · Phiên bản" title="Cập nhật phần mềm" description="Theo dõi phiên bản máy chủ, xem tính năng mới và hướng dẫn cập nhật trên từng thiết bị." actions={<div className="flex flex-wrap gap-2"><Button size="sm" variant="secondary" onClick={() => void check()} disabled={checking}><RefreshCw className={cn('size-4', checking && 'animate-spin')} /> Kiểm tra cập nhật</Button><Button size="sm" onClick={() => window.open('https://ninhvana.lenguyenduylinh29031992.workers.dev/login', '_blank')}><ExternalLink className="size-4" /> Mở bản Cloudflare</Button></div>} />
+    <PageHeader eyebrow="Hệ thống · Phiên bản" title="Cập nhật phần mềm" description="Theo dõi phiên bản máy chủ, xem tính năng mới và hướng dẫn cập nhật trên từng thiết bị." actions={<div className="flex flex-wrap gap-2"><Button size="sm" variant="secondary" onClick={() => void check()} disabled={checking}><RefreshCw className={cn('size-4', checking && 'animate-spin')} /> Kiểm tra cập nhật</Button><Button size="sm" onClick={() => window.open('https://ninhvana-server.tail1116d8.ts.net/login', '_blank')}><ExternalLink className="size-4" /> Mở bản Cloudflare</Button></div>} />
     <div className="grid gap-3 sm:grid-cols-3">
       <Card><CardContent className="p-4"><div className="flex items-start justify-between"><p className="label-xs">Phiên bản máy chủ</p><Server className="size-4 text-brand" /></div><p className="mt-2 font-display text-2xl text-ink">{health?.version ?? '—'}</p><p className="mt-1 text-[10px] text-muted-foreground">{health?.environment ?? 'Đang kiểm tra'} · {health?.status === 'ok' ? 'Hoạt động' : 'Chưa kết nối'}</p></CardContent></Card>
       <Card><CardContent className="p-4"><div className="flex items-start justify-between"><p className="label-xs">Thời gian chạy</p><ShieldCheck className="size-4 text-brand" /></div><p className="mt-2 font-display text-2xl text-ink">{uptime(health?.uptimeSeconds)}</p><p className="mt-1 text-[10px] text-muted-foreground">Máy chủ hiện tại</p></CardContent></Card>

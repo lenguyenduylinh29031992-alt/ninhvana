@@ -52,13 +52,17 @@ services:
       DATABASE_URL: postgresql://grandsuite:${POSTGRES_PASSWORD:-grandsuite}@db:5432/grandsuite?schema=public
       REDIS_URL: redis://redis:6379
       PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-only-access-secret-please-replace-000000}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-only-refresh-secret-please-replace-000000}
       COOKIE_SECRET: ${COOKIE_SECRET:-dev-only-cookie-secret-please-replace-0000000}
       CSRF_SECRET: ${CSRF_SECRET:-dev-only-csrf-secret-please-replace-00000000}
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-NinhVaNa@2026}
-      SEED_ON_START: 'true'
+      SEED_ON_START: 'false'
+      SEED_HISTORY_ON_START: 'false'
+      SEED_FINANCE_ON_START: 'false'
+      SEED_LONG_ON_START: 'false'
       SMTP_HOST: mailhog
       SMTP_PORT: 1025
       STORAGE_LOCAL_DIR: /app/uploads

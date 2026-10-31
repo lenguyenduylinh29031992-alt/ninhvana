@@ -4,7 +4,7 @@
 
 | Mục | Giá trị |
 |---|---|
-| Giao diện | https://ninhvana.lenguyenduylinh29031992.workers.dev/login |
+| Giao diện | https://ninhvana-server.tail1116d8.ts.net/login |
 | API / Swagger | http://localhost:4000/api/v1 · http://localhost:4000/api/docs |
 | MailHog (email demo) | http://localhost:8025 |
 | Mật khẩu demo | `NinhVaNa@2026` |
@@ -26,7 +26,7 @@ brew install docker docker-compose colima
 colima start --cpu 4 --memory 6 --disk 40
 cd "/Users/tt/Documents/deepseek-harness/QLDN NINHVANA"
 docker-compose up -d --build
-open https://ninhvana.lenguyenduylinh29031992.workers.dev/login
+open https://ninhvana-server.tail1116d8.ts.net/login
 ```
 
 Nếu dùng Docker Desktop thì lệnh là `docker compose up -d --build`.
@@ -67,7 +67,7 @@ pnpm --filter @grand-suite/web exec node e2e/screenshots.mjs  # ảnh 1920/768/3
 ```powershell
 cd "D:\duong-dan\QLDN NINHVANA"
 docker compose up -d --build
-Start-Process https://ninhvana.lenguyenduylinh29031992.workers.dev/login
+Start-Process https://ninhvana-server.tail1116d8.ts.net/login
 ```
 
 Nếu máy chỉ có Compose standalone: `docker-compose up -d --build`.
@@ -85,7 +85,7 @@ pnpm setup
 pnpm dev
 ```
 
-Mở `https://ninhvana.lenguyenduylinh29031992.workers.dev/login` bằng Chrome/Edge trên Windows (WSL2 forward cổng tự động). Chạy native PowerShell không có bash thì nên dùng Docker Desktop hoặc WSL2 vì `pnpm setup` là script bash.
+Mở `https://ninhvana-server.tail1116d8.ts.net/login` bằng Chrome/Edge trên Windows (WSL2 forward cổng tự động). Chạy native PowerShell không có bash thì nên dùng Docker Desktop hoặc WSL2 vì `pnpm setup` là script bash.
 
 ### Test trên Windows
 
@@ -164,7 +164,7 @@ Lưu ý iOS:
 
 ### iOS Simulator
 
-- Mở `https://ninhvana.lenguyenduylinh29031992.workers.dev/login` trực tiếp trong Safari của simulator (dùng chung network với macOS).
+- Mở `https://ninhvana-server.tail1116d8.ts.net/login` trực tiếp trong Safari của simulator (dùng chung network với macOS).
 
 ### Test trên iOS
 

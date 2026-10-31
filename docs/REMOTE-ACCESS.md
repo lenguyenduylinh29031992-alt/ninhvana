@@ -32,7 +32,7 @@ Sau đó nhấn **Kết nối**. Nếu vẫn lỗi:
 URL test miễn phí:
 
 ```text
-https://ninhvana.lenguyenduylinh29031992.workers.dev/login
+https://ninhvana-server.tail1116d8.ts.net/login
 ```
 
 Nhập URL này vào ô **Địa chỉ máy chủ** trong app iPhone, nhấn **Kết nối**. Không cần chung Wi-Fi; dùng được 4G/5G.
@@ -98,5 +98,5 @@ npx wrangler@latest deploy
 
 Sau đó mở lại:
 ```text
-https://ninhvana.lenguyenduylinh29031992.workers.dev/login
+https://ninhvana-server.tail1116d8.ts.net/login
 ```

@@ -3,4 +3,4 @@ main = "cloudflare/worker.js"
 compatibility_date = "2026-10-26"
 
 [vars]
-ORIGIN_URL = "https://breed-desired-place-villa.trycloudflare.com"
+ORIGIN_URL = "https://ninhvana-server.tail1116d8.ts.net"

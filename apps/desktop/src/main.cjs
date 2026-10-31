@@ -4,7 +4,7 @@ const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron')
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DEFAULT_URL = process.env.NINHVANA_URL || 'https://ninhvana.lenguyenduylinh29031992.workers.dev/login';
+const DEFAULT_URL = process.env.NINHVANA_URL || 'https://ninhvana-server.tail1116d8.ts.net/login';
 const configPath = () => path.join(app.getPath('userData'), 'server.json');
 
 function readServer() {

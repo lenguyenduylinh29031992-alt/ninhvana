@@ -20,7 +20,7 @@ screen -dmS ninhvana-watchdog bash -lc 'cd "/Users/tt/Documents/deepseek-harness
 ```bash
 screen -ls
 tail -20 .dev/watchdog.log
-curl -I https://ninhvana.lenguyenduylinh29031992.workers.dev/login
+curl -I https://ninhvana-server.tail1116d8.ts.net/login
 ```
 
 ## Lưu ý

@@ -21,7 +21,7 @@ docker compose up -d --build
 # hoặc local: pnpm dev
 ```
 
-- Desktop mặc định mở `https://ninhvana.lenguyenduylinh29031992.workers.dev/login`.
+- Desktop mặc định mở `https://ninhvana-server.tail1116d8.ts.net/login`.
 - Lần đầu mở, nếu chưa kết nối được, app hiện màn hình **Kết nối máy chủ** để nhập địa chỉ.
 - Đổi máy chủ về sau: menu **NinhVaNa → Đổi máy chủ…**.
 
@@ -50,7 +50,7 @@ Máy chủ có thể chạy trên chính máy Windows (`http://localhost:3000`) 
 2. Cài đặt: cho phép **Install unknown apps** cho ứng dụng quản lý tệp/Chrome.
 3. Mở **NinhVaNa**. Nhập địa chỉ máy chủ, ví dụ:
    - Cùng Wi-Fi với Mac/PC: `http://192.168.1.20:3000`
-   - Máy chủ đã public: `https://ninhvana.lenguyenduylinh29031992.workers.dev`
+   - Máy chủ đã public: `https://ninhvana-server.tail1116d8.ts.net`
 4. Địa chỉ được lưu lại cho các lần sau.
 
 Lưu ý: điện thoại và máy chủ phải cùng mạng, firewall mở cổng 3000; không dùng `localhost` trên điện thoại.

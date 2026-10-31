@@ -8,7 +8,7 @@ https://lenguyenduylinh29031992-alt.github.io/ninhvana/
 ```
 Trang này tự chuyển tới:
 ```text
-https://ninhvana.lenguyenduylinh29031992.workers.dev/
+https://ninhvana-server.tail1116d8.ts.net/
 ```
 
 ## Bật Pages

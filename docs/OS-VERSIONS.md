@@ -1,10 +1,10 @@
 # Trạng thái phiên bản theo hệ điều hành
 
-Cập nhật: 26/10/2026 · URL test chung: `https://ninhvana.lenguyenduylinh29031992.workers.dev/login`
+Cập nhật: 26/10/2026 · URL test chung: `https://ninhvana-server.tail1116d8.ts.net/login`
 
 | Nền tảng | Gói / cách chạy | Trạng thái | Ghi chú |
 |---|---|---|---|
-| Web + Cloudflare Worker | `https://ninhvana.lenguyenduylinh29031992.workers.dev/login` | **HTTP 200** | Đã test đăng nhập dashboard |
+| Web + Cloudflare Worker | `https://ninhvana-server.tail1116d8.ts.net/login` | **HTTP 200** | Đã test đăng nhập dashboard |
 | iOS Simulator | `dist/NinhVaNa-ios-simulator.zip` | **Đã build lại 26/10 09:25** | Mặc định mở URL `/login` mới |
 | Android | `dist/NinhVaNa-0.1.0-android.apk` | **Đã build lại 26/10 09:24** | v0.1.0, mặc định `/login`, debug-signed |
 | Desktop macOS | `dist/NinhVaNa-0.1.0-macos-arm64.dmg` | **Đã build lại 26/10 09:26** | Mặc định `/login`, chưa ký |

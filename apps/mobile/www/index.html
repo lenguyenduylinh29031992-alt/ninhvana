@@ -53,7 +53,7 @@
     <h1>Mở NinhVaNa trên thiết bị của bạn.</h1>
     <p>Nhập địa chỉ máy chủ hoặc để ứng dụng tự tìm máy chủ công khai / máy chủ trong mạng nội bộ.</p>
     <label for="server">Địa chỉ máy chủ</label>
-    <input id="server" type="url" inputmode="url" autocomplete="url" placeholder="https://ninhvana.lenguyenduylinh29031992.workers.dev/login" />
+    <input id="server" type="url" inputmode="url" autocomplete="url" placeholder="https://ninhvana-server.tail1116d8.ts.net/login" />
     <div class="discover-row"><button id="open" type="button">Kết nối</button><button id="discover" class="secondary" type="button">Tự động tìm</button></div>
     <div class="error" id="error"></div>
     <div class="discovery" id="discovery"></div>
@@ -84,7 +84,7 @@
     let timer = null;
     let currentUrl = '';
 
-    const PUBLIC_FALLBACK = localStorage.getItem('ninhvana.public') || 'https://ninhvana.lenguyenduylinh29031992.workers.dev/login';
+    const PUBLIC_FALLBACK = localStorage.getItem('ninhvana.public') || 'https://ninhvana-server.tail1116d8.ts.net/login';
     const LOCAL_FALLBACK = 'http://ninhvana.local:3000';
     input.value = localStorage.getItem('ninhvana.server') || PUBLIC_FALLBACK;
     const discovery = document.getElementById('discovery');

@@ -40,7 +40,7 @@ workers.dev (miễn phí)
 4. Đặt:
    ```env
    APP_DOMAIN=<IP>.sslip.io
-   ALLOWED_ORIGINS=https://<IP>.sslip.io,https://ninhvana.lenguyenduylinh29031992.workers.dev
+   ALLOWED_ORIGINS=https://<IP>.sslip.io,https://ninhvana-server.tail1116d8.ts.net
    ```
 5. Chạy:
    ```bash
@@ -56,7 +56,7 @@ workers.dev (miễn phí)
    ```
 8. Giữ nguyên link test:
    ```text
-   https://ninhvana.lenguyenduylinh29031992.workers.dev/login
+   https://ninhvana-server.tail1116d8.ts.net/login
    ```
 
 ## Việc tôi cần từ bạn
