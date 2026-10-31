@@ -11,6 +11,7 @@ import { useI18n } from '@/lib/i18n';
 import { NAV_SECTIONS, type NavItem } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import { useNavBadges } from '@/lib/nav-badges';
+import { canSeeRevenue } from '@/lib/visibility';
 
 export function Sidebar({
   user,
@@ -80,6 +81,7 @@ export function Sidebar({
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           {NAV_SECTIONS.map((section) => {
+            if (section.revenueOnly && !canSeeRevenue(user.departmentCode)) return null;
             const items = section.items.filter(allowed);
             if (items.length === 0) return null;
             return (

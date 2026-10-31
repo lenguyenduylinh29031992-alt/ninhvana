@@ -44,12 +44,14 @@ export interface NavItem {
   anyPermission?: string[];
   phase?: number;
   exact?: boolean;
+  revenueOnly?: boolean;
 }
 
 export interface NavSection {
   key: string;
   labelKey: string;
   items: NavItem[];
+  revenueOnly?: boolean;
 }
 
 /**
@@ -90,6 +92,7 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     key: 'commercial',
     labelKey: 'navGroup.commercial',
+    revenueOnly: true,
     items: [
       { href: '/revenue', labelKey: 'nav.revenue', icon: TrendingUp, permission: 'finance:view' },
       { href: '/rate-approvals', labelKey: 'nav.rateApprovals', icon: BadgeCheck, permission: 'rate:update' },

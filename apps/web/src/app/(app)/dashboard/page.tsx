@@ -18,7 +18,6 @@ import {
   TrendingUp,
   UserRound,
   Users,
-  Wallet,
 } from 'lucide-react';
 import type { DashboardOverview } from '@grand-suite/shared';
 import { api } from '@/lib/api';
@@ -31,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { canSeeRevenue } from '@/lib/visibility';
 
 const DEPARTMENT_LABEL: Record<string, string> = {
   ROOMS: 'Phòng',
@@ -64,6 +64,7 @@ const ACTION_LABEL: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user, can } = useAccess();
+  const showRevenue = canSeeRevenue(user?.departmentCode);
   const { activeProperty } = useActiveProperty();
   const { formatDate, formatDateTime } = useI18n();
 
@@ -110,14 +111,14 @@ export default function DashboardPage() {
       ) : data ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <Metric
+            {showRevenue ? <Metric
               label="Doanh thu hôm nay"
               value={formatMoney(data.metrics.revenueToday)}
               hint={`Tháng ${formatMoney(data.metrics.revenueMonth)} · so với tháng trước`}
               change={data.metrics.revenueChangePct}
               icon={CircleDollarSign}
               primary
-            />
+            /> : null}
             <Metric
               label="Công suất"
               value={`${formatNumber(data.metrics.occupancy, 'vi-VN', 1)}%`}
@@ -125,20 +126,20 @@ export default function DashboardPage() {
               change={data.metrics.occupancyChangePct}
               icon={Gauge}
             />
-            <Metric
+            {showRevenue ? <Metric
               label="ADR"
               value={formatMoney(data.metrics.adr)}
               hint={`RevPAR ${formatMoney(data.metrics.revpar)} · TRevPAR ${formatMoney(data.metrics.trevpar)}`}
               change={data.metrics.adrChangePct}
               icon={BedDouble}
-            />
+            /> : null}
             <Metric label="Khách đang lưu trú" value={formatNumber(data.metrics.inHouseGuests)} hint={`ALOS ${formatNumber(data.metrics.alos, 'vi-VN', 2)} đêm`} icon={Users} />
             <Metric label="Khách đến hôm nay" value={formatNumber(data.metrics.arrivalsToday)} hint={`${data.metrics.departuresToday} khách dự kiến trả phòng`} icon={CalendarDays} />
             <Metric label="Nhân sự trong ca" value={data.hasStaffData ? formatNumber(data.metrics.staffOnDuty) : '—'} hint={data.hasStaffData ? 'Từ dữ liệu chấm công' : 'Chấm công & xếp ca sẽ kích hoạt ở Giai đoạn 4'} icon={Clock3} />
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
-            <Card>
+          <div className={cn('grid gap-4', showRevenue && 'xl:grid-cols-[1.5fr_1fr]')}>
+            {showRevenue ? <Card>
               <CardHeader className="flex-row items-center justify-between">
                 <div><CardTitle>Doanh thu 14 ngày</CardTitle><p className="mt-1 text-[10px] text-muted-foreground">Tổng hợp từ sổ nhật ký kép, đã trừ thuế và phí dịch vụ.</p></div>
                 <Badge tone="outline"><TrendingUp className="size-3" /> {formatMoney(data.metrics.revenueMonth)} trong tháng</Badge>
@@ -167,7 +168,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> : null}
 
             <div className="space-y-4">
               <Card>
@@ -182,8 +183,8 @@ export default function DashboardPage() {
                         </div>
                         <Badge tone={property.type === 'HOTEL' ? 'brand' : 'outline'}>{property.type === 'HOTEL' ? 'Khách sạn' : 'Nhà hàng'}</Badge>
                       </div>
-                      <div className="mt-2 grid grid-cols-3 gap-2 text-[10px]">
-                        <div><p className="text-muted-foreground">Doanh thu tháng</p><p className="tabular font-medium text-ink">{formatMoney(property.revenueMonth)}</p></div>
+                      <div className={cn('mt-2 grid gap-2 text-[10px]', showRevenue ? 'grid-cols-3' : 'grid-cols-2')}>
+                        {showRevenue ? <div><p className="text-muted-foreground">Doanh thu tháng</p><p className="tabular font-medium text-ink">{formatMoney(property.revenueMonth)}</p></div> : null}
                         <div><p className="text-muted-foreground">Công suất</p><p className="tabular font-medium text-ink">{property.occupancy}%</p></div>
                         <div><p className="text-muted-foreground">Đang ở</p><p className="tabular font-medium text-ink">{property.inHouse}</p></div>
                       </div>
@@ -242,7 +243,7 @@ export default function DashboardPage() {
             <Card>
               <CardHeader><CardTitle>Chỉ số vận hành</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-2 gap-3">
-                <MiniStat icon={Wallet} label="TRevPAR" value={formatMoney(data.metrics.trevpar)} />
+                {showRevenue ? <MiniStat icon={Building2} label="TRevPAR" value={formatMoney(data.metrics.trevpar)} /> : null}
                 <MiniStat icon={UserRound} label="ALOS" value={`${formatNumber(data.metrics.alos, 'vi-VN', 2)} đêm`} />
                 <MiniStat icon={BedDouble} label="Phòng bán" value={formatNumber(data.metrics.roomsSold)} />
                 <MiniStat icon={Building2} label="Tổng phòng" value={formatNumber(data.metrics.roomsAvailable)} />
@@ -254,7 +255,7 @@ export default function DashboardPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-[10px] text-muted-foreground">
         <span>NINHVANA · HỆ THỐNG QUẢN TRỊ KHÁCH SẠN · V0.2</span>
-        <span>Doanh thu lấy từ sổ nhật ký kép · Bút toán cân bằng được kiểm tra tự động</span>
+        <span>{showRevenue ? 'Doanh thu lấy từ sổ nhật ký kép · Bút toán cân bằng được kiểm tra tự động' : 'Chế độ vận hành · Không hiển thị số liệu doanh thu'}</span>
       </div>
     </div>
   );

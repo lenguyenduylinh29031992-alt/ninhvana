@@ -416,3 +416,11 @@ Mua hàng PR→PO→GRN, kho + COGS, chi phí, HRM/payroll, P&L USALI với GOP/
 - Thêm `scripts/watchdog.sh` chạy trong screen: kiểm tra DB/API/web/tunnel mỗi 30 giây.
 - Tunnel mới dùng `--protocol http2`; tự cập nhật `ORIGIN_URL` và deploy Worker.
 - Đã thử kill cloudflared: watchdog tạo tunnel mới và Worker trả 200 trong ~50 giây.
+
+
+## Ẩn doanh thu theo bộ phận (2026-10-31)
+
+- Thêm helper `canSeeRevenue(departmentCode)`.
+- Ẩn nhóm Thương mại, dashboard doanh thu/ADR/14 ngày/TRevPAR với buồng phòng, bảo trì, HR, IT, mua hàng, vận hành cơ sở, năng lượng.
+- Command menu cũng lọc; direct URL vẫn bị permission chặn.
+- Kiểm tra admin/frontdesk thấy, housekeeping/HR không thấy.

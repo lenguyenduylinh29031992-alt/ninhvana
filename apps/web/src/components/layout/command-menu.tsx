@@ -7,6 +7,7 @@ import { Moon, Search, Sun } from 'lucide-react';
 import { hasPermission, type SessionUser } from '@grand-suite/shared';
 import { useI18n } from '@/lib/i18n';
 import { NAV_SECTIONS } from '@/lib/navigation';
+import { canSeeRevenue } from '@/lib/visibility';
 import { useTheme } from '@/lib/theme';
 
 export function CommandMenu({
@@ -63,6 +64,7 @@ export function CommandMenu({
         </Command.Empty>
 
         {NAV_SECTIONS.map((section) => {
+          if (section.revenueOnly && !canSeeRevenue(user.departmentCode)) return null;
           const items = section.items.filter((item) => {
             if (item.phase) return false;
             if (item.permission && !hasPermission(permissions, item.permission)) return false;

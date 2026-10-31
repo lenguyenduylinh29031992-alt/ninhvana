@@ -34,6 +34,8 @@ Hướng dẫn mở/test trên macOS, Windows, Android, iOS: [`docs/HUONG-DAN-TE
 
 **Triển khai 24/7:** [`docs/DEPLOY-VPS.md`](docs/DEPLOY-VPS.md) · **Offline:** [`docs/OFFLINE-SYNC.md`](docs/OFFLINE-SYNC.md).
 
+**Ẩn doanh thu theo bộ phận:** [`docs/DEPARTMENT-VISIBILITY.md`](docs/DEPARTMENT-VISIBILITY.md).
+
 **Grand Spa:** [`docs/GRAND-SPA.md`](docs/GRAND-SPA.md).
 
 **Giao diện:** [`docs/UI-REFORMAT.md`](docs/UI-REFORMAT.md).
