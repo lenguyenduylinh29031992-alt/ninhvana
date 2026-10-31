@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowDownToLine, ArrowUpFromLine, Cable, RefreshCw, Radio, TriangleAlert } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Cable, ChevronRight, RefreshCw, Radio, TriangleAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import { ApiError, api } from '@/lib/api';
 import { useAccess } from '@/lib/session';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { ExportMenu } from '@/components/domain/export-menu';
 import { PageHeader } from '@/components/ui/feedback';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -38,18 +40,45 @@ interface ChannelsResponse {
   logs: Array<{ id: string; channelCode: string; channelName: string; direction: string; kind: string; status: string; error: string | null; durationMs: number | null; createdAt: string }>;
 }
 
+interface ChannelMapping { roomTypeId: string; code: string; name: string; baseRate: number; mapping: { id: string; externalRoomTypeId: string; externalRatePlanId: string | null; isActive: boolean } | null }
+
 const TYPE_LABEL: Record<string, string> = { OTA: 'OTA', SOCIAL: 'Mạng xã hội', DIRECT: 'Trực tiếp', B2B: 'B2B', OFFLINE: 'Ngoại tuyến' };
 
 export default function ChannelsPage() {
   const { can } = useAccess();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'ALL' | 'OTA' | 'SOCIAL'>('ALL');
+  const [detail, setDetail] = useState<ChannelRow | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   const channels = useQuery<ChannelsResponse>({
     queryKey: ['channels'],
     queryFn: () => api<ChannelsResponse>('/channels'),
     enabled: can('channel:view'),
     refetchInterval: 30_000,
+  });
+
+  const mappings = useQuery<ChannelMapping[]>({
+    queryKey: ['channel-mappings', detail?.code],
+    queryFn: () => api<ChannelMapping[]>(`/channels/${detail!.code}/mappings`),
+    enabled: Boolean(detail) && can('channel:view'),
+  });
+
+  useEffect(() => {
+    if (!mappings.data) return;
+    setDrafts(Object.fromEntries(mappings.data.map((row) => [row.roomTypeId, row.mapping?.externalRoomTypeId ?? ''])));
+  }, [mappings.data]);
+
+  const saveMapping = useMutation({
+    mutationFn: (row: ChannelMapping) => api(`/channels/${detail!.code}/mappings`, {
+      method: 'PUT',
+      body: { roomTypeId: row.roomTypeId, externalRoomTypeId: drafts[row.roomTypeId]?.trim(), externalRatePlanId: row.mapping?.externalRatePlanId ?? undefined },
+    }),
+    onSuccess: async () => {
+      toast.success('Đã lưu mapping');
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ['channel-mappings', detail?.code] }), queryClient.invalidateQueries({ queryKey: ['channels'] })]);
+    },
+    onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không lưu được mapping'),
   });
 
   const action = useMutation({
@@ -141,6 +170,9 @@ export default function ChannelsPage() {
                   <Button size="sm" variant="secondary" disabled={!channel.adapter || !can('channel:sync') || action.isPending} onClick={() => action.mutate({ code: channel.code, kind: 'pull' })}>
                     <ArrowDownToLine /> Kéo booking
                   </Button>
+                  <Button size="sm" variant="ghost" className="col-span-2" onClick={() => setDetail(channel)}>
+                    Xem chi tiết <ChevronRight />
+                  </Button>
                   {channel.jobs.failed > 0 || channel.jobs.dlq > 0 ? (
                     <Button size="sm" variant="ghost" className="col-span-2" disabled={!can('channel:sync') || action.isPending} onClick={() => action.mutate({ code: channel.code, kind: 'process' })}>
                       <RefreshCw /> Xử lý lại job lỗi
@@ -179,6 +211,50 @@ export default function ChannelsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={Boolean(detail)} onOpenChange={(open) => { if (!open) setDetail(null); }}>
+        <DialogContent wide>
+          <DialogHeader>
+            <DialogTitle>{detail?.name ?? 'Chi tiết kênh'}</DialogTitle>
+            <DialogDescription>{detail?.code} · {TYPE_LABEL[detail?.type ?? ''] ?? detail?.type}</DialogDescription>
+          </DialogHeader>
+          {detail ? (
+            <div className="space-y-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-xl border border-line p-3"><p className="label-xs">Hoa hồng</p><p className="mt-1 font-display text-2xl text-ink">{detail.commissionPct}%</p></div>
+                <div className="rounded-xl border border-line p-3"><p className="label-xs">Booking 30 ngày</p><p className="mt-1 font-display text-2xl text-ink">{detail.bookings30d}</p></div>
+                <div className="rounded-xl border border-line p-3"><p className="label-xs">Mapping</p><p className="mt-1 font-display text-2xl text-ink">{detail.mappings}</p></div>
+                <div className="rounded-xl border border-line p-3"><p className="label-xs">Job thành công</p><p className="mt-1 font-display text-2xl text-ink">{detail.jobs.success}</p></div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-end justify-between gap-2"><div><p className="font-display text-lg text-ink">Mapping hạng phòng</p><p className="text-[10px] text-muted-foreground">Nhập mã hạng phòng tương ứng trên kênh OTA.</p></div><Badge tone="outline">{mappings.data?.filter((row) => row.mapping).length ?? 0}/{mappings.data?.length ?? 0} đã map</Badge></div>
+                {mappings.isLoading ? <p className="py-6 text-center text-xs text-muted-foreground">Đang tải mapping…</p> : (
+                  <div className="space-y-2">
+                    {(mappings.data ?? []).map((row) => (
+                      <div key={row.roomTypeId} className="grid items-center gap-2 rounded-xl border border-line p-3 sm:grid-cols-[1fr_1.3fr_auto]">
+                        <div><p className="text-xs font-medium text-ink">{row.name}</p><p className="text-[9px] uppercase tracking-label text-muted-foreground">{row.code} · {new Intl.NumberFormat('vi-VN').format(row.baseRate)} đ</p></div>
+                        <Input value={drafts[row.roomTypeId] ?? ''} disabled={!can('channel:manage')} placeholder="Mã hạng phòng trên kênh" onChange={(event) => setDrafts((current) => ({ ...current, [row.roomTypeId]: event.target.value }))} />
+                        <Button size="sm" variant="secondary" disabled={!can('channel:manage') || !drafts[row.roomTypeId]?.trim() || saveMapping.isPending} onClick={() => saveMapping.mutate(row)}>Lưu</Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <p className="font-display text-lg text-ink">Nhật ký gần đây</p>
+                <div className="mt-2 space-y-1.5">
+                  {(data?.logs ?? []).filter((log) => log.channelCode === detail.code).slice(0, 8).map((log) => (
+                    <div key={log.id} className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-[10px]"><span>{new Date(log.createdAt).toLocaleString('vi-VN')} · {log.kind}</span><Badge tone={['SUCCESS', 'QUEUED'].includes(log.status) ? 'success' : 'warning'}>{log.status}</Badge></div>
+                  ))}
+                  {(data?.logs ?? []).filter((log) => log.channelCode === detail.code).length === 0 ? <p className="text-xs text-muted-foreground">Chưa có nhật ký.</p> : null}
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -5,16 +5,50 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const DEFAULT_URL = process.env.NINHVANA_URL || 'https://ninhvana-server.tail1116d8.ts.net/login';
+const LEGACY_WORKER_URL = 'https://ninhvana.lenguyenduylinh29031992.workers.dev/login';
+const LEGACY_HOSTS = new Set(['ninhvana.lenguyenduylinh29031992.workers.dev']);
 const configPath = () => path.join(app.getPath('userData'), 'server.json');
 
 function readServer() {
   try {
     const saved = JSON.parse(fs.readFileSync(configPath(), 'utf8'));
-    if (saved && typeof saved.url === 'string' && /^https?:\/\//.test(saved.url)) return saved.url;
+    if (saved && typeof saved.url === 'string' && /^https?:\/\//.test(saved.url)) {
+      try {
+        const host = new URL(saved.url).hostname;
+        // Migrate the old personal workers.dev host before the login screen.
+        if (LEGACY_HOSTS.has(host)) return DEFAULT_URL;
+      } catch { /* keep saved URL for the setup screen to validate */ }
+      return saved.url;
+    }
   } catch {
     // first launch
   }
   return DEFAULT_URL;
+}
+
+async function probeServer(url) {
+  try {
+    const health = new URL('/api/v1/health', url).toString();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const response = await fetch(health, { signal: controller.signal, redirect: 'follow' });
+    clearTimeout(timer);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveServer() {
+  const saved = readServer();
+  const candidates = [...new Set([saved, DEFAULT_URL, LEGACY_WORKER_URL])];
+  for (const candidate of candidates) {
+    if (await probeServer(candidate)) {
+      if (candidate !== saved) writeServer(candidate);
+      return candidate;
+    }
+  }
+  return saved;
 }
 
 function writeServer(url) {
@@ -59,7 +93,7 @@ function createWindow() {
     loadSetup(`Không kết nối được ${readServer()} (${description}).`);
   });
 
-  loadApp(readServer());
+  void resolveServer().then((url) => loadApp(url));
   buildMenu();
 }
 
