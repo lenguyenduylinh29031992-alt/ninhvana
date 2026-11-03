@@ -856,6 +856,8 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
   const [newGid, setNewGid] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [newDepartment, setNewDepartment] = useState('TIKTOK');
+  const [filterDepartment, setFilterDepartment] = useState('ALL');
+  const [filterPeriod, setFilterPeriod] = useState(new Date().toISOString().slice(0, 7));
   const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
   const departments = useQuery<SheetDepartment[]>({ queryKey: ['sheet-departments'], queryFn: () => api('/hr/departments') });
   useEffect(() => {
@@ -873,6 +875,13 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
     onSuccess: async () => { toast.success('Đã bắt đầu đồng bộ Google Sheet tháng hiện tại'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
     onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không đồng bộ được'),
   });
+  const visibleSources = (sources.data ?? []).filter((source) => source.key.split(':')[0] !== 'shopping'
+    && (filterDepartment === 'ALL' || source.department === filterDepartment)
+    && (!filterPeriod || source.period === filterPeriod));
+  const departmentCodes = filterDepartment === 'ALL' ? [...new Set(visibleSources.map((source) => source.department))] : [filterDepartment];
+  const chooseDepartment = (value: string) => { setFilterDepartment(value); if (value !== 'ALL') setNewDepartment(value); };
+  const choosePeriod = (value: string) => { setFilterPeriod(value); if (value) setNewPeriod(value); };
+
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between">
@@ -880,8 +889,15 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
         <Button size="sm" variant="secondary" disabled={!canManage || syncAll.isPending} onClick={() => syncAll.mutate()}><RefreshCw className={syncAll.isPending ? 'animate-spin' : ''} /> Đồng bộ tất cả</Button>
       </CardHeader>
       <CardContent className="space-y-3">
+        <div className="flex flex-wrap items-end gap-2 rounded-xl border border-line bg-muted/20 p-3">
+          <div className="min-w-44"><Label>Bộ phận</Label><NativeSelect aria-label="Lọc bộ phận chấm công" value={filterDepartment} onChange={(event) => chooseDepartment(event.target.value)}><option value="ALL">Tất cả bộ phận</option>{(departments.data ?? []).map((department) => <option key={department.code} value={department.code}>{department.name}</option>)}</NativeSelect></div>
+          <div className="min-w-40"><Label>Ngày tháng</Label><Input aria-label="Lọc tháng chấm công" type="month" value={filterPeriod} onChange={(event) => choosePeriod(event.target.value)} /></div>
+          <Button size="sm" variant="secondary" onClick={() => setFilterPeriod('')}>Tất cả tháng</Button>
+          <Badge tone="outline">{visibleSources.length} nguồn</Badge>
+          <span className="ml-auto text-[10px] text-muted-foreground">Chọn bộ phận + tháng để lọc; form bên dưới thêm nhanh đúng kỳ.</span>
+        </div>
         <div className="rounded-xl border border-dashed border-brand/40 bg-brand-soft/30 p-3">
-          <p className="mb-2 text-sm font-medium text-ink">Thêm tab Google Sheet theo tháng</p>
+          <p className="mb-2 text-sm font-medium text-ink">Thêm nhanh tab Google Sheet</p>
           <div className="grid gap-2 md:grid-cols-[0.9fr_0.8fr_0.8fr_1.5fr_0.8fr_auto]">
             <div><Label>Loại</Label><NativeSelect value={newKind} onChange={(e) => setNewKind(e.target.value as typeof newKind)}><option value="attendance">Chấm công</option><option value="payroll">Tính lương</option></NativeSelect></div>
             <div><Label>Tháng</Label><Input type="month" value={newPeriod} onChange={(e) => setNewPeriod(e.target.value)} /></div>
@@ -892,13 +908,13 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
           </div>
           <p className="mt-2 text-[10px] text-muted-foreground">Ví dụ: tab tháng 11 có gid=123456789. Mỗi tháng một dòng; khi bấm cập nhật ở trang Nhân sự, hệ thống dùng đúng gid của tháng đang chọn.</p>
         </div>
-        {[...new Set([...(departments.data ?? []).map((department) => department.code), ...(sources.data ?? []).map((source) => source.department)])].map((departmentCode) => {
+        {departmentCodes.map((departmentCode) => {
           const departmentName = departments.data?.find((department) => department.code === departmentCode)?.name ?? departmentCode;
-          const departmentSources = (sources.data ?? []).filter((source) => source.department === departmentCode && source.key.split(':')[0] !== 'shopping');
+          const departmentSources = visibleSources.filter((source) => source.department === departmentCode);
           return (
             <div key={departmentCode} className="space-y-2 rounded-xl border border-line bg-muted/20 p-3">
               <div className="flex items-center justify-between border-b border-line/70 pb-2"><div><p className="font-display text-lg text-ink">{departmentName}</p><p className="text-[10px] uppercase tracking-label text-muted-foreground">Chấm công · tính lương</p></div><Badge tone="outline">{departmentSources.length} nguồn</Badge></div>
-              {departmentSources.length === 0 ? <p className="rounded-lg border border-dashed border-line px-3 py-4 text-center text-xs text-muted-foreground">Chưa có tab Google Sheet cho bộ phận này. Thêm tab bên trên và chọn bộ phận {departmentName}.</p> : null}
+              {departmentSources.length === 0 ? <p className="rounded-lg border border-dashed border-line px-3 py-4 text-center text-xs text-muted-foreground">Chưa có tab Google Sheet cho {departmentName} trong tháng này. Thêm nhanh ở trên.</p> : null}
               {departmentSources.map((source) => {
                 const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' };
                 const kind = source.key.split(':')[0];
@@ -927,18 +943,14 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
 
 function OtherCostSettings({ canManage }: { canManage: boolean }) {
   const queryClient = useQueryClient();
-  const now = new Date();
   const [department, setDepartment] = useState('TIKTOK');
-  const [year, setYear] = useState(String(now.getFullYear()));
-  const [month, setMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
+  const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7));
   const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; enabled: boolean; gid: string }>>({});
   const [newUrl, setNewUrl] = useState('');
   const [newGid, setNewGid] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
   const departments = useQuery<SheetDepartment[]>({ queryKey: ['sheet-departments'], queryFn: () => api('/hr/departments') });
-  const period = `${year}-${month}`;
-  const years = Array.from({ length: 4 }, (_, index) => String(now.getFullYear() - 2 + index));
   useEffect(() => {
     if (!sources.data) return;
     setDrafts(Object.fromEntries(sources.data.map((source) => [source.key, { url: source.url, label: source.label ?? '', enabled: source.enabled, gid: source.gid ?? '' }])));
@@ -958,11 +970,11 @@ function OtherCostSettings({ canManage }: { canManage: boolean }) {
         <CardDescription>Google Sheet chi phí đi chợ / mua sắm. Chọn bộ phận, năm và tháng để chỉ hiển thị cấu hình của tháng đó.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-2 md:grid-cols-[1.4fr_0.7fr_0.8fr_auto]">
-          <div><Label>Bộ phận</Label><NativeSelect aria-label="Chọn bộ phận chi phí khác" value={department} onChange={(event) => setDepartment(event.target.value)}>{(departments.data ?? []).map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}{!(departments.data ?? []).some((item) => item.code === department) ? <option value={department}>{department}</option> : null}</NativeSelect></div>
-          <div><Label>Năm</Label><NativeSelect aria-label="Chọn năm chi phí khác" value={year} onChange={(event) => setYear(event.target.value)}>{years.map((value) => <option key={value} value={value}>{value}</option>)}</NativeSelect></div>
-          <div><Label>Tháng</Label><NativeSelect aria-label="Chọn tháng chi phí khác" value={month} onChange={(event) => setMonth(event.target.value)}>{Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0')).map((value) => <option key={value} value={value}>Tháng {value}</option>)}</NativeSelect></div>
-          <div className="flex items-end"><Badge tone="outline">{period} · {rows.length} nguồn</Badge></div>
+        <div className="flex flex-wrap items-end gap-2 rounded-xl border border-line bg-muted/20 p-3">
+          <div className="min-w-48"><Label>Bộ phận</Label><NativeSelect aria-label="Chọn bộ phận chi phí khác" value={department} onChange={(event) => setDepartment(event.target.value)}>{(departments.data ?? []).map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}{!(departments.data ?? []).some((item) => item.code === department) ? <option value={department}>{department}</option> : null}</NativeSelect></div>
+          <div className="min-w-40"><Label>Ngày tháng</Label><Input aria-label="Chọn tháng chi phí khác" type="month" value={period} onChange={(event) => setPeriod(event.target.value)} /></div>
+          <Badge tone="outline">{period} · {rows.length} nguồn</Badge>
+          <span className="ml-auto text-[10px] text-muted-foreground">Chỉ hiển thị cấu hình đúng bộ phận và tháng.</span>
         </div>
 
         {rows.length === 0 ? <p className="rounded-xl border border-dashed border-line px-4 py-6 text-center text-xs text-muted-foreground">Chưa có cấu hình Chi phí khác cho {department} tháng {period}.</p> : null}
