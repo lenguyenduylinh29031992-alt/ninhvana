@@ -2312,10 +2312,27 @@ model Expense {
   notes         String?
   createdById   String?
   createdAt     DateTime @default(now())
+  items         ExpenseItem[]
 
   @@unique([propertyId, number])
   @@index([propertyId, expenseDate])
   @@index([propertyId, department])
+}
+
+model ExpenseItem {
+  id           String   @id @default(cuid())
+  expenseId    String
+  employeeName String?
+  description  String
+  category     String   @default("SHOPPING")
+  amount       Decimal  @db.Decimal(18, 2)
+  itemDate     DateTime @db.Date
+  createdAt    DateTime @default(now())
+
+  expense      Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+  @@index([expenseId])
+  @@index([employeeName])
 }
 
 // ───────────────────────── HR & payroll ─────────────────────────

@@ -270,29 +270,66 @@ export class GoogleSheetSyncService implements OnModuleInit {
     const onlineDescCol = normalized.findIndex((cell) => cell.includes('shopee') && cell.includes('tên đồ'));
     const shopAmountCol = normalized.findIndex((cell) => cell === 'tổng tiền đồ');
     const onlineAmountCol = normalized.findIndex((cell) => cell === 'tiền đồ online');
+    const summaryIndex = rows.findIndex((row) => normalize(row[0] ?? '').startsWith('tổng chi tháng'));
+    const summaryRow = summaryIndex >= 0 ? rows[summaryIndex] : null;
     if (dateCol < 0 || (shopAmountCol < 0 && onlineAmountCol < 0)) return 0;
-    let imported = 0;
-    for (const [index, row] of rows.slice(headerIndex >= 0 ? headerIndex + 1 : 1).entries()) {
-      const value = money(row[shopAmountCol]) + money(row[onlineAmountCol]);
-      if (value <= 0) continue;
-      const rawDate = (row[dateCol] ?? '').trim();
-      const date = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-      if (!date) continue;
-      const isoDate = `${date[3]}-${String(Number(date[2])).padStart(2, '0')}-${String(Number(date[1])).padStart(2, '0')}`;
-      const description = `Chi phí đi chợ TikTok: ${(row[shopDescCol] || row[onlineDescCol] || 'Mua sắm').trim()}`;
-      const number = `SHOP-${isoDate}-${String(index + 1).padStart(3, '0')}`;
-      await this.prisma.expense.upsert({
-        where: { propertyId_number: { propertyId: property.id, number } },
-        update: { amount: new Prisma.Decimal(value), total: new Prisma.Decimal(value), description, expenseDate: new Date(`${isoDate}T00:00:00Z`) },
-        create: {
-          orgId: property.orgId, propertyId: property.id, number, accountCode: '6900', department: 'OTHER_OPS',
-          description, amount: new Prisma.Decimal(value), total: new Prisma.Decimal(value), status: 'APPROVED',
-          expenseDate: new Date(`${isoDate}T00:00:00Z`), paymentMethod: 'CASH', notes: 'Đồng bộ Google Sheet chi phí đi chợ TikTok',
-        },
-      });
-      imported += 1;
+
+    const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
+    const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
+    const month = match ? Number(match[1]) : new Date().getMonth() + 1;
+    const year = match ? Number(match[2]) : new Date().getFullYear();
+    const period = `${year}-${String(month).padStart(2, '0')}`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const summaryDate = new Date(`${period}-${String(lastDay).padStart(2, '0')}T00:00:00Z`);
+    const summaryTotal = summaryRow ? (money(summaryRow[3]) || money(summaryRow[1]) + money(summaryRow[2])) : 0;
+
+    // Employee columns are triplets: "NVxx Name Ứng Lương" | "Tên Đồ" | "Tiền Chợ".
+    const employeeColumns: Array<{ name: string; itemCol: number; amountCol: number }> = [];
+    for (let column = 0; column < header.length; column += 1) {
+      const employee = (header[column] ?? '').match(/^NV\d+\s+(.+?)\s+Ứng Lương$/i);
+      if (employee) employeeColumns.push({ name: employee[1].trim(), itemCol: column + 1, amountCol: column + 2 });
     }
-    return imported;
+
+    const details: Array<{ employeeName: string | null; description: string; category: string; amount: number; itemDate: Date }> = [];
+    for (const row of rows.slice(headerIndex >= 0 ? headerIndex + 1 : 1, summaryIndex >= 0 ? summaryIndex : rows.length)) {
+      const rawDate = (row[dateCol] ?? '').trim();
+      const date = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (!date) continue;
+      const itemDate = new Date(`${date[3]}-${String(Number(date[2])).padStart(2, '0')}-${String(Number(date[1])).padStart(2, '0')}T00:00:00Z`);
+      const shoppingDescription = (row[shopDescCol] ?? '').trim();
+      const shoppingAmount = money(row[shopAmountCol]);
+      if (shoppingAmount > 0) details.push({ employeeName: null, description: shoppingDescription || 'Mua đồ chợ', category: 'SHOPPING', amount: shoppingAmount, itemDate });
+      const onlineDescription = (row[onlineDescCol] ?? '').trim();
+      const onlineAmount = money(row[onlineAmountCol]);
+      if (onlineAmount > 0) details.push({ employeeName: null, description: onlineDescription || 'Mua đồ Shopee/TikTok', category: 'ONLINE', amount: onlineAmount, itemDate });
+      for (const employee of employeeColumns) {
+        const description = (row[employee.itemCol] ?? '').trim();
+        const amount = money(row[employee.amountCol]);
+        if (!description || amount <= 0 || /^(off|-|0)$/i.test(description)) continue;
+        details.push({ employeeName: employee.name, description, category: 'EMPLOYEE', amount, itemDate });
+      }
+    }
+
+    const total = summaryTotal || details.reduce((sum, item) => sum + item.amount, 0);
+    if (total <= 0) return 0;
+
+    // Replace the previous daily rows: they double-counted and had no employee detail.
+    await this.prisma.expense.deleteMany({ where: { propertyId: property.id, number: { startsWith: 'SHOP-' } } });
+    const expense = await this.prisma.expense.create({ data: {
+      orgId: property.orgId, propertyId: property.id, number: `SHOP-SUMMARY-${period}`,
+      accountCode: '6900', department: 'OTHER_OPS',
+      description: `Bảng tổng hợp tiền chợ & mua sắm TikTok ${period}`,
+      amount: new Prisma.Decimal(total), total: new Prisma.Decimal(total), status: 'APPROVED',
+      expenseDate: summaryDate, paymentMethod: 'CASH',
+      notes: 'Đồng bộ Google Sheet — bảng tổng hợp tiền chợ & mua sắm',
+    } });
+    if (details.length) {
+      await this.prisma.expenseItem.createMany({ data: details.map((item) => ({
+        expenseId: expense.id, employeeName: item.employeeName, description: item.description,
+        category: item.category, amount: new Prisma.Decimal(item.amount), itemDate: item.itemDate,
+      })) });
+    }
+    return details.length || 1;
   }
 
   private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {

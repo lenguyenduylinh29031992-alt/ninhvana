@@ -19,7 +19,8 @@ import { PageHeader } from '@/components/ui/feedback';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PermissionNotice } from '@/components/domain/permission-notice';
 
-interface Expense { id: string; number: string; description: string; accountCode: string; department: string; amount: number; vatAmount: number; total: number; status: string; expenseDate: string }
+interface ExpenseItem { id: string; employeeName: string | null; description: string; category: string; amount: number; itemDate: string }
+interface Expense { id: string; number: string; description: string; accountCode: string; department: string; amount: number; vatAmount: number; total: number; status: string; expenseDate: string; items?: ExpenseItem[] }
 interface StockRow { id: string; quantity: number; value: number; item?: { name: string; unit: string }; lowStock: boolean }
 interface ApInvoice { id: string; number: string; total: number; balance: number; dueDate: string; status: string; supplier: { name: string } }
 
@@ -71,6 +72,28 @@ export default function CostsPage() {
           {(invoices.data ?? []).map((invoice) => <TableRow key={invoice.id}><TableCell className="pl-4 font-mono text-[10px]">{invoice.number}</TableCell><TableCell className="text-[11px]">{invoice.supplier.name}</TableCell><TableCell className="text-[10px]">{invoice.dueDate.slice(0, 10)}</TableCell><TableCell><Badge tone={invoice.status === 'PAID' ? 'success' : 'warning'}>{invoice.status}</Badge></TableCell><TableCell className="pr-4 tabular text-right text-[11px]">{formatMoney(invoice.balance)}</TableCell></TableRow>)}
         </TableBody></Table> : null}
       </CardContent></Card>
+      {tab === 'EXPENSES' ? (() => {
+        const items = (expenses.data ?? []).flatMap((expense) => expense.items ?? []);
+        if (items.length === 0) return null;
+        const groups = items.reduce<Record<string, ExpenseItem[]>>((result, item) => {
+          const key = item.employeeName || 'Chi chung';
+          (result[key] ??= []).push(item);
+          return result;
+        }, {});
+        return (
+          <Card><CardContent className="p-0">
+            <div className="border-b border-line px-4 py-3"><p className="font-display text-lg text-ink">Chi tiết mua sắm theo nhân viên</p><p className="text-[10px] text-muted-foreground">Tóm tắt từ bảng tổng hợp tiền chợ & mua sắm TikTok</p></div>
+            <Table><TableHeader><TableRow><TableHead className="pl-4">Nhân viên</TableHead><TableHead>Nội dung</TableHead><TableHead>Ngày</TableHead><TableHead className="pr-4 text-right">Số tiền</TableHead></TableRow></TableHeader><TableBody>
+              {Object.entries(groups).map(([employee, rows]) => (
+                <Fragment key={employee}>
+                  <TableRow><TableCell colSpan={4} className="bg-muted/40 pl-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand">{employee} · {rows.length} mục · {formatMoney(rows.reduce((sum, item) => sum + Number(item.amount), 0))}</TableCell></TableRow>
+                  {rows.map((item) => <TableRow key={item.id}><TableCell className="pl-4 text-[11px]">{item.employeeName || 'Chi chung'}</TableCell><TableCell className="text-[11px]">{item.description}</TableCell><TableCell className="text-[10px]">{item.itemDate.slice(0, 10)}</TableCell><TableCell className="pr-4 tabular text-right text-[11px]">{formatMoney(item.amount)}</TableCell></TableRow>)}
+                </Fragment>
+              ))}
+            </TableBody></Table>
+          </CardContent></Card>
+        );
+      })() : null}
       <ExpenseDialog open={open} onOpenChange={setOpen} propertyId={propertyId!} onDone={async () => { await queryClient.invalidateQueries({ queryKey: ['expenses'] }); await queryClient.invalidateQueries({ queryKey: ['pnl'] }); }} />
     </div>
   );

@@ -212,7 +212,7 @@ export class ProcurementService {
 
   async listExpenses(actor: AuthUser, propertyId: string) {
     assertPropertyAccess(actor, propertyId);
-    return this.prisma.expense.findMany({ where: { propertyId }, orderBy: { expenseDate: 'desc' }, take: 100 });
+    return this.prisma.expense.findMany({ where: { propertyId }, include: { items: { orderBy: [{ employeeName: 'asc' }, { itemDate: 'asc' }] } }, orderBy: { expenseDate: 'desc' }, take: 100 });
   }
 
   async createExpense(actor: AuthUser, input: { propertyId: string; accountCode: string; department: string; description: string; amount: number; vatAmount?: number; paymentMethod?: string }) {
