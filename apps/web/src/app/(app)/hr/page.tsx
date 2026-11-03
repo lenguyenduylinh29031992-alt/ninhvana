@@ -69,7 +69,16 @@ export default function HrPage() {
   const departments = useQuery<Department[]>({ queryKey: ['departments', propertyId], queryFn: () => api(`/hr/departments?propertyId=${propertyId}`), enabled });
   const sheetStatus = useQuery<SheetSync[]>({ queryKey: ['sheet-sync', propertyId], queryFn: () => api(`/hr/sheets/status?propertyId=${propertyId}`), enabled, refetchInterval: 60_000 });
   const queryClient = useQueryClient();
-  const syncSheets = useMutation({ mutationFn: (key?: 'attendance' | 'payroll' | 'shopping') => api(key ? `/hr/sheets/${key}/sync?propertyId=${propertyId}&period=${month}&department=${selectedCode}` : `/hr/sheets/sync?propertyId=${propertyId}&period=${month}&department=${selectedCode}`, { method: 'POST', body: {} }), onSuccess: async () => { toast.success('Đã đồng bộ Google Sheet'); await Promise.all([queryClient.invalidateQueries({ queryKey: ['sheet-sync'] }), queryClient.invalidateQueries({ queryKey: ['attendance'] }), queryClient.invalidateQueries({ queryKey: ['payroll'] }), queryClient.invalidateQueries({ queryKey: ['employees'] })]); }, onError: (error) => toast.error(error instanceof Error ? error.message : 'Không đồng bộ được Google Sheet') });
+  const syncSheets = useMutation({
+    mutationFn: (key?: 'attendance' | 'payroll' | 'shopping') => api<{ sources?: Array<{ key: string; ok: boolean; message?: string }> }>(key ? `/hr/sheets/${key}/sync?propertyId=${propertyId}&period=${month}&department=${selectedCode}` : `/hr/sheets/sync?propertyId=${propertyId}&period=${month}&department=${selectedCode}`, { method: 'POST', body: {} }),
+    onSuccess: async (result) => {
+      const failed = (result.sources ?? []).filter((source) => !source.ok);
+      if (failed.length) toast.error(failed.map((source) => `${source.key}: ${source.message ?? 'lỗi'}`).join(' · '));
+      else toast.success('Đã đồng bộ Google Sheet');
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ['sheet-sync'] }), queryClient.invalidateQueries({ queryKey: ['attendance'] }), queryClient.invalidateQueries({ queryKey: ['payroll'] }), queryClient.invalidateQueries({ queryKey: ['employees'] })]);
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : 'Không đồng bộ được Google Sheet'),
+  });
   useEffect(() => {
     if (!selectedCode && departments.data?.length) setSelectedCode(departments.data.find((department) => department.code === 'TIKTOK')?.code ?? departments.data[0]!.code);
   }, [departments.data, selectedCode]);

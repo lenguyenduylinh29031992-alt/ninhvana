@@ -32,8 +32,10 @@ function extractGid(url: string): string | null {
 }
 
 function withGid(url: string, gid?: string | null): string {
-  const edit = url.match(/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([^/]+)\/edit/);
-  if (edit) return `https://docs.google.com/spreadsheets/d/${edit[1]}/export?format=csv&gid=${encodeURIComponent(gid ?? '0')}`;
+  const sheet = url.match(/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([^/?#]+)/);
+  if (sheet && !/\/(export|gviz)(\/|\?|$)/.test(url)) {
+    return `https://docs.google.com/spreadsheets/d/${sheet[1]}/export?format=csv&gid=${encodeURIComponent(gid ?? '0')}`;
+  }
   if (!gid) return url;
   if (/[?&]gid=/.test(url)) return url.replace(/([?&]gid=)[^&]*/, `$1${encodeURIComponent(gid)}`);
   return `${url}${url.includes('?') ? '&' : '?'}gid=${encodeURIComponent(gid)}`;
@@ -188,10 +190,11 @@ export class GoogleSheetSyncService implements OnModuleInit {
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Lỗi đồng bộ';
           const targetPeriod = period || (trigger === 'auto' ? currentPeriod() : undefined);
-          const periodKey = targetPeriod ? `${key}:${targetPeriod}` : key;
+          const targetDepartment = department?.trim().toUpperCase();
+          const periodKey = targetPeriod ? `${key}:${targetPeriod}${targetDepartment ? `:${targetDepartment}` : ''}` : key;
           await this.prisma.googleSheetSync.upsert({
-            where: { key: periodKey }, update: { url: source.url, period: targetPeriod ?? null, status: 'ERROR', message, lastSyncedAt: new Date() },
-            create: { key: periodKey, url: source.url, period: targetPeriod ?? null, status: 'ERROR', message, lastSyncedAt: new Date() },
+            where: { key: periodKey }, update: { url: source.url, department: targetDepartment ?? 'TIKTOK', period: targetPeriod ?? null, status: 'ERROR', message, lastSyncedAt: new Date() },
+            create: { key: periodKey, url: source.url, department: targetDepartment ?? 'TIKTOK', period: targetPeriod ?? null, status: 'ERROR', message, lastSyncedAt: new Date() },
           });
           result.push({ key, ok: false, rows: 0, message });
         }
@@ -255,8 +258,12 @@ export class GoogleSheetSyncService implements OnModuleInit {
   }
 
   private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {
-    const header = rows[0] ?? [];
-    const title = header[2] ?? '';
+    const headerIndex = rows.findIndex((row) => {
+      const cells = row.map((cell) => normalize(cell));
+      return cells.includes('họ và tên') && cells.some((cell) => cell.startsWith('lương cơ bản'));
+    });
+    const header = rows[headerIndex >= 0 ? headerIndex : 0] ?? [];
+    const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
     const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
     const period = match ? `${match[2]}-${String(match[1]).padStart(2, '0')}` : '2026-10';
     const normalizedHeader = header.map((cell) => normalize(cell));
@@ -272,7 +279,12 @@ export class GoogleSheetSyncService implements OnModuleInit {
     const run = runExisting ?? await this.prisma.payrollRun.create({ data: { orgId: property.orgId, propertyId: property.id, period, status: 'DRAFT' } });
     await this.prisma.payrollLine.deleteMany({ where: { payrollRunId: run.id } });
     let count = 0;
-    for (const row of rows.slice(1)) {
+    for (const row of rows.slice(headerIndex >= 0 ? headerIndex + 1 : 1)) {
+      // A sheet tab can contain a second summary table below the payroll table.
+      // Stop at its title OR its repeated "Họ và tên" header instead of parsing
+      // its columns with the payroll header.
+      const normalizedRow = row.map((cell) => normalize(cell));
+      if (normalizedRow.some((cell) => cell.startsWith('bảng tổng hợp') || cell.startsWith('bảng lương')) || normalizedRow.includes('họ và tên')) break;
       const name = (row[nameCol] ?? '').trim();
       if (!name || /^nhân viên\s+\d+$/i.test(name) || normalize(name).startsWith('tổng')) continue;
       const base = money(row[baseCol]);
