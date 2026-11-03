@@ -32,9 +32,20 @@ const SHEETS = {
   payroll: 'https://docs.google.com/spreadsheets/d/1bBYbKMhKxJkMJxVV2boIrO4lPYnCHrC-RKTiMWpppVE/edit?gid=0#gid=0',
   shopping: 'https://docs.google.com/spreadsheets/d/15H1_7oQ28ejuHiIOXlmZeeZDpN02eajQGLynmPhxjM4/edit?gid=1350094361#gid=1350094361',
 };
-const MONTH_START = '2026-10-01';
-const MONTH_END = '2026-10-31';
-const DAYS = Array.from({ length: 31 }, (_, index) => index + 1);
+function monthKey(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthMeta(key: string) {
+  const [year, month] = key.split('-').map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  return {
+    start: `${key}-01`,
+    end: `${key}-${String(lastDay).padStart(2, '0')}`,
+    days: Array.from({ length: lastDay }, (_, index) => index + 1),
+    label: new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(new Date(year, month - 1, 1)),
+  };
+}
 
 const STATUS_META: Record<string, { label: string; symbol: string; className: string }> = {
   PRESENT: { label: 'Đủ công', symbol: '●', className: 'text-forest' },
@@ -47,11 +58,13 @@ export default function HrPage() {
   const { can } = useAccess();
   const [selectedCode, setSelectedCode] = useState('');
   const [addOpen, setAddOpen] = useState(false);
+  const [month, setMonth] = useState(monthKey());
+  const selectedMonth = monthMeta(month);
   const { activeProperty, properties } = useActiveProperty();
   const propertyId = activeProperty?.id ?? properties.find((property) => property.type === 'HOTEL')?.id ?? properties[0]?.id;
   const enabled = Boolean(propertyId) && can('payroll:view');
   const employees = useQuery<Employee[]>({ queryKey: ['employees', propertyId], queryFn: () => api(`/hr/employees?propertyId=${propertyId}`), enabled });
-  const attendance = useQuery<Attendance[]>({ queryKey: ['attendance', propertyId, MONTH_START, MONTH_END], queryFn: () => api(`/hr/attendance?propertyId=${propertyId}&from=${MONTH_START}&to=${MONTH_END}`), enabled });
+  const attendance = useQuery<Attendance[]>({ queryKey: ['attendance', propertyId, selectedMonth.start, selectedMonth.end], queryFn: () => api(`/hr/attendance?propertyId=${propertyId}&from=${selectedMonth.start}&to=${selectedMonth.end}`), enabled });
   const runs = useQuery<Run[]>({ queryKey: ['payroll', propertyId], queryFn: () => api(`/hr/payroll?propertyId=${propertyId}`), enabled });
   const departments = useQuery<Department[]>({ queryKey: ['departments', propertyId], queryFn: () => api(`/hr/departments?propertyId=${propertyId}`), enabled });
   const sheetStatus = useQuery<SheetSync[]>({ queryKey: ['sheet-sync', propertyId], queryFn: () => api(`/hr/sheets/status?propertyId=${propertyId}`), enabled, refetchInterval: 60_000 });
@@ -65,10 +78,9 @@ export default function HrPage() {
 
   const selectedDepartment = (departments.data ?? []).find((department) => department.code === selectedCode);
   const team = (employees.data ?? []).filter((employee) => employee.department === selectedCode);
-  const isTikTok = selectedCode === 'TIKTOK';
-  const run = (runs.data ?? []).find((item) => item.period === '2026-10') ?? (runs.data ?? [])[0];
+  const run = (runs.data ?? []).find((item) => item.period === month);
   const lineFor = (employeeId: string) => run?.lines.find((line) => line.employeeId === employeeId);
-  const recordFor = (employeeId: string, day: number) => (attendance.data ?? []).find((record) => record.employeeId === employeeId && record.date.slice(0, 10) === `2026-10-${String(day).padStart(2, '0')}`);
+  const recordFor = (employeeId: string, day: number) => (attendance.data ?? []).find((record) => record.employeeId === employeeId && record.date.slice(0, 10) === `${month}-${String(day).padStart(2, '0')}`);
   const activeCount = team.filter((employee) => employee.status === 'ACTIVE').length;
   const baseSalaryTotal = team.reduce((sum, employee) => sum + Number(employee.baseSalary), 0);
   const positionCount = new Set(team.map((employee) => employee.position)).size;
@@ -79,8 +91,8 @@ export default function HrPage() {
       <PageHeader
         eyebrow="Nhân sự · Cơ cấu bộ phận"
         title="Nhân sự & chấm công"
-        description={`${selectedDepartment?.name ?? 'Chọn bộ phận'} — danh sách nhân viên, vị trí và chấm công tháng 10/2026. Chọn một bộ phận bên dưới để xem danh sách tương ứng.`}
-        actions={<div className="flex flex-wrap items-center gap-2">{can('employee:manage') ? <Button size="sm" onClick={() => setAddOpen(true)}><Plus /> Thêm nhân viên</Button> : null}<Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate()}>{syncSheets.isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} Đồng bộ Google Sheet</Button><ExportMenu dataset="employees" label="Xuất nhân sự" /><ExportMenu dataset="attendance" label="Xuất chấm công" /><ExportMenu dataset="payroll" label="Xuất lương" /></div>}
+        description={`${selectedDepartment?.name ?? 'Chọn bộ phận'} — danh sách nhân viên, vị trí và chấm công ${selectedMonth.label}. Chọn một bộ phận bên dưới để xem danh sách tương ứng.`}
+        actions={<div className="flex flex-wrap items-center gap-2"><Input type="month" value={month} onChange={(event) => setMonth(event.target.value)} className="h-8 w-36 text-xs" aria-label="Chọn tháng nhân sự" />{can('employee:manage') ? <Button size="sm" onClick={() => setAddOpen(true)}><Plus /> Thêm nhân viên</Button> : null}<Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate()}>{syncSheets.isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} Đồng bộ Google Sheet</Button><ExportMenu dataset="employees" label="Xuất nhân sự" /><ExportMenu dataset="attendance" label="Xuất chấm công" /><ExportMenu dataset="payroll" label="Xuất lương" /></div>}
       />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-line bg-surface px-3 py-2 text-[10px] text-muted-foreground">
         <span className="font-medium text-ink">Đồng bộ Google Sheet tự động mỗi 15 phút</span>
@@ -98,10 +110,10 @@ export default function HrPage() {
         <CardContent className="p-0">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
             <div><p className="font-display text-lg text-ink">Nhân viên — {selectedDepartment?.name ?? 'Chưa chọn bộ phận'}</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">Mã nhân viên · họ tên · vị trí · trạng thái</p></div>
-            <div className="flex items-center gap-2">{isTikTok ? <Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate('payroll')}>{syncSheets.isPending ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />} Cập nhật lương</Button> : null}<Badge tone="brand">{team.length} nhân sự</Badge></div>
+            <div className="flex items-center gap-2"><Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate('payroll')}>{syncSheets.isPending ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />} Cập nhật lương</Button><Badge tone="brand">{team.length} nhân sự</Badge></div>
           </div>
           <Table>
-            <TableHeader><TableRow><TableHead className="pl-4">Mã</TableHead><TableHead>Họ tên</TableHead><TableHead>Vị trí</TableHead><TableHead>Trạng thái</TableHead><TableHead className="text-right">Lương cơ bản</TableHead>{isTikTok ? <><TableHead className="text-right">Tạm ứng</TableHead><TableHead className="pr-4 text-right">Thực lãnh 10/2026</TableHead></> : null}</TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead className="pl-4">Mã</TableHead><TableHead>Họ tên</TableHead><TableHead>Vị trí</TableHead><TableHead>Trạng thái</TableHead><TableHead className="text-right">Lương cơ bản</TableHead><TableHead className="text-right">Tạm ứng</TableHead><TableHead className="pr-4 text-right">Thực lãnh {selectedMonth.label}</TableHead></TableRow></TableHeader>
             <TableBody>
               {team.map((employee) => {
                 const line = lineFor(employee.id);
@@ -111,10 +123,10 @@ export default function HrPage() {
                   <TableCell className="text-[11px] text-muted-foreground">{employee.position}</TableCell>
                   <TableCell><Badge tone={employee.status === 'ACTIVE' ? 'success' : 'outline'}>{employee.status === 'ACTIVE' ? 'Hoạt động' : employee.status}</Badge></TableCell>
                   <TableCell className="tabular text-right text-xs">{formatMoney(Number(employee.baseSalary))}</TableCell>
-                  {isTikTok ? <><TableCell className="tabular text-right text-xs">{formatMoney(Number(line?.advanceAmount ?? 0))}</TableCell><TableCell className="tabular pr-4 text-right text-xs text-brand">{formatMoney(Number(line?.net ?? 0))}</TableCell></> : null}
+                  <TableCell className="tabular text-right text-xs">{formatMoney(Number(line?.advanceAmount ?? 0))}</TableCell><TableCell className="tabular pr-4 text-right text-xs text-brand">{formatMoney(Number(line?.net ?? 0))}</TableCell>
                 </TableRow>;
               })}
-              {team.length === 0 ? <TableRow><TableCell colSpan={isTikTok ? 7 : 5} className="py-10 text-center text-xs text-muted-foreground">Bộ phận này chưa có nhân viên. Thêm nhân sự hoặc chuyển bộ phận cho tài khoản.</TableCell></TableRow> : null}
+              {team.length === 0 ? <TableRow><TableCell colSpan={7} className="py-10 text-center text-xs text-muted-foreground">Bộ phận này chưa có nhân viên. Thêm nhân sự hoặc chuyển bộ phận cho tài khoản.</TableCell></TableRow> : null}
             </TableBody>
           </Table>
         </CardContent>
@@ -137,22 +149,22 @@ export default function HrPage() {
 
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
-          <div><p className="font-display text-lg text-ink">Bảng chấm công — tháng 10/2026</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">● đủ công · ◐ nửa công · — nghỉ tuần</p></div>
+          <div><p className="font-display text-lg text-ink">Bảng chấm công — {selectedMonth.label}</p><p className="text-[10px] uppercase tracking-wider text-muted-foreground">● đủ công · ◐ nửa công · — nghỉ tuần</p></div>
           <div className="flex items-center gap-2"><Button size="sm" variant="secondary" disabled={syncSheets.isPending} onClick={() => syncSheets.mutate('attendance')}>{syncSheets.isPending ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />} Cập nhật chấm công</Button><a href={SHEETS.attendance} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[11px] text-brand hover:underline">Mở Google Sheet <ExternalLink className="size-3" /></a></div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1180px] border-collapse text-[11px]">
-            <thead><tr className="border-b border-line bg-muted/40">{['Nhân sự', ...DAYS.map(String), 'Công', 'Tạm ứng', 'Thực lãnh'].map((label, index) => <th key={`${label}-${index}`} className={`px-1.5 py-2 font-medium text-muted-foreground ${index === 0 ? 'sticky left-0 z-10 min-w-44 bg-muted pl-4 text-left' : 'text-center'}`}>{label}</th>)}</tr></thead>
+            <thead><tr className="border-b border-line bg-muted/40">{['Nhân sự', ...selectedMonth.days.map(String), 'Công', 'Tạm ứng', 'Thực lãnh'].map((label, index) => <th key={`${label}-${index}`} className={`px-1.5 py-2 font-medium text-muted-foreground ${index === 0 ? 'sticky left-0 z-10 min-w-44 bg-muted pl-4 text-left' : 'text-center'}`}>{label}</th>)}</tr></thead>
             <tbody>
               {team.map((employee) => {
                 const line = lineFor(employee.id);
-                const work = DAYS.reduce((days, day) => days + (recordFor(employee.id, day)?.status === 'PRESENT' ? 1 : recordFor(employee.id, day)?.status === 'HALF_DAY' ? 0.5 : 0), 0);
+                const work = selectedMonth.days.reduce((days, day) => days + (recordFor(employee.id, day)?.status === 'PRESENT' ? 1 : recordFor(employee.id, day)?.status === 'HALF_DAY' ? 0.5 : 0), 0);
                 return <tr key={employee.id} className="border-b border-line/60 last:border-0">
                   <td className="sticky left-0 z-10 bg-surface py-2 pl-4 pr-2"><p className="font-medium text-ink">{employee.fullName}</p><p className="text-[9px] text-muted-foreground">{employee.code}</p></td>
-                  {DAYS.map((day) => {
+                  {selectedMonth.days.map((day) => {
                     const record = recordFor(employee.id, day);
                     const meta = record ? STATUS_META[record.status] ?? { label: record.status, symbol: '•', className: 'text-muted-foreground' } : null;
-                    return <td key={day} className="px-1 py-2 text-center" title={meta ? `${day}/10: ${meta.label}` : `${day}/10: chưa có dữ liệu`}><span className={`text-sm ${meta?.className ?? 'text-line'}`}>{meta?.symbol ?? '·'}</span></td>;
+                    return <td key={day} className="px-1 py-2 text-center" title={meta ? `${day}/${month.split('-')[1]}: ${meta.label}` : `${day}/${month.split('-')[1]}: chưa có dữ liệu`}><span className={`text-sm ${meta?.className ?? 'text-line'}`}>{meta?.symbol ?? '·'}</span></td>;
                   })}
                   <td className="px-2 text-center font-medium text-ink">{work.toLocaleString('vi-VN')}</td>
                   <td className="tabular px-2 text-right text-[10px]">{formatMoney(Number(line?.advanceAmount ?? 0))}</td>
@@ -167,9 +179,9 @@ export default function HrPage() {
       <AddEmployeeDialog open={addOpen} onOpenChange={setAddOpen} departments={departments.data ?? []} canManage={can('employee:manage')} onSaved={async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ['employees'] }), queryClient.invalidateQueries({ queryKey: ['departments'] })]); }} />
 
       <div className="grid gap-3 md:grid-cols-3">
-        <SourceCard title="Chấm công & lịch nghỉ" href={SHEETS.attendance} note="Nguồn: bảng theo dõi công tháng 10/2026" onSync={() => syncSheets.mutate('attendance')} syncing={syncSheets.isPending} />
-        <SourceCard title="Bảng lương & tạm ứng" href={SHEETS.payroll} note="Nguồn: bảng lương thực lãnh tháng 10/2026" onSync={() => syncSheets.mutate('payroll')} syncing={syncSheets.isPending} />
-        <SourceCard title="Chi phí đi chợ TikTok" href={SHEETS.shopping} note="Nguồn: chi phí team TikTok tháng 11/2026" onSync={() => syncSheets.mutate('shopping')} syncing={syncSheets.isPending} />
+        <SourceCard title="Chấm công & lịch nghỉ" href={SHEETS.attendance} note={`Nguồn: bảng theo dõi công ${selectedMonth.label}`} onSync={() => syncSheets.mutate('attendance')} syncing={syncSheets.isPending} />
+        <SourceCard title="Bảng lương & tạm ứng" href={SHEETS.payroll} note={`Nguồn: bảng lương thực lãnh ${selectedMonth.label}`} onSync={() => syncSheets.mutate('payroll')} syncing={syncSheets.isPending} />
+        <SourceCard title="Chi phí đi chợ TikTok" href={SHEETS.shopping} note={`Nguồn: chi phí team TikTok ${selectedMonth.label}`} onSync={() => syncSheets.mutate('shopping')} syncing={syncSheets.isPending} />
       </div>
     </div>
   );
