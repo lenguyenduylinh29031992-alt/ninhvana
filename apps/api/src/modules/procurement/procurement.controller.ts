@@ -79,7 +79,7 @@ export class ExpenseController {
   constructor(private readonly procurement: ProcurementService) {}
 
   @Get('expenses') @Permissions(PERMISSIONS.EXPENSE_VIEW)
-  list(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId: string) { return this.procurement.listExpenses(actor, propertyId); }
+  list(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId: string, @Query('from') from?: string, @Query('to') to?: string) { return this.procurement.listExpenses(actor, propertyId, from, to); }
 
   @Post('expenses') @Permissions(PERMISSIONS.EXPENSE_CREATE)
   create(@CurrentUser() actor: AuthUser, @Body(new ZodValidationPipe(expenseCreateSchema)) body: z.infer<typeof expenseCreateSchema>) {

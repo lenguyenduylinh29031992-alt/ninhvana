@@ -210,9 +210,10 @@ export class ProcurementService {
     });
   }
 
-  async listExpenses(actor: AuthUser, propertyId: string) {
+  async listExpenses(actor: AuthUser, propertyId: string, from?: string, to?: string) {
     assertPropertyAccess(actor, propertyId);
-    return this.prisma.expense.findMany({ where: { propertyId }, include: { items: { orderBy: [{ employeeName: 'asc' }, { itemDate: 'asc' }] } }, orderBy: { expenseDate: 'desc' }, take: 100 });
+    const dateFilter = from || to ? { ...(from ? { gte: parseIsoDate(from) } : {}), ...(to ? { lte: parseIsoDate(to) } : {}) } : undefined;
+    return this.prisma.expense.findMany({ where: { propertyId, ...(dateFilter ? { expenseDate: dateFilter } : {}) }, include: { items: { orderBy: [{ employeeName: 'asc' }, { itemDate: 'asc' }] } }, orderBy: { expenseDate: 'desc' }, take: 1000 });
   }
 
   async createExpense(actor: AuthUser, input: { propertyId: string; accountCode: string; department: string; description: string; amount: number; vatAmount?: number; paymentMethod?: string }) {

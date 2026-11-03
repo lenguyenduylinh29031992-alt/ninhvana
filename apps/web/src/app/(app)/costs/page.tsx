@@ -33,8 +33,18 @@ export default function CostsPage() {
   const { can } = useAccess(); const { activeProperty, properties } = useActiveProperty(); const queryClient = useQueryClient();
   const propertyId = activeProperty?.id ?? properties.find((property) => property.type === 'HOTEL')?.id ?? properties[0]?.id;
   const [tab, setTab] = useState<'EXPENSES' | 'STOCK' | 'AP'>('EXPENSES'); const [open, setOpen] = useState(false);
+  const now = new Date();
+  const [year, setYear] = useState(String(now.getFullYear()));
+  const [month, setMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
+  const years = Array.from({ length: 4 }, (_, index) => String(now.getFullYear() - 2 + index));
+  const from = year === 'ALL' ? undefined : month === 'ALL' ? `${year}-01-01` : `${year}-${month}-01`;
+  const to = year === 'ALL' ? undefined : month === 'ALL' ? `${year}-12-31` : `${year}-${month}-${new Date(Number(year), Number(month), 0).getDate()}`;
+  const periodLabel = year === 'ALL' ? 'Tất cả các năm' : month === 'ALL' ? `Năm ${year}` : `Tháng ${month}/${year}`;
+  const expenseQuery = new URLSearchParams({ propertyId: propertyId ?? '' });
+  if (from) expenseQuery.set('from', from);
+  if (to) expenseQuery.set('to', to);
 
-  const expenses = useQuery<Expense[]>({ queryKey: ['expenses', propertyId], queryFn: () => api(`/costs/expenses?propertyId=${propertyId}`), enabled: Boolean(propertyId) && can('expense:view') });
+  const expenses = useQuery<Expense[]>({ queryKey: ['expenses', propertyId, from, to], queryFn: () => api(`/costs/expenses?${expenseQuery.toString()}`), enabled: Boolean(propertyId) && can('expense:view') });
   const stock = useQuery<StockRow[]>({ queryKey: ['stock', propertyId], queryFn: () => api(`/procurement/stock?propertyId=${propertyId}`), enabled: Boolean(propertyId) && can('inventory:view') });
   const invoices = useQuery<ApInvoice[]>({ queryKey: ['ap-invoices', propertyId], queryFn: () => api(`/procurement/invoices?propertyId=${propertyId}`), enabled: Boolean(propertyId) && can('purchase:view') });
 
@@ -45,9 +55,9 @@ export default function CostsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Kiểm soát chi phí" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={<div className="flex items-center gap-2"><ExportMenu dataset="supplier-invoices" label="Xuất chi phí" />{can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null}</div>} />
+      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Kiểm soát chi phí" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={<div className="flex flex-wrap items-center gap-2"><div className="flex items-center gap-1 rounded-lg border border-line bg-surface px-2 py-1"><NativeSelect aria-label="Chọn năm chi phí" className="h-7 w-20 border-0 bg-transparent px-1 text-[11px]" value={year} onChange={(event) => setYear(event.target.value)}><option value="ALL">Tất cả</option>{years.map((value) => <option key={value} value={value}>{value}</option>)}</NativeSelect><span className="text-muted-foreground">/</span><NativeSelect aria-label="Chọn tháng chi phí" className="h-7 w-24 border-0 bg-transparent px-1 text-[11px]" value={month} onChange={(event) => setMonth(event.target.value)} disabled={year === 'ALL'}><option value="ALL">Cả năm</option>{Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0')).map((value) => <option key={value} value={value}>Tháng {value}</option>)}</NativeSelect></div><ExportMenu dataset="supplier-invoices" label="Xuất chi phí" />{can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null}</div>} />
       <div className="grid gap-3 sm:grid-cols-3">
-        <Kpi icon={Receipt} label="Chi phí đã ghi" value={formatMoney(totalExpense)} hint={`${expenses.data?.length ?? 0} chứng từ`} />
+        <Kpi icon={Receipt} label="Chi phí đã ghi" value={formatMoney(totalExpense)} hint={`${expenses.data?.length ?? 0} chứng từ · ${periodLabel}`} />
         <Kpi icon={Boxes} label="Giá trị tồn kho" value={formatMoney(stockValue)} hint={`${stock.data?.length ?? 0} mặt hàng`} />
         <Kpi icon={Truck} label="Công nợ nhà cung cấp" value={formatMoney(apBalance)} hint={`${invoices.data?.length ?? 0} hoá đơn`} />
       </div>
@@ -73,24 +83,30 @@ export default function CostsPage() {
         </TableBody></Table> : null}
       </CardContent></Card>
       {tab === 'EXPENSES' ? (() => {
-        const items = (expenses.data ?? []).flatMap((expense) => expense.items ?? []);
+        const items = (expenses.data ?? []).flatMap((expense) => (expense.items ?? []).map((item) => ({ ...item, department: expense.department, period: expense.expenseDate.slice(0, 7) })));
         if (items.length === 0) return null;
-        const groups = items.reduce<Record<string, ExpenseItem[]>>((result, item) => {
-          const key = item.employeeName || 'Chi chung';
-          (result[key] ??= []).push(item);
+        const groups = items.reduce<Record<string, Record<string, typeof items>>>((result, item) => {
+          const department = costGroup(item.department);
+          const employee = item.employeeName || 'Chi chung';
+          ((result[department] ??= {})[employee] ??= []).push(item);
           return result;
         }, {});
         return (
           <Card><CardContent className="p-0">
-            <div className="border-b border-line px-4 py-3"><p className="font-display text-lg text-ink">Chi tiết mua sắm theo nhân viên</p><p className="text-[10px] text-muted-foreground">Tóm tắt từ bảng tổng hợp tiền chợ & mua sắm TikTok</p></div>
-            <Table><TableHeader><TableRow><TableHead className="pl-4">Nhân viên</TableHead><TableHead>Nội dung</TableHead><TableHead>Ngày</TableHead><TableHead className="pr-4 text-right">Số tiền</TableHead></TableRow></TableHeader><TableBody>
-              {Object.entries(groups).map(([employee, rows]) => (
-                <Fragment key={employee}>
-                  <TableRow><TableCell colSpan={4} className="bg-muted/40 pl-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand">{employee} · {rows.length} mục · {formatMoney(rows.reduce((sum, item) => sum + Number(item.amount), 0))}</TableCell></TableRow>
-                  {rows.map((item) => <TableRow key={item.id}><TableCell className="pl-4 text-[11px]">{item.employeeName || 'Chi chung'}</TableCell><TableCell className="text-[11px]">{item.description}</TableCell><TableCell className="text-[10px]">{item.itemDate.slice(0, 10)}</TableCell><TableCell className="pr-4 tabular text-right text-[11px]">{formatMoney(item.amount)}</TableCell></TableRow>)}
-                </Fragment>
-              ))}
-            </TableBody></Table>
+            <div className="border-b border-line px-4 py-3"><p className="font-display text-lg text-ink">Chi tiết mua sắm theo bộ phận & nhân viên</p><p className="text-[10px] text-muted-foreground">{periodLabel} · bấm từng nhân viên để thu gọn/mở rộng</p></div>
+            {Object.entries(groups).map(([department, employees]) => (
+              <div key={department} className="border-b border-line last:border-0">
+                <div className="flex items-center justify-between bg-muted/30 px-4 py-2"><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand">{department}</p><p className="text-[10px] text-muted-foreground">{Object.values(employees).flat().length} mục · {formatMoney(Object.values(employees).flat().reduce((sum, item) => sum + Number(item.amount), 0))}</p></div>
+                {Object.entries(employees).map(([employee, rows]) => (
+                  <details key={employee} className="group border-t border-line/60">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-xs hover:bg-muted/30"><span className="font-medium text-ink">{employee} <span className="font-normal text-muted-foreground">· {rows.length} mục</span></span><span className="tabular text-right text-ink">{formatMoney(rows.reduce((sum, item) => sum + Number(item.amount), 0))}<span className="ml-2 inline-block text-muted-foreground transition group-open:rotate-90">›</span></span></summary>
+                    <div className="overflow-x-auto border-t border-line/50"><Table><TableHeader><TableRow><TableHead className="pl-8">Nội dung</TableHead><TableHead>Ngày</TableHead><TableHead className="pr-4 text-right">Số tiền</TableHead></TableRow></TableHeader><TableBody>
+                      {rows.map((item) => <TableRow key={item.id}><TableCell className="pl-8 text-[11px]">{item.description}</TableCell><TableCell className="text-[10px]">{item.itemDate.slice(0, 10)}</TableCell><TableCell className="pr-4 tabular text-right text-[11px]">{formatMoney(item.amount)}</TableCell></TableRow>)}
+                    </TableBody></Table></div>
+                  </details>
+                ))}
+              </div>
+            ))}
           </CardContent></Card>
         );
       })() : null}
