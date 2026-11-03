@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   // Include workspace packages in the standalone trace for Docker images.
   outputFileTracingRoot: path.join(process.cwd(), '../../'),
   poweredByHeader: false,
+  // Hide the Next.js dev overlay N button; production is unaffected.
+  devIndicators: false,
   eslint: { ignoreDuringBuilds: true },
   async rewrites() {
     return [
