@@ -15,6 +15,10 @@ set -a
 # shellcheck disable=SC1091
 source .env.local
 set +a
+LAN_IP="$(ipconfig getifaddr en0 2>/dev/null || true)"
+if [ -n "$LAN_IP" ]; then
+  export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-},http://$LAN_IP:3000"
+fi
 case "${DATABASE_URL:-}" in
   *"@127.0.0.1:55432/"*|*"@localhost:55432/"*) ;;
   *) echo "✖ DATABASE_URL local không phải PostgreSQL .dev (127.0.0.1:55432). Từ chối chạy để bảo vệ production." >&2; exit 1 ;;

@@ -2332,6 +2332,7 @@ model Employee {
   department  String
   hireDate    DateTime @db.Date
   status      String   @default("ACTIVE")
+  source      String   @default("MANUAL")
   baseSalary  Decimal  @db.Decimal(18, 2)
   allowances  Decimal  @default(0) @db.Decimal(18, 2)
   dependents  Int      @default(0)

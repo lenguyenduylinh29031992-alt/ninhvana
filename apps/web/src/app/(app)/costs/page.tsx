@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Boxes, Plus, Receipt, Truck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -23,8 +23,10 @@ interface Expense { id: string; number: string; description: string; accountCode
 interface StockRow { id: string; quantity: number; value: number; item?: { name: string; unit: string }; lowStock: boolean }
 interface ApInvoice { id: string; number: string; total: number; balance: number; dueDate: string; status: string; supplier: { name: string } }
 
-const ACCOUNTS = [['6100', 'Điện'], ['6110', 'Nước'], ['6200', 'Tiếp thị'], ['6300', 'Bảo trì'], ['6400', 'Hành chính'], ['6900', 'Khác']];
-const DEPTS = [['ADMIN', 'Hành chính'], ['ROOMS', 'Phòng'], ['FNB', 'F&B'], ['SPA', 'Spa'], ['ENGINEERING', 'Kỹ thuật']];
+const ACCOUNTS = [['6100', 'Điện'], ['6110', 'Nước'], ['6200', 'Tiếp thị'], ['6300', 'Bảo trì'], ['6400', 'Hành chính'], ['6900', 'Vận hành khác']];
+const DEPTS = [['ADMIN', 'Hành chính'], ['ROOMS', 'Phòng'], ['FNB', 'F&B'], ['SPA', 'Spa'], ['ENGINEERING', 'Kỹ thuật'], ['OTHER_OPS', 'Vận hành khác']];
+const COST_GROUP_LABELS: Record<string, string> = { ADMIN: 'Hành chính', ROOMS: 'Phòng', FNB: 'F&B', SPA: 'Spa', ENGINEERING: 'Kỹ thuật', TIKTOK: 'Vận hành khác', MARKETING: 'Vận hành khác', OTHER_OPS: 'Vận hành khác' };
+const costGroup = (department: string) => COST_GROUP_LABELS[department] ?? department;
 
 export default function CostsPage() {
   const { can } = useAccess(); const { activeProperty, properties } = useActiveProperty(); const queryClient = useQueryClient();
@@ -51,7 +53,16 @@ export default function CostsPage() {
       <div className="flex gap-1">{([['EXPENSES', 'Chi phí'], ['STOCK', 'Tồn kho'], ['AP', 'Công nợ NCC']] as const).map(([value, label]) => <Button key={value} size="sm" variant={tab === value ? 'primary' : 'secondary'} onClick={() => setTab(value)}>{label}</Button>)}</div>
       <Card><CardContent className="p-0">
         {tab === 'EXPENSES' ? <Table><TableHeader><TableRow><TableHead className="pl-4">Số</TableHead><TableHead>Diễn giải</TableHead><TableHead>Bộ phận</TableHead><TableHead>Tài khoản</TableHead><TableHead>Ngày</TableHead><TableHead className="pr-4 text-right">Tổng</TableHead></TableRow></TableHeader><TableBody>
-          {(expenses.data ?? []).map((expense) => <TableRow key={expense.id}><TableCell className="pl-4 font-mono text-[10px]">{expense.number}</TableCell><TableCell className="text-[11px]">{expense.description}</TableCell><TableCell><Badge tone="outline">{expense.department}</Badge></TableCell><TableCell className="text-[10px]">{expense.accountCode}</TableCell><TableCell className="text-[10px]">{expense.expenseDate.slice(0, 10)}</TableCell><TableCell className="pr-4 tabular text-right text-[11px]">{formatMoney(expense.total)}</TableCell></TableRow>)}
+          {Object.entries((expenses.data ?? []).reduce<Record<string, Expense[]>>((groups, expense) => {
+            const group = costGroup(expense.department);
+            (groups[group] ??= []).push(expense);
+            return groups;
+          }, {})).map(([group, rows]) => (
+            <Fragment key={group}>
+              <TableRow><TableCell colSpan={6} className="bg-muted/40 pl-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand">{group} · {rows.length} chứng từ</TableCell></TableRow>
+              {rows.map((expense) => <TableRow key={expense.id}><TableCell className="pl-4 font-mono text-[10px]">{expense.number}</TableCell><TableCell className="text-[11px]">{expense.description}</TableCell><TableCell><Badge tone="outline">{expense.department === 'TIKTOK' || expense.department === 'OTHER_OPS' ? 'Vận hành khác' : expense.department}</Badge></TableCell><TableCell className="text-[10px]">{expense.accountCode}</TableCell><TableCell className="text-[10px]">{expense.expenseDate.slice(0, 10)}</TableCell><TableCell className="pr-4 tabular text-right text-[11px]">{formatMoney(expense.total)}</TableCell></TableRow>)}
+            </Fragment>
+          ))}
         </TableBody></Table> : null}
         {tab === 'STOCK' ? <Table><TableHeader><TableRow><TableHead className="pl-4">Mặt hàng</TableHead><TableHead>Đơn vị</TableHead><TableHead className="text-right">Tồn</TableHead><TableHead className="text-right">Giá trị</TableHead><TableHead className="pr-4">Trạng thái</TableHead></TableRow></TableHeader><TableBody>
           {(stock.data ?? []).map((row) => <TableRow key={row.id}><TableCell className="pl-4 text-[11px]">{row.item?.name ?? row.id}</TableCell><TableCell>{row.item?.unit}</TableCell><TableCell className="tabular text-right">{Number(row.quantity).toLocaleString('vi-VN')}</TableCell><TableCell className="tabular text-right">{formatMoney(row.value)}</TableCell><TableCell className="pr-4">{row.lowStock ? <Badge tone="danger">Dưới định mức</Badge> : <Badge tone="success">Đủ</Badge>}</TableCell></TableRow>)}

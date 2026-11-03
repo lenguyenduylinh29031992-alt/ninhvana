@@ -1,7 +1,8 @@
 import type { Config } from 'tailwindcss';
+import preset from '@grand-suite/config';
 
 const config: Config = {
-  presets: [require('@grand-suite/config')],
+  presets: [preset],
   content: ['./src/**/*.{ts,tsx,mdx}'],
 };
 

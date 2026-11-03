@@ -20,7 +20,7 @@ import { PageHeader } from '@/components/ui/feedback';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-interface Employee { id: string; code: string; fullName: string; position: string; department: string; baseSalary: number; status: string }
+interface Employee { id: string; code: string; fullName: string; position: string; department: string; baseSalary: number; status: string; source?: string }
 interface Attendance { id: string; employeeId: string; date: string; hours: number; status: string; employee: { id: string; code: string; fullName: string; department: string } }
 interface Department { code: string; name: string; nameEn: string | null; division: string; group: string; isRevenueCenter: boolean; sortOrder: number }
 interface PayrollLine { employeeId: string; employeeCode: string; employeeName: string; gross: number; advanceAmount: number; net: number }
@@ -128,7 +128,7 @@ export default function HrPage() {
                 const line = lineFor(employee.id);
                 return <TableRow key={employee.id}>
                   <TableCell className="pl-4 font-mono text-[11px]">{employee.code}</TableCell>
-                  <TableCell className="text-xs">{employee.fullName}</TableCell>
+                  <TableCell className="text-xs">{employee.fullName}{employee.source === 'GOOGLE_SHEET' ? '' : ' (Ảo)'}</TableCell>
                   <TableCell className="text-[11px] text-muted-foreground">{employee.position}</TableCell>
                   <TableCell><Badge tone={employee.status === 'ACTIVE' ? 'success' : 'outline'}>{employee.status === 'ACTIVE' ? 'Hoạt động' : employee.status}</Badge></TableCell>
                   <TableCell className="tabular text-right text-xs">{formatMoney(Number(employee.baseSalary))}</TableCell>
@@ -169,7 +169,7 @@ export default function HrPage() {
                 const line = lineFor(employee.id);
                 const work = selectedMonth.days.reduce((days, day) => days + (recordFor(employee.id, day)?.status === 'PRESENT' ? 1 : recordFor(employee.id, day)?.status === 'HALF_DAY' ? 0.5 : 0), 0);
                 return <tr key={employee.id} className="border-b border-line/60 last:border-0">
-                  <td className="sticky left-0 z-10 bg-surface py-2 pl-4 pr-2"><p className="font-medium text-ink">{employee.fullName}</p><p className="text-[9px] text-muted-foreground">{employee.code}</p></td>
+                  <td className="sticky left-0 z-10 bg-surface py-2 pl-4 pr-2"><p className="font-medium text-ink">{employee.fullName}{employee.source === 'GOOGLE_SHEET' ? '' : ' (Ảo)'}</p><p className="text-[9px] text-muted-foreground">{employee.code}</p></td>
                   {selectedMonth.days.map((day) => {
                     const record = recordFor(employee.id, day);
                     const meta = record ? STATUS_META[record.status] ?? { label: record.status, symbol: '•', className: 'text-muted-foreground' } : null;

@@ -182,6 +182,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
           const message = 'Đã tải dữ liệu nguồn';
           if (key === 'attendance') imported = await this.importAttendance(property, rows, resolvedDepartment);
           if (key === 'payroll') imported = await this.importPayroll(property, rows, resolvedDepartment);
+          if (key === 'shopping') imported = await this.importShopping(property, rows);
           await this.prisma.googleSheetSync.upsert({
             where: { key: periodKey }, update: { url: configured?.url || source.url, gid: configured?.gid, department: resolvedDepartment, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
             create: { key: periodKey, url: configured?.url || source.url, gid: configured?.gid, department: resolvedDepartment, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
@@ -207,10 +208,13 @@ export class GoogleSheetSyncService implements OnModuleInit {
   private async employee(orgId: string, propertyId: string, name: string, department: string, code?: string) {
     const fullName = name.trim();
     const existing = await this.prisma.employee.findFirst({ where: { orgId, fullName, department } });
-    if (existing) return existing;
+    if (existing) {
+      if (existing.source !== 'GOOGLE_SHEET') return this.prisma.employee.update({ where: { id: existing.id }, data: { source: 'GOOGLE_SHEET' } });
+      return existing;
+    }
     const employeeCode = code || `SHEET-${fullName.replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
     return this.prisma.employee.create({ data: {
-      orgId, propertyId, code: employeeCode, fullName, position: 'Nhân viên', department,
+      orgId, propertyId, code: employeeCode, fullName, position: 'Nhân viên', department, source: 'GOOGLE_SHEET',
       hireDate: new Date('2026-10-01T00:00:00Z'), baseSalary: new Prisma.Decimal(6_500_000), status: 'ACTIVE',
     } });
   }
@@ -255,6 +259,40 @@ export class GoogleSheetSyncService implements OnModuleInit {
       index = rowIndex;
     }
     return count;
+  }
+
+  private async importShopping(property: { id: string; orgId: string }, rows: CsvRow[]) {
+    const headerIndex = rows.findIndex((row) => row.some((cell) => normalize(cell) === 'ngày'));
+    const header = rows[headerIndex >= 0 ? headerIndex : 0] ?? [];
+    const normalized = header.map((cell) => normalize(cell));
+    const dateCol = normalized.findIndex((cell) => cell === 'ngày');
+    const shopDescCol = normalized.findIndex((cell) => cell.includes('mua đồ chợ') && cell.includes('tên đồ'));
+    const onlineDescCol = normalized.findIndex((cell) => cell.includes('shopee') && cell.includes('tên đồ'));
+    const shopAmountCol = normalized.findIndex((cell) => cell === 'tổng tiền đồ');
+    const onlineAmountCol = normalized.findIndex((cell) => cell === 'tiền đồ online');
+    if (dateCol < 0 || (shopAmountCol < 0 && onlineAmountCol < 0)) return 0;
+    let imported = 0;
+    for (const [index, row] of rows.slice(headerIndex >= 0 ? headerIndex + 1 : 1).entries()) {
+      const value = money(row[shopAmountCol]) + money(row[onlineAmountCol]);
+      if (value <= 0) continue;
+      const rawDate = (row[dateCol] ?? '').trim();
+      const date = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (!date) continue;
+      const isoDate = `${date[3]}-${String(Number(date[2])).padStart(2, '0')}-${String(Number(date[1])).padStart(2, '0')}`;
+      const description = `Chi phí đi chợ TikTok: ${(row[shopDescCol] || row[onlineDescCol] || 'Mua sắm').trim()}`;
+      const number = `SHOP-${isoDate}-${String(index + 1).padStart(3, '0')}`;
+      await this.prisma.expense.upsert({
+        where: { propertyId_number: { propertyId: property.id, number } },
+        update: { amount: new Prisma.Decimal(value), total: new Prisma.Decimal(value), description, expenseDate: new Date(`${isoDate}T00:00:00Z`) },
+        create: {
+          orgId: property.orgId, propertyId: property.id, number, accountCode: '6900', department: 'OTHER_OPS',
+          description, amount: new Prisma.Decimal(value), total: new Prisma.Decimal(value), status: 'APPROVED',
+          expenseDate: new Date(`${isoDate}T00:00:00Z`), paymentMethod: 'CASH', notes: 'Đồng bộ Google Sheet chi phí đi chợ TikTok',
+        },
+      });
+      imported += 1;
+    }
+    return imported;
   }
 
   private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {
