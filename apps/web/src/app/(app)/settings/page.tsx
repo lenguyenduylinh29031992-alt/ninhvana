@@ -12,6 +12,7 @@ import {
   Save,
   Settings2,
   Sheet,
+  Receipt,
   RefreshCw,
 } from 'lucide-react';
 import type { ExchangeRateRecord, SettingRecord, TaxRateRecord } from '@grand-suite/shared';
@@ -155,6 +156,11 @@ export default function SettingsPage() {
           {can('payroll:view') ? (
             <TabsTrigger value="sheets">
               <Sheet className="mr-1.5 size-3.5" /> Chấm công & lương
+            </TabsTrigger>
+          ) : null}
+          {can('expense:view') ? (
+            <TabsTrigger value="other-costs">
+              <Receipt className="mr-1.5 size-3.5" /> Chi phí khác
             </TabsTrigger>
           ) : null}
         </TabsList>
@@ -420,6 +426,11 @@ export default function SettingsPage() {
         {can('payroll:view') ? (
           <TabsContent value="sheets">
             <SheetSettings canManage={can('payroll:manage')} />
+          </TabsContent>
+        ) : null}
+        {can('expense:view') ? (
+          <TabsContent value="other-costs">
+            <OtherCostSettings canManage={can('expense:create')} />
           </TabsContent>
         ) : null}
       </Tabs>
@@ -840,7 +851,7 @@ interface SheetSource {
 function SheetSettings({ canManage }: { canManage: boolean }) {
   const queryClient = useQueryClient();
   const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; department: string; enabled: boolean; gid: string }>>({});
-  const [newKind, setNewKind] = useState<'attendance' | 'payroll' | 'shopping'>('attendance');
+  const [newKind, setNewKind] = useState<'attendance' | 'payroll'>('attendance');
   const [newPeriod, setNewPeriod] = useState(new Date().toISOString().slice(0, 7));
   const [newGid, setNewGid] = useState('');
   const [newUrl, setNewUrl] = useState('');
@@ -872,51 +883,26 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
         <div className="rounded-xl border border-dashed border-brand/40 bg-brand-soft/30 p-3">
           <p className="mb-2 text-sm font-medium text-ink">Thêm tab Google Sheet theo tháng</p>
           <div className="grid gap-2 md:grid-cols-[0.9fr_0.8fr_0.8fr_1.5fr_0.8fr_auto]">
-            <div><Label>Loại</Label><NativeSelect value={newKind} onChange={(e) => setNewKind(e.target.value as typeof newKind)}><option value="attendance">Chấm công</option><option value="payroll">Tính lương</option><option value="shopping">Chi phí khác</option></NativeSelect></div>
+            <div><Label>Loại</Label><NativeSelect value={newKind} onChange={(e) => setNewKind(e.target.value as typeof newKind)}><option value="attendance">Chấm công</option><option value="payroll">Tính lương</option></NativeSelect></div>
             <div><Label>Tháng</Label><Input type="month" value={newPeriod} onChange={(e) => setNewPeriod(e.target.value)} /></div>
             <div><Label>GID</Label><Input value={newGid} onChange={(e) => setNewGid(e.target.value)} placeholder="536156494" /></div>
             <div><Label>Link Google Sheet</Label><Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://docs.google.com/spreadsheets/..." /></div>
             <div><Label>Bộ phận</Label><NativeSelect value={newDepartment} onChange={(e) => setNewDepartment(e.target.value)}>{(departments.data ?? []).map((department) => <option key={department.code} value={department.code}>{department.name}</option>)}{!(departments.data ?? []).some((department) => department.code === newDepartment) ? <option value={newDepartment}>{newDepartment}</option> : null}</NativeSelect></div>
-            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newGid || !newUrl || save.isPending} onClick={() => save.mutate({ key: `${newKind}:${newPeriod}:${newDepartment}`, url: newUrl, label: `${newKind === 'attendance' ? 'Chấm công' : newKind === 'payroll' ? 'Tính lương' : 'Chi phí khác'} ${newPeriod}`, department: newDepartment, enabled: true, gid: newGid, period: newPeriod })}>Thêm</Button></div>
+            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newGid || !newUrl || save.isPending} onClick={() => save.mutate({ key: `${newKind}:${newPeriod}:${newDepartment}`, url: newUrl, label: `${newKind === 'attendance' ? 'Chấm công' : 'Tính lương'} ${newPeriod}`, department: newDepartment, enabled: true, gid: newGid, period: newPeriod })}>Thêm</Button></div>
           </div>
           <p className="mt-2 text-[10px] text-muted-foreground">Ví dụ: tab tháng 11 có gid=123456789. Mỗi tháng một dòng; khi bấm cập nhật ở trang Nhân sự, hệ thống dùng đúng gid của tháng đang chọn.</p>
         </div>
-        {(() => {
-          const shoppingSources = (sources.data ?? []).filter((source) => source.key.split(':')[0] === 'shopping');
-          if (shoppingSources.length === 0) return null;
-          return (
-            <div className="space-y-2 rounded-xl border border-brand/30 bg-brand-soft/20 p-3">
-              <div className="flex items-center justify-between border-b border-brand/20 pb-2"><div><p className="font-display text-lg text-ink">Chi phí khác</p><p className="text-[10px] uppercase tracking-label text-muted-foreground">Google Sheet chi phí đi chợ / mua sắm TikTok</p></div><Badge tone="brand">{shoppingSources.length} nguồn</Badge></div>
-              {shoppingSources.map((source) => {
-                const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' };
-                return (
-                  <div key={source.key} className="rounded-xl border border-line bg-surface p-3">
-                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">Chi phí khác{source.period ? ` · ${source.period}` : ''}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
-                    <div className="grid gap-2 md:grid-cols-[1.6fr_1fr_0.7fr_0.7fr_auto]">
-                      <div><Label>Link Google Sheet</Label><Input value={draft.url} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, url: e.target.value } }))} /></div>
-                      <div><Label>Tên hiển thị</Label><Input value={draft.label} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, label: e.target.value } }))} /></div>
-                      <div><Label>Bộ phận</Label><Input value={draft.department} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, department: e.target.value.toUpperCase() } }))} /></div>
-                      <div><Label>GID</Label><Input value={draft.gid} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, gid: e.target.value } }))} /></div>
-                      <div className="flex items-end gap-2"><Button size="sm" disabled={!canManage || save.isPending} onClick={() => save.mutate({ key: source.key, url: draft.url, label: draft.label, department: draft.department, enabled: draft.enabled, gid: draft.gid, period: source.period })}>Lưu</Button><Button size="sm" variant="secondary" disabled={!canManage} onClick={() => setDrafts((current) => ({ ...current, [source.key]: { ...draft, enabled: !draft.enabled } }))}>{draft.enabled ? 'Tắt' : 'Bật'}</Button></div>
-                    </div>
-                    {source.message ? <p className="mt-2 text-[10px] text-muted-foreground">{source.message}</p> : null}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
         {[...new Set([...(departments.data ?? []).map((department) => department.code), ...(sources.data ?? []).map((source) => source.department)])].map((departmentCode) => {
           const departmentName = departments.data?.find((department) => department.code === departmentCode)?.name ?? departmentCode;
           const departmentSources = (sources.data ?? []).filter((source) => source.department === departmentCode && source.key.split(':')[0] !== 'shopping');
           return (
             <div key={departmentCode} className="space-y-2 rounded-xl border border-line bg-muted/20 p-3">
-              <div className="flex items-center justify-between border-b border-line/70 pb-2"><div><p className="font-display text-lg text-ink">{departmentName}</p><p className="text-[10px] uppercase tracking-label text-muted-foreground">Chấm công · tính lương · chi phí</p></div><Badge tone="outline">{departmentSources.length} nguồn</Badge></div>
+              <div className="flex items-center justify-between border-b border-line/70 pb-2"><div><p className="font-display text-lg text-ink">{departmentName}</p><p className="text-[10px] uppercase tracking-label text-muted-foreground">Chấm công · tính lương</p></div><Badge tone="outline">{departmentSources.length} nguồn</Badge></div>
               {departmentSources.length === 0 ? <p className="rounded-lg border border-dashed border-line px-3 py-4 text-center text-xs text-muted-foreground">Chưa có tab Google Sheet cho bộ phận này. Thêm tab bên trên và chọn bộ phận {departmentName}.</p> : null}
               {departmentSources.map((source) => {
                 const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' };
                 const kind = source.key.split(':')[0];
-                const title = kind === 'attendance' ? 'Chấm công' : kind === 'payroll' ? 'Tính lương' : 'Chi phí đi chợ';
+                const title = kind === 'attendance' ? 'Chấm công' : 'Tính lương';
                 return (
                   <div key={source.key} className="rounded-xl border border-line bg-surface p-3">
                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">{title}{source.period ? ` · ${source.period}` : ''}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
@@ -934,6 +920,77 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
             </div>
           );
         })}
+      </CardContent>
+    </Card>
+  );
+}
+
+function OtherCostSettings({ canManage }: { canManage: boolean }) {
+  const queryClient = useQueryClient();
+  const now = new Date();
+  const [department, setDepartment] = useState('TIKTOK');
+  const [year, setYear] = useState(String(now.getFullYear()));
+  const [month, setMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
+  const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; enabled: boolean; gid: string }>>({});
+  const [newUrl, setNewUrl] = useState('');
+  const [newGid, setNewGid] = useState('');
+  const [newLabel, setNewLabel] = useState('');
+  const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
+  const departments = useQuery<SheetDepartment[]>({ queryKey: ['sheet-departments'], queryFn: () => api('/hr/departments') });
+  const period = `${year}-${month}`;
+  const years = Array.from({ length: 4 }, (_, index) => String(now.getFullYear() - 2 + index));
+  useEffect(() => {
+    if (!sources.data) return;
+    setDrafts(Object.fromEntries(sources.data.map((source) => [source.key, { url: source.url, label: source.label ?? '', enabled: source.enabled, gid: source.gid ?? '' }])));
+  }, [sources.data]);
+  const save = useMutation({
+    mutationFn: (payload: { key: string; url: string; label: string; department: string; enabled: boolean; gid: string; period: string | null }) =>
+      api('/hr/sheets/config', { method: 'PUT', body: payload }),
+    onSuccess: async () => { toast.success('Đã lưu cấu hình Chi phí khác'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
+    onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không lưu được cấu hình'),
+  });
+  const rows = (sources.data ?? []).filter((source) => source.key.split(':')[0] === 'shopping' && source.department === department && source.period === period);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Chi phí khác</CardTitle>
+        <CardDescription>Google Sheet chi phí đi chợ / mua sắm. Chọn bộ phận, năm và tháng để chỉ hiển thị cấu hình của tháng đó.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-2 md:grid-cols-[1.4fr_0.7fr_0.8fr_auto]">
+          <div><Label>Bộ phận</Label><NativeSelect aria-label="Chọn bộ phận chi phí khác" value={department} onChange={(event) => setDepartment(event.target.value)}>{(departments.data ?? []).map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}{!(departments.data ?? []).some((item) => item.code === department) ? <option value={department}>{department}</option> : null}</NativeSelect></div>
+          <div><Label>Năm</Label><NativeSelect aria-label="Chọn năm chi phí khác" value={year} onChange={(event) => setYear(event.target.value)}>{years.map((value) => <option key={value} value={value}>{value}</option>)}</NativeSelect></div>
+          <div><Label>Tháng</Label><NativeSelect aria-label="Chọn tháng chi phí khác" value={month} onChange={(event) => setMonth(event.target.value)}>{Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0')).map((value) => <option key={value} value={value}>Tháng {value}</option>)}</NativeSelect></div>
+          <div className="flex items-end"><Badge tone="outline">{period} · {rows.length} nguồn</Badge></div>
+        </div>
+
+        {rows.length === 0 ? <p className="rounded-xl border border-dashed border-line px-4 py-6 text-center text-xs text-muted-foreground">Chưa có cấu hình Chi phí khác cho {department} tháng {period}.</p> : null}
+        {rows.map((source) => {
+          const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', enabled: source.enabled, gid: source.gid ?? '' };
+          return (
+            <div key={source.key} className="space-y-2 rounded-xl border border-line bg-muted/10 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">Chi phí khác · {period}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
+              <div className="grid gap-2 md:grid-cols-[1.5fr_1fr_0.7fr_auto]">
+                <div><Label>Link Google Sheet</Label><Input value={draft.url} disabled={!canManage} onChange={(event) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, url: event.target.value } }))} /></div>
+                <div><Label>Tên hiển thị</Label><Input value={draft.label} disabled={!canManage} onChange={(event) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, label: event.target.value } }))} /></div>
+                <div><Label>GID</Label><Input value={draft.gid} disabled={!canManage} onChange={(event) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, gid: event.target.value } }))} /></div>
+                <div className="flex items-end gap-2"><Button size="sm" disabled={!canManage || save.isPending} onClick={() => save.mutate({ key: source.key, url: draft.url, label: draft.label, department, enabled: draft.enabled, gid: draft.gid, period })}>Lưu</Button><Button size="sm" variant="secondary" disabled={!canManage} onClick={() => setDrafts((current) => ({ ...current, [source.key]: { ...draft, enabled: !draft.enabled } }))}>{draft.enabled ? 'Tắt' : 'Bật'}</Button></div>
+              </div>
+              {source.message ? <p className="text-[10px] text-muted-foreground">{source.message}</p> : null}
+            </div>
+          );
+        })}
+
+        <div className="rounded-xl border border-dashed border-brand/40 bg-brand-soft/30 p-3">
+          <p className="mb-2 text-sm font-medium text-ink">Thêm cấu hình Chi phí khác cho {department} · {period}</p>
+          <div className="grid gap-2 md:grid-cols-[1.5fr_0.8fr_1fr_auto]">
+            <div><Label>Link Google Sheet</Label><Input value={newUrl} onChange={(event) => setNewUrl(event.target.value)} placeholder="https://docs.google.com/spreadsheets/..." /></div>
+            <div><Label>GID</Label><Input value={newGid} onChange={(event) => setNewGid(event.target.value)} placeholder="1350094361" /></div>
+            <div><Label>Tên hiển thị</Label><Input value={newLabel} onChange={(event) => setNewLabel(event.target.value)} placeholder={`Chi phí khác ${period}`} /></div>
+            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newUrl || !newGid || save.isPending} onClick={() => save.mutate({ key: `shopping:${period}:${department}`, url: newUrl, label: newLabel || `Chi phí khác ${period}`, department, enabled: true, gid: newGid, period })}>Thêm</Button></div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
