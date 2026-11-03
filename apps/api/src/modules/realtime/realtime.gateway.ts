@@ -20,9 +20,12 @@ interface SocketIdentity {
 }
 
 const allowedOrigins = [
-  process.env.PUBLIC_WEB_URL ?? 'http://localhost:3000',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
+  ...new Set([
+    process.env.PUBLIC_WEB_URL ?? 'http://localhost:3000',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    ...(process.env.ALLOWED_ORIGINS ?? '').split(',').map((origin) => origin.trim()).filter(Boolean),
+  ]),
 ];
 
 @WebSocketGateway({
