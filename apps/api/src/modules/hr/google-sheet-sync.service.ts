@@ -14,9 +14,14 @@ const SOURCES = {
 
 type SourceKind = keyof typeof SOURCES;
 
-function parseSourceKey(key: string): { kind: SourceKind; period: string | null } {
-  const [kind, ...rest] = key.split(':');
-  return { kind: kind as SourceKind, period: rest.join(':') || null };
+function parseSourceKey(key: string): { kind: SourceKind; period: string | null; department: string | null } {
+  const [kind, second, third] = key.split(':');
+  const hasPeriod = Boolean(second && /^\d{4}-\d{2}$/.test(second));
+  return {
+    kind: kind as SourceKind,
+    period: hasPeriod ? second : null,
+    department: (hasPeriod ? third : second)?.trim().toUpperCase() || null,
+  };
 }
 
 function extractGid(url: string): string | null {
@@ -105,25 +110,26 @@ export class GoogleSheetSyncService implements OnModuleInit {
   }
 
   async updateConfig(actor: AuthUser, input: { key: string; url: string; label?: string; department?: string; enabled?: boolean; period?: string; gid?: string }) {
-    const { kind, period } = parseSourceKey(input.key);
-    if (!(kind in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
-    if (period && !/^\d{4}-\d{2}$/.test(period)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Kỳ phải có dạng YYYY-MM', 422);
+    const parsed = parseSourceKey(input.key);
+    if (!(parsed.kind in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
+    if (parsed.period && !/^\d{4}-\d{2}$/.test(parsed.period)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Kỳ phải có dạng YYYY-MM', 422);
     if (!/^https:\/\/docs\.google\.com\//.test(input.url)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Liên kết phải là Google Sheets', 422);
     const normalizedGid = input.gid?.trim() || extractGid(input.url);
+    const department = (input.department || parsed.department || 'TIKTOK').trim().toUpperCase();
     return this.prisma.googleSheetSync.upsert({
       where: { key: input.key },
-      update: { url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || 'TIKTOK', enabled: input.enabled ?? true, period: period ?? input.period ?? null, gid: normalizedGid },
-      create: { key: input.key, url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || 'TIKTOK', enabled: input.enabled ?? true, period: period ?? input.period ?? null, gid: normalizedGid },
+      update: { url: input.url, label: input.label, department, enabled: input.enabled ?? true, period: parsed.period, gid: normalizedGid },
+      create: { key: input.key, url: input.url, label: input.label, department, enabled: input.enabled ?? true, period: parsed.period, gid: normalizedGid },
     });
   }
 
-  async sync(actor: AuthUser, propertyId?: string, key?: string, period?: string) {
+  async sync(actor: AuthUser, propertyId?: string, key?: string, period?: string, department?: string) {
     if (propertyId) await this.assertProperty(actor, propertyId);
     if (key) {
       const { kind } = parseSourceKey(key);
       if (!(kind in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
     }
-    return this.syncAll('manual', key ? key.split(':')[0] : undefined, period);
+    return this.syncAll('manual', key ? key.split(':')[0] : undefined, period, department);
   }
 
   private async assertProperty(actor: AuthUser, propertyId: string) {
@@ -131,7 +137,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
     if (!exists) throw new AppError(ERROR_CODES.NOT_FOUND, 'Không tìm thấy cơ sở', 404);
   }
 
-  async syncAll(trigger: 'auto' | 'manual', onlyKey?: string, period?: string) {
+  async syncAll(trigger: 'auto' | 'manual', onlyKey?: string, period?: string, department?: string) {
     if (this.running) return { skipped: true, reason: 'Đang đồng bộ' };
     this.running = true;
     const property = await this.prisma.property.findFirstOrThrow({ where: { code: 'NVN' } });
@@ -141,22 +147,42 @@ export class GoogleSheetSyncService implements OnModuleInit {
         if (onlyKey && key !== onlyKey) continue;
         try {
           const targetPeriod = period || (trigger === 'auto' ? currentPeriod() : undefined);
-          const periodKey = targetPeriod ? `${key}:${targetPeriod}` : key;
-          const periodRow = targetPeriod ? await this.prisma.googleSheetSync.findUnique({ where: { key: periodKey } }) : null;
-          const configured = periodRow ?? await this.prisma.googleSheetSync.findUnique({ where: { key } });
+          const targetDepartment = department?.trim().toUpperCase();
+          const candidateKeys = targetDepartment
+            ? [
+                targetPeriod ? `${key}:${targetPeriod}:${targetDepartment}` : null,
+                `${key}:${targetDepartment}`,
+                ...(targetDepartment === 'TIKTOK' ? [targetPeriod ? `${key}:${targetPeriod}` : null, key] : []),
+              ]
+            : [
+                targetPeriod ? `${key}:${targetPeriod}` : null,
+                key,
+              ];
+          let configured: { url: string; gid: string | null; department: string; enabled: boolean } | null = null;
+          let periodKey = key;
+          for (const candidate of candidateKeys.filter((value): value is string => Boolean(value))) {
+            const found = await this.prisma.googleSheetSync.findUnique({ where: { key: candidate } });
+            if (found && (!targetDepartment || found.department.toUpperCase() === targetDepartment)) {
+              configured = found; periodKey = candidate; break;
+            }
+          }
+          if (targetDepartment && !configured) {
+            result.push({ key, ok: false, rows: 0, message: `Chưa cấu hình Google Sheet cho bộ phận ${targetDepartment}` });
+            continue;
+          }
           if (configured?.enabled === false) { result.push({ key, ok: true, rows: 0, message: 'Đang tắt' }); continue; }
           const sourceUrl = withGid(configured?.url || source.url, configured?.gid);
-          const department = (configured?.department || 'TIKTOK').toUpperCase();
+          const resolvedDepartment = (configured?.department || targetDepartment || 'TIKTOK').toUpperCase();
           const response = await fetch(sourceUrl, { headers: { 'user-agent': 'NinhVaNa-SheetSync/1.0' }, signal: AbortSignal.timeout(20_000) });
           if (!response.ok) throw new Error(`Google Sheet HTTP ${response.status}`);
           const rows = parseCsv(await response.text());
           let imported = rows.filter((row) => row.some((cell) => cell.trim())).length;
           const message = 'Đã tải dữ liệu nguồn';
-          if (key === 'attendance') imported = await this.importAttendance(property, rows, department);
-          if (key === 'payroll') imported = await this.importPayroll(property, rows, department);
+          if (key === 'attendance') imported = await this.importAttendance(property, rows, resolvedDepartment);
+          if (key === 'payroll') imported = await this.importPayroll(property, rows, resolvedDepartment);
           await this.prisma.googleSheetSync.upsert({
-            where: { key: periodKey }, update: { url: configured?.url || source.url, gid: configured?.gid, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
-            create: { key: periodKey, url: configured?.url || source.url, gid: configured?.gid, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
+            where: { key: periodKey }, update: { url: configured?.url || source.url, gid: configured?.gid, department: resolvedDepartment, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
+            create: { key: periodKey, url: configured?.url || source.url, gid: configured?.gid, department: resolvedDepartment, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
           });
           result.push({ key, ok: true, rows: imported, message });
         } catch (error) {

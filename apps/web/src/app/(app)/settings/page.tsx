@@ -821,6 +821,8 @@ function ExchangeRateDialog({
 
 
 
+interface SheetDepartment { code: string; name: string }
+
 interface SheetSource {
   key: string;
   url: string;
@@ -844,6 +846,7 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
   const [newUrl, setNewUrl] = useState('');
   const [newDepartment, setNewDepartment] = useState('TIKTOK');
   const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
+  const departments = useQuery<SheetDepartment[]>({ queryKey: ['sheet-departments'], queryFn: () => api('/hr/departments') });
   useEffect(() => {
     if (!sources.data) return;
     setDrafts(Object.fromEntries(sources.data.map((source) => [source.key, { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' }])));
@@ -873,26 +876,36 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
             <div><Label>Tháng</Label><Input type="month" value={newPeriod} onChange={(e) => setNewPeriod(e.target.value)} /></div>
             <div><Label>GID</Label><Input value={newGid} onChange={(e) => setNewGid(e.target.value)} placeholder="536156494" /></div>
             <div><Label>Link Google Sheet</Label><Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://docs.google.com/spreadsheets/..." /></div>
-            <div><Label>Bộ phận</Label><Input value={newDepartment} onChange={(e) => setNewDepartment(e.target.value.toUpperCase())} /></div>
-            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newGid || !newUrl || save.isPending} onClick={() => save.mutate({ key: `${newKind}:${newPeriod}`, url: newUrl, label: `${newKind === 'attendance' ? 'Chấm công' : newKind === 'payroll' ? 'Tính lương' : 'Chi phí'} ${newPeriod}`, department: newDepartment, enabled: true, gid: newGid, period: newPeriod })}>Thêm</Button></div>
+            <div><Label>Bộ phận</Label><NativeSelect value={newDepartment} onChange={(e) => setNewDepartment(e.target.value)}>{(departments.data ?? []).map((department) => <option key={department.code} value={department.code}>{department.name}</option>)}{!(departments.data ?? []).some((department) => department.code === newDepartment) ? <option value={newDepartment}>{newDepartment}</option> : null}</NativeSelect></div>
+            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newGid || !newUrl || save.isPending} onClick={() => save.mutate({ key: `${newKind}:${newPeriod}:${newDepartment}`, url: newUrl, label: `${newKind === 'attendance' ? 'Chấm công' : newKind === 'payroll' ? 'Tính lương' : 'Chi phí'} ${newPeriod}`, department: newDepartment, enabled: true, gid: newGid, period: newPeriod })}>Thêm</Button></div>
           </div>
           <p className="mt-2 text-[10px] text-muted-foreground">Ví dụ: tab tháng 11 có gid=123456789. Mỗi tháng một dòng; khi bấm cập nhật ở trang Nhân sự, hệ thống dùng đúng gid của tháng đang chọn.</p>
         </div>
-        {(sources.data ?? []).map((source) => {
-          const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' };
-          const kind = source.key.split(':')[0];
-          const title = kind === 'attendance' ? 'Chấm công' : kind === 'payroll' ? 'Tính lương' : 'Chi phí đi chợ';
+        {[...new Set([...(departments.data ?? []).map((department) => department.code), ...(sources.data ?? []).map((source) => source.department)])].map((departmentCode) => {
+          const departmentName = departments.data?.find((department) => department.code === departmentCode)?.name ?? departmentCode;
+          const departmentSources = (sources.data ?? []).filter((source) => source.department === departmentCode);
           return (
-            <div key={source.key} className="rounded-xl border border-line p-3">
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">{title}{source.period ? ` · ${source.period}` : ''}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
-              <div className="grid gap-2 md:grid-cols-[1.6fr_1fr_0.7fr_0.7fr_auto]">
-                <div><Label>Link Google Sheet</Label><Input value={draft.url} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, url: e.target.value } }))} /></div>
-                <div><Label>Tên hiển thị</Label><Input value={draft.label} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, label: e.target.value } }))} /></div>
-                <div><Label>Bộ phận</Label><Input value={draft.department} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, department: e.target.value.toUpperCase() } }))} /></div>
-                <div><Label>GID</Label><Input value={draft.gid} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, gid: e.target.value } }))} /></div>
-                <div className="flex items-end gap-2"><Button size="sm" disabled={!canManage || save.isPending} onClick={() => save.mutate({ key: source.key, url: draft.url, label: draft.label, department: draft.department, enabled: draft.enabled, gid: draft.gid, period: source.period })}>Lưu</Button><Button size="sm" variant="secondary" disabled={!canManage} onClick={() => setDrafts((current) => ({ ...current, [source.key]: { ...draft, enabled: !draft.enabled } }))}>{draft.enabled ? 'Tắt' : 'Bật'}</Button></div>
-              </div>
-              {source.message ? <p className="mt-2 text-[10px] text-muted-foreground">{source.message}</p> : null}
+            <div key={departmentCode} className="space-y-2 rounded-xl border border-line bg-muted/20 p-3">
+              <div className="flex items-center justify-between border-b border-line/70 pb-2"><div><p className="font-display text-lg text-ink">{departmentName}</p><p className="text-[10px] uppercase tracking-label text-muted-foreground">Chấm công · tính lương · chi phí</p></div><Badge tone="outline">{departmentSources.length} nguồn</Badge></div>
+              {departmentSources.length === 0 ? <p className="rounded-lg border border-dashed border-line px-3 py-4 text-center text-xs text-muted-foreground">Chưa có tab Google Sheet cho bộ phận này. Thêm tab bên trên và chọn bộ phận {departmentName}.</p> : null}
+              {departmentSources.map((source) => {
+                const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' };
+                const kind = source.key.split(':')[0];
+                const title = kind === 'attendance' ? 'Chấm công' : kind === 'payroll' ? 'Tính lương' : 'Chi phí đi chợ';
+                return (
+                  <div key={source.key} className="rounded-xl border border-line bg-surface p-3">
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">{title}{source.period ? ` · ${source.period}` : ''}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
+                    <div className="grid gap-2 md:grid-cols-[1.6fr_1fr_0.7fr_0.7fr_auto]">
+                      <div><Label>Link Google Sheet</Label><Input value={draft.url} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, url: e.target.value } }))} /></div>
+                      <div><Label>Tên hiển thị</Label><Input value={draft.label} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, label: e.target.value } }))} /></div>
+                      <div><Label>Bộ phận</Label><Input value={draft.department} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, department: e.target.value.toUpperCase() } }))} /></div>
+                      <div><Label>GID</Label><Input value={draft.gid} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, gid: e.target.value } }))} /></div>
+                      <div className="flex items-end gap-2"><Button size="sm" disabled={!canManage || save.isPending} onClick={() => save.mutate({ key: source.key, url: draft.url, label: draft.label, department: draft.department, enabled: draft.enabled, gid: draft.gid, period: source.period })}>Lưu</Button><Button size="sm" variant="secondary" disabled={!canManage} onClick={() => setDrafts((current) => ({ ...current, [source.key]: { ...draft, enabled: !draft.enabled } }))}>{draft.enabled ? 'Tắt' : 'Bật'}</Button></div>
+                    </div>
+                    {source.message ? <p className="mt-2 text-[10px] text-muted-foreground">{source.message}</p> : null}
+                  </div>
+                );
+              })}
             </div>
           );
         })}
