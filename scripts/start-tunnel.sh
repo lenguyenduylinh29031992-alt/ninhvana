@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+if [ "${NINHVANA_ALLOW_LEGACY_PUBLIC:-0}" != "1" ]; then
+  echo "Mac public tunnel/watchdog is disabled. Set NINHVANA_ALLOW_LEGACY_PUBLIC=1 only for an explicit legacy test." >&2
+  exit 0
+fi
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/.dev/bin/cloudflared"

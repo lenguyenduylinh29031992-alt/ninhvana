@@ -2,7 +2,7 @@
   "name": "grand-suite",
   "version": "0.1.0",
   "private": true,
-  "description": "NinhVaNa — Hospitality ERP for luxury hotels & restaurants (multi-property)",
+  "description": "NinhVaNa \u2014 Hospitality ERP for luxury hotels & restaurants (multi-property)",
   "packageManager": "pnpm@11.19.0",
   "engines": {
     "node": ">=22"
@@ -35,7 +35,9 @@
     "db:seed:history": "pnpm --filter @grand-suite/api exec tsx prisma/seed-history.ts",
     "db:demo": "pnpm db:seed && pnpm db:seed:history && pnpm db:seed:finance && pnpm db:seed:long",
     "db:seed:finance": "pnpm --filter @grand-suite/api exec tsx prisma/seed-finance.ts",
-    "db:seed:long": "pnpm --filter @grand-suite/api exec tsx prisma/seed-long-history.ts"
+    "db:seed:long": "pnpm --filter @grand-suite/api exec tsx prisma/seed-long-history.ts",
+    "dev:mac": "bash scripts/dev-mac.sh",
+    "deploy:prod": "bash scripts/deploy-code.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
