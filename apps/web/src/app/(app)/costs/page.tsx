@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Boxes, Plus, Receipt, Truck } from 'lucide-react';
+import { Boxes, Plus, Receipt, RefreshCw, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
@@ -45,6 +45,17 @@ export default function CostsPage() {
   if (to) expenseQuery.set('to', to);
 
   const expenses = useQuery<Expense[]>({ queryKey: ['expenses', propertyId, from, to], queryFn: () => api(`/costs/expenses?${expenseQuery.toString()}`), enabled: Boolean(propertyId) && can('expense:view') });
+  const syncShopping = useMutation({
+    mutationFn: () => api<{ sources?: Array<{ key: string; ok: boolean; message?: string }> }>(`/hr/sheets/shopping/sync?propertyId=${propertyId}&period=${year}-${month}&department=TIKTOK`, { method: 'POST', body: {} }),
+    onSuccess: async (result) => {
+      const failed = (result.sources ?? []).filter((source) => !source.ok);
+      if (failed.length) toast.error(failed.map((source) => source.message ?? 'Lỗi đồng bộ').join(' · '));
+      else toast.success(`Đã đồng bộ chi phí tháng ${month}/${year}`);
+      await queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      await queryClient.invalidateQueries({ queryKey: ['sheet-config'] });
+    },
+    onError: (cause) => toast.error(cause instanceof Error ? cause.message : 'Không đồng bộ được chi phí'),
+  });
   const stock = useQuery<StockRow[]>({ queryKey: ['stock', propertyId], queryFn: () => api(`/procurement/stock?propertyId=${propertyId}`), enabled: Boolean(propertyId) && can('inventory:view') });
   const invoices = useQuery<ApInvoice[]>({ queryKey: ['ap-invoices', propertyId], queryFn: () => api(`/procurement/invoices?propertyId=${propertyId}`), enabled: Boolean(propertyId) && can('purchase:view') });
 
@@ -55,7 +66,7 @@ export default function CostsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Kiểm soát chi phí" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={<div className="flex flex-wrap items-center gap-2"><div className="flex items-center gap-1 rounded-lg border border-line bg-surface px-2 py-1"><NativeSelect aria-label="Chọn năm chi phí" className="h-7 w-20 border-0 bg-transparent px-1 text-[11px]" value={year} onChange={(event) => setYear(event.target.value)}><option value="ALL">Tất cả</option>{years.map((value) => <option key={value} value={value}>{value}</option>)}</NativeSelect><span className="text-muted-foreground">/</span><NativeSelect aria-label="Chọn tháng chi phí" className="h-7 w-24 border-0 bg-transparent px-1 text-[11px]" value={month} onChange={(event) => setMonth(event.target.value)} disabled={year === 'ALL'}><option value="ALL">Cả năm</option>{Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0')).map((value) => <option key={value} value={value}>Tháng {value}</option>)}</NativeSelect></div><ExportMenu dataset="supplier-invoices" label="Xuất chi phí" />{can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null}</div>} />
+      <PageHeader eyebrow="Tài chính · Chi phí & kho" title="Kiểm soát chi phí" description="Chi phí theo bộ phận, hoá đơn nhà cung cấp và giá trị tồn kho." actions={<div className="flex flex-wrap items-center gap-2"><div className="flex items-center gap-1 rounded-lg border border-line bg-surface px-2 py-1"><NativeSelect aria-label="Chọn năm chi phí" className="h-7 w-20 border-0 bg-transparent px-1 text-[11px]" value={year} onChange={(event) => setYear(event.target.value)}><option value="ALL">Tất cả</option>{years.map((value) => <option key={value} value={value}>{value}</option>)}</NativeSelect><span className="text-muted-foreground">/</span><NativeSelect aria-label="Chọn tháng chi phí" className="h-7 w-24 border-0 bg-transparent px-1 text-[11px]" value={month} onChange={(event) => setMonth(event.target.value)} disabled={year === 'ALL'}><option value="ALL">Cả năm</option>{Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0')).map((value) => <option key={value} value={value}>Tháng {value}</option>)}</NativeSelect></div>{can('expense:view') ? <Button size="sm" variant="secondary" disabled={!propertyId || year === 'ALL' || month === 'ALL' || syncShopping.isPending} onClick={() => syncShopping.mutate()}><RefreshCw className={syncShopping.isPending ? 'animate-spin' : ''} /> Đồng bộ chi phí</Button> : null}<ExportMenu dataset="supplier-invoices" label="Xuất chi phí" />{can('expense:create') ? <Button size="sm" onClick={() => setOpen(true)}><Plus /> Ghi chi phí</Button> : null}</div>} />
       <div className="grid gap-3 sm:grid-cols-3">
         <Kpi icon={Receipt} label="Chi phí đã ghi" value={formatMoney(totalExpense)} hint={`${expenses.data?.length ?? 0} chứng từ · ${periodLabel}`} />
         <Kpi icon={Boxes} label="Giá trị tồn kho" value={formatMoney(stockValue)} hint={`${stock.data?.length ?? 0} mặt hàng`} />
