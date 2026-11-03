@@ -852,11 +852,9 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
   const queryClient = useQueryClient();
   const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; department: string; enabled: boolean; gid: string }>>({});
   const [newKind, setNewKind] = useState<'attendance' | 'payroll'>('attendance');
-  const [newPeriod, setNewPeriod] = useState(new Date().toISOString().slice(0, 7));
   const [newGid, setNewGid] = useState('');
   const [newUrl, setNewUrl] = useState('');
-  const [newDepartment, setNewDepartment] = useState('TIKTOK');
-  const [filterDepartment, setFilterDepartment] = useState('ALL');
+  const [filterDepartment, setFilterDepartment] = useState('TIKTOK');
   const [filterPeriod, setFilterPeriod] = useState(new Date().toISOString().slice(0, 7));
   const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
   const departments = useQuery<SheetDepartment[]>({ queryKey: ['sheet-departments'], queryFn: () => api('/hr/departments') });
@@ -878,9 +876,7 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
   const visibleSources = (sources.data ?? []).filter((source) => source.key.split(':')[0] !== 'shopping'
     && (filterDepartment === 'ALL' || source.department === filterDepartment)
     && (!filterPeriod || source.period === filterPeriod));
-  const departmentCodes = filterDepartment === 'ALL' ? [...new Set(visibleSources.map((source) => source.department))] : [filterDepartment];
-  const chooseDepartment = (value: string) => { setFilterDepartment(value); if (value !== 'ALL') setNewDepartment(value); };
-  const choosePeriod = (value: string) => { setFilterPeriod(value); if (value) setNewPeriod(value); };
+  const departmentCodes = [filterDepartment];
 
   return (
     <Card>
@@ -890,23 +886,20 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex flex-wrap items-end gap-2 rounded-xl border border-line bg-muted/20 p-3">
-          <div className="min-w-44"><Label>Bộ phận</Label><NativeSelect aria-label="Lọc bộ phận chấm công" value={filterDepartment} onChange={(event) => chooseDepartment(event.target.value)}><option value="ALL">Tất cả bộ phận</option>{(departments.data ?? []).map((department) => <option key={department.code} value={department.code}>{department.name}</option>)}</NativeSelect></div>
-          <div className="min-w-40"><Label>Ngày tháng</Label><Input aria-label="Lọc tháng chấm công" type="month" value={filterPeriod} onChange={(event) => choosePeriod(event.target.value)} /></div>
-          <Button size="sm" variant="secondary" onClick={() => setFilterPeriod('')}>Tất cả tháng</Button>
+          <div className="min-w-44"><Label>Bộ phận</Label><NativeSelect aria-label="Lọc bộ phận chấm công" value={filterDepartment} onChange={(event) => setFilterDepartment(event.target.value)}>{(departments.data ?? []).map((department) => <option key={department.code} value={department.code}>{department.name}</option>)}{!(departments.data ?? []).some((department) => department.code === filterDepartment) ? <option value={filterDepartment}>{filterDepartment}</option> : null}</NativeSelect></div>
+          <div className="min-w-40"><Label>Ngày tháng</Label><Input aria-label="Lọc tháng chấm công" type="month" value={filterPeriod} onChange={(event) => setFilterPeriod(event.target.value)} /></div>
           <Badge tone="outline">{visibleSources.length} nguồn</Badge>
-          <span className="ml-auto text-[10px] text-muted-foreground">Chọn bộ phận + tháng để lọc; form bên dưới thêm nhanh đúng kỳ.</span>
+          <span className="ml-auto text-[10px] text-muted-foreground">Chỉ hiển thị đúng bộ phận và tháng; form bên dưới thêm nhanh đúng kỳ.</span>
         </div>
         <div className="rounded-xl border border-dashed border-brand/40 bg-brand-soft/30 p-3">
           <p className="mb-2 text-sm font-medium text-ink">Thêm nhanh tab Google Sheet</p>
-          <div className="grid gap-2 md:grid-cols-[0.9fr_0.8fr_0.8fr_1.5fr_0.8fr_auto]">
+          <div className="grid gap-2 md:grid-cols-[0.9fr_0.8fr_1.5fr_auto]">
             <div><Label>Loại</Label><NativeSelect value={newKind} onChange={(e) => setNewKind(e.target.value as typeof newKind)}><option value="attendance">Chấm công</option><option value="payroll">Tính lương</option></NativeSelect></div>
-            <div><Label>Tháng</Label><Input type="month" value={newPeriod} onChange={(e) => setNewPeriod(e.target.value)} /></div>
             <div><Label>GID</Label><Input value={newGid} onChange={(e) => setNewGid(e.target.value)} placeholder="536156494" /></div>
             <div><Label>Link Google Sheet</Label><Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://docs.google.com/spreadsheets/..." /></div>
-            <div><Label>Bộ phận</Label><NativeSelect value={newDepartment} onChange={(e) => setNewDepartment(e.target.value)}>{(departments.data ?? []).map((department) => <option key={department.code} value={department.code}>{department.name}</option>)}{!(departments.data ?? []).some((department) => department.code === newDepartment) ? <option value={newDepartment}>{newDepartment}</option> : null}</NativeSelect></div>
-            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newGid || !newUrl || save.isPending} onClick={() => save.mutate({ key: `${newKind}:${newPeriod}:${newDepartment}`, url: newUrl, label: `${newKind === 'attendance' ? 'Chấm công' : 'Tính lương'} ${newPeriod}`, department: newDepartment, enabled: true, gid: newGid, period: newPeriod })}>Thêm</Button></div>
+            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newGid || !newUrl || save.isPending} onClick={() => save.mutate({ key: `${newKind}:${filterPeriod}:${filterDepartment}`, url: newUrl, label: `${newKind === 'attendance' ? 'Chấm công' : 'Tính lương'} ${filterPeriod}`, department: filterDepartment, enabled: true, gid: newGid, period: filterPeriod })}>Thêm</Button></div>
           </div>
-          <p className="mt-2 text-[10px] text-muted-foreground">Ví dụ: tab tháng 11 có gid=123456789. Mỗi tháng một dòng; khi bấm cập nhật ở trang Nhân sự, hệ thống dùng đúng gid của tháng đang chọn.</p>
+          <p className="mt-2 text-[10px] text-muted-foreground">Đang thêm cho {filterDepartment} · {filterPeriod}. Đổi bộ phận/tháng ở hàng lọc phía trên; hệ thống dùng đúng gid của kỳ đó.</p>
         </div>
         {departmentCodes.map((departmentCode) => {
           const departmentName = departments.data?.find((department) => department.code === departmentCode)?.name ?? departmentCode;
