@@ -305,6 +305,8 @@ model GoogleSheetSync {
   label        String?
   department   String    @default("TIKTOK")
   enabled      Boolean   @default(true)
+  period       String?
+  gid          String?
   lastSyncedAt DateTime?
   status       String    @default("IDLE")
   message      String?

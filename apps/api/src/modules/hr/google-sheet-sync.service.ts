@@ -12,6 +12,32 @@ const SOURCES = {
   shopping: { url: 'https://docs.google.com/spreadsheets/d/15H1_7oQ28ejuHiIOXlmZeeZDpN02eajQGLynmPhxjM4/gviz/tq?tqx=out:csv&gid=1350094361', label: 'Chi phí đi chợ TikTok 11/2026' },
 } as const;
 
+type SourceKind = keyof typeof SOURCES;
+
+function parseSourceKey(key: string): { kind: SourceKind; period: string | null } {
+  const [kind, ...rest] = key.split(':');
+  return { kind: kind as SourceKind, period: rest.join(':') || null };
+}
+
+function extractGid(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    return parsed.searchParams.get('gid') ?? parsed.hash.match(/gid=(\d+)/)?.[1] ?? null;
+  } catch { return null; }
+}
+
+function withGid(url: string, gid?: string | null): string {
+  const edit = url.match(/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([^/]+)\/edit/);
+  if (edit) return `https://docs.google.com/spreadsheets/d/${edit[1]}/export?format=csv&gid=${encodeURIComponent(gid ?? '0')}`;
+  if (!gid) return url;
+  if (/[?&]gid=/.test(url)) return url.replace(/([?&]gid=)[^&]*/, `$1${encodeURIComponent(gid)}`);
+  return `${url}${url.includes('?') ? '&' : '?'}gid=${encodeURIComponent(gid)}`;
+}
+
+function currentPeriod(): string {
+  return new Date().toISOString().slice(0, 7);
+}
+
 function parseCsv(input: string): CsvRow[] {
   const rows: CsvRow[] = [];
   let row: string[] = [];
@@ -72,26 +98,32 @@ export class GoogleSheetSyncService implements OnModuleInit {
   }
 
   async config(_actor: AuthUser) {
-    const rows = await this.prisma.googleSheetSync.findMany({ orderBy: { key: 'asc' } });
-    const keys = Object.keys(SOURCES) as Array<keyof typeof SOURCES>;
-    return keys.map((key) => rows.find((row) => row.key === key) ?? { key, url: SOURCES[key].url, label: SOURCES[key].label, department: 'TIKTOK', enabled: true, status: 'IDLE', message: null, rows: 0, lastSyncedAt: null });
+    const rows = await this.prisma.googleSheetSync.findMany({ orderBy: [{ period: 'asc' }, { key: 'asc' }] });
+    const keys = Object.keys(SOURCES) as SourceKind[];
+    const defaults = keys.map((key) => rows.find((row) => row.key === key) ?? { key, url: SOURCES[key].url, label: SOURCES[key].label, department: 'TIKTOK', enabled: true, period: null, gid: extractGid(SOURCES[key].url), status: 'IDLE', message: null, rows: 0, lastSyncedAt: null });
+    return [...defaults, ...rows.filter((row) => !keys.includes(row.key as SourceKind))];
   }
 
-  async updateConfig(actor: AuthUser, input: { key: string; url: string; label?: string; department?: string; enabled?: boolean }) {
-    if (!(input.key in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
+  async updateConfig(actor: AuthUser, input: { key: string; url: string; label?: string; department?: string; enabled?: boolean; period?: string; gid?: string }) {
+    const { kind, period } = parseSourceKey(input.key);
+    if (!(kind in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
+    if (period && !/^\d{4}-\d{2}$/.test(period)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Kỳ phải có dạng YYYY-MM', 422);
     if (!/^https:\/\/docs\.google\.com\//.test(input.url)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Liên kết phải là Google Sheets', 422);
-    const existing = await this.prisma.googleSheetSync.findUnique({ where: { key: input.key } });
+    const normalizedGid = input.gid?.trim() || extractGid(input.url);
     return this.prisma.googleSheetSync.upsert({
       where: { key: input.key },
-      update: { url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || existing?.department || 'TIKTOK', enabled: input.enabled ?? true },
-      create: { key: input.key, url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || 'TIKTOK', enabled: input.enabled ?? true },
+      update: { url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || 'TIKTOK', enabled: input.enabled ?? true, period: period ?? input.period ?? null, gid: normalizedGid },
+      create: { key: input.key, url: input.url, label: input.label, department: input.department?.trim().toUpperCase() || 'TIKTOK', enabled: input.enabled ?? true, period: period ?? input.period ?? null, gid: normalizedGid },
     });
   }
 
-  async sync(actor: AuthUser, propertyId?: string, key?: string) {
+  async sync(actor: AuthUser, propertyId?: string, key?: string, period?: string) {
     if (propertyId) await this.assertProperty(actor, propertyId);
-    if (key && !(key in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
-    return this.syncAll('manual', key);
+    if (key) {
+      const { kind } = parseSourceKey(key);
+      if (!(kind in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
+    }
+    return this.syncAll('manual', key ? key.split(':')[0] : undefined, period);
   }
 
   private async assertProperty(actor: AuthUser, propertyId: string) {
@@ -99,7 +131,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
     if (!exists) throw new AppError(ERROR_CODES.NOT_FOUND, 'Không tìm thấy cơ sở', 404);
   }
 
-  async syncAll(trigger: 'auto' | 'manual', onlyKey?: string) {
+  async syncAll(trigger: 'auto' | 'manual', onlyKey?: string, period?: string) {
     if (this.running) return { skipped: true, reason: 'Đang đồng bộ' };
     this.running = true;
     const property = await this.prisma.property.findFirstOrThrow({ where: { code: 'NVN' } });
@@ -108,9 +140,12 @@ export class GoogleSheetSyncService implements OnModuleInit {
       for (const [key, source] of Object.entries(SOURCES)) {
         if (onlyKey && key !== onlyKey) continue;
         try {
-          const configured = await this.prisma.googleSheetSync.findUnique({ where: { key } });
+          const targetPeriod = period || (trigger === 'auto' ? currentPeriod() : undefined);
+          const periodKey = targetPeriod ? `${key}:${targetPeriod}` : key;
+          const periodRow = targetPeriod ? await this.prisma.googleSheetSync.findUnique({ where: { key: periodKey } }) : null;
+          const configured = periodRow ?? await this.prisma.googleSheetSync.findUnique({ where: { key } });
           if (configured?.enabled === false) { result.push({ key, ok: true, rows: 0, message: 'Đang tắt' }); continue; }
-          const sourceUrl = configured?.url || source.url;
+          const sourceUrl = withGid(configured?.url || source.url, configured?.gid);
           const department = (configured?.department || 'TIKTOK').toUpperCase();
           const response = await fetch(sourceUrl, { headers: { 'user-agent': 'NinhVaNa-SheetSync/1.0' }, signal: AbortSignal.timeout(20_000) });
           if (!response.ok) throw new Error(`Google Sheet HTTP ${response.status}`);
@@ -120,15 +155,17 @@ export class GoogleSheetSyncService implements OnModuleInit {
           if (key === 'attendance') imported = await this.importAttendance(property, rows, department);
           if (key === 'payroll') imported = await this.importPayroll(property, rows, department);
           await this.prisma.googleSheetSync.upsert({
-            where: { key }, update: { url: sourceUrl, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
-            create: { key, url: sourceUrl, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
+            where: { key: periodKey }, update: { url: configured?.url || source.url, gid: configured?.gid, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
+            create: { key: periodKey, url: configured?.url || source.url, gid: configured?.gid, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
           });
           result.push({ key, ok: true, rows: imported, message });
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Lỗi đồng bộ';
+          const targetPeriod = period || (trigger === 'auto' ? currentPeriod() : undefined);
+          const periodKey = targetPeriod ? `${key}:${targetPeriod}` : key;
           await this.prisma.googleSheetSync.upsert({
-            where: { key }, update: { url: source.url, status: 'ERROR', message, lastSyncedAt: new Date() },
-            create: { key, url: source.url, status: 'ERROR', message, lastSyncedAt: new Date() },
+            where: { key: periodKey }, update: { url: source.url, period: targetPeriod ?? null, status: 'ERROR', message, lastSyncedAt: new Date() },
+            create: { key: periodKey, url: source.url, period: targetPeriod ?? null, status: 'ERROR', message, lastSyncedAt: new Date() },
           });
           result.push({ key, ok: false, rows: 0, message });
         }

@@ -831,27 +831,32 @@ interface SheetSource {
   message: string | null;
   rows: number;
   lastSyncedAt: string | null;
+  period: string | null;
+  gid: string | null;
 }
 
 function SheetSettings({ canManage }: { canManage: boolean }) {
   const queryClient = useQueryClient();
-  const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; department: string; enabled: boolean }>>({});
+  const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; department: string; enabled: boolean; gid: string }>>({});
+  const [newKind, setNewKind] = useState<'attendance' | 'payroll' | 'shopping'>('attendance');
+  const [newPeriod, setNewPeriod] = useState(new Date().toISOString().slice(0, 7));
+  const [newGid, setNewGid] = useState('');
+  const [newUrl, setNewUrl] = useState('');
+  const [newDepartment, setNewDepartment] = useState('TIKTOK');
   const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
   useEffect(() => {
     if (!sources.data) return;
-    setDrafts(Object.fromEntries(sources.data.map((source) => [source.key, { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled }])));
+    setDrafts(Object.fromEntries(sources.data.map((source) => [source.key, { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' }])));
   }, [sources.data]);
   const save = useMutation({
-    mutationFn: (key: string) => {
-      const draft = drafts[key];
-      return api('/hr/sheets/config', { method: 'PUT', body: { key, url: draft.url, label: draft.label, department: draft.department, enabled: draft.enabled } });
-    },
+    mutationFn: (payload: { key: string; url: string; label: string; department: string; enabled: boolean; gid: string; period: string | null }) =>
+      api('/hr/sheets/config', { method: 'PUT', body: payload }),
     onSuccess: async () => { toast.success('Đã lưu cấu hình Google Sheet'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
     onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không lưu được cấu hình'),
   });
   const syncAll = useMutation({
-    mutationFn: () => api('/hr/sheets/sync', { method: 'POST' }),
-    onSuccess: async () => { toast.success('Đã bắt đầu đồng bộ Google Sheet'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
+    mutationFn: () => api(`/hr/sheets/sync?period=${new Date().toISOString().slice(0, 7)}`, { method: 'POST' }),
+    onSuccess: async () => { toast.success('Đã bắt đầu đồng bộ Google Sheet tháng hiện tại'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
     onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không đồng bộ được'),
   });
   return (
@@ -861,16 +866,31 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
         <Button size="sm" variant="secondary" disabled={!canManage || syncAll.isPending} onClick={() => syncAll.mutate()}><RefreshCw className={syncAll.isPending ? 'animate-spin' : ''} /> Đồng bộ tất cả</Button>
       </CardHeader>
       <CardContent className="space-y-3">
+        <div className="rounded-xl border border-dashed border-brand/40 bg-brand-soft/30 p-3">
+          <p className="mb-2 text-sm font-medium text-ink">Thêm tab Google Sheet theo tháng</p>
+          <div className="grid gap-2 md:grid-cols-[0.9fr_0.8fr_0.8fr_1.5fr_0.8fr_auto]">
+            <div><Label>Loại</Label><NativeSelect value={newKind} onChange={(e) => setNewKind(e.target.value as typeof newKind)}><option value="attendance">Chấm công</option><option value="payroll">Tính lương</option><option value="shopping">Chi phí</option></NativeSelect></div>
+            <div><Label>Tháng</Label><Input type="month" value={newPeriod} onChange={(e) => setNewPeriod(e.target.value)} /></div>
+            <div><Label>GID</Label><Input value={newGid} onChange={(e) => setNewGid(e.target.value)} placeholder="536156494" /></div>
+            <div><Label>Link Google Sheet</Label><Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://docs.google.com/spreadsheets/..." /></div>
+            <div><Label>Bộ phận</Label><Input value={newDepartment} onChange={(e) => setNewDepartment(e.target.value.toUpperCase())} /></div>
+            <div className="flex items-end"><Button size="sm" disabled={!canManage || !newGid || !newUrl || save.isPending} onClick={() => save.mutate({ key: `${newKind}:${newPeriod}`, url: newUrl, label: `${newKind === 'attendance' ? 'Chấm công' : newKind === 'payroll' ? 'Tính lương' : 'Chi phí'} ${newPeriod}`, department: newDepartment, enabled: true, gid: newGid, period: newPeriod })}>Thêm</Button></div>
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground">Ví dụ: tab tháng 11 có gid=123456789. Mỗi tháng một dòng; khi bấm cập nhật ở trang Nhân sự, hệ thống dùng đúng gid của tháng đang chọn.</p>
+        </div>
         {(sources.data ?? []).map((source) => {
-          const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled };
+          const draft = drafts[source.key] ?? { url: source.url, label: source.label ?? '', department: source.department, enabled: source.enabled, gid: source.gid ?? '' };
+          const kind = source.key.split(':')[0];
+          const title = kind === 'attendance' ? 'Chấm công' : kind === 'payroll' ? 'Tính lương' : 'Chi phí đi chợ';
           return (
             <div key={source.key} className="rounded-xl border border-line p-3">
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">{source.key === 'attendance' ? 'Chấm công' : source.key === 'payroll' ? 'Tính lương' : 'Chi phí đi chợ'}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
-              <div className="grid gap-2 md:grid-cols-[1.6fr_1fr_1fr_auto]">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-medium text-ink">{title}{source.period ? ` · ${source.period}` : ''}</p><p className="text-[10px] text-muted-foreground">{source.rows} dòng · {source.lastSyncedAt ? new Date(source.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa đồng bộ'} · {source.status}</p></div><Badge tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? 'Đang bật' : 'Đã tắt'}</Badge></div>
+              <div className="grid gap-2 md:grid-cols-[1.6fr_1fr_0.7fr_0.7fr_auto]">
                 <div><Label>Link Google Sheet</Label><Input value={draft.url} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, url: e.target.value } }))} /></div>
                 <div><Label>Tên hiển thị</Label><Input value={draft.label} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, label: e.target.value } }))} /></div>
-                <div><Label>Bộ phận</Label><Input value={draft.department} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, department: e.target.value.toUpperCase() } }))} placeholder="TIKTOK" /></div>
-                <div className="flex items-end gap-2"><Button size="sm" disabled={!canManage || save.isPending} onClick={() => save.mutate(source.key)}>Lưu</Button><Button size="sm" variant="secondary" disabled={!canManage} onClick={() => setDrafts((current) => ({ ...current, [source.key]: { ...draft, enabled: !draft.enabled } }))}>{draft.enabled ? 'Tắt' : 'Bật'}</Button></div>
+                <div><Label>Bộ phận</Label><Input value={draft.department} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, department: e.target.value.toUpperCase() } }))} /></div>
+                <div><Label>GID</Label><Input value={draft.gid} disabled={!canManage} onChange={(e) => setDrafts((current) => ({ ...current, [source.key]: { ...draft, gid: e.target.value } }))} /></div>
+                <div className="flex items-end gap-2"><Button size="sm" disabled={!canManage || save.isPending} onClick={() => save.mutate({ key: source.key, url: draft.url, label: draft.label, department: draft.department, enabled: draft.enabled, gid: draft.gid, period: source.period })}>Lưu</Button><Button size="sm" variant="secondary" disabled={!canManage} onClick={() => setDrafts((current) => ({ ...current, [source.key]: { ...draft, enabled: !draft.enabled } }))}>{draft.enabled ? 'Tắt' : 'Bật'}</Button></div>
               </div>
               {source.message ? <p className="mt-2 text-[10px] text-muted-foreground">{source.message}</p> : null}
             </div>

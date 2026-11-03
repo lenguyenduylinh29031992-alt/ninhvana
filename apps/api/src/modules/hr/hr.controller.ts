@@ -23,10 +23,10 @@ export class HrController {
   updateSheetConfig(@CurrentUser() actor: AuthUser, @Body() body: { key: string; url: string; label?: string; department?: string; enabled?: boolean }) { return this.sheets.updateConfig(actor, body); }
 
   @Post('sheets/sync') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
-  syncSheets(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) { return this.sheets.sync(actor, propertyId); }
+  syncSheets(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string, @Query('period') period?: string) { return this.sheets.sync(actor, propertyId, undefined, period); }
 
   @Post('sheets/:key/sync') @Permissions(PERMISSIONS.PAYROLL_MANAGE)
-  syncSheet(@CurrentUser() actor: AuthUser, @Param('key') key: string, @Query('propertyId') propertyId?: string) { return this.sheets.sync(actor, propertyId, key); }
+  syncSheet(@CurrentUser() actor: AuthUser, @Param('key') key: string, @Query('propertyId') propertyId?: string, @Query('period') period?: string) { return this.sheets.sync(actor, propertyId, key, period); }
 
   @Get('departments') @Permissions(PERMISSIONS.PAYROLL_VIEW)
   departments(@CurrentUser() actor: AuthUser, @Query('propertyId') propertyId?: string) {
