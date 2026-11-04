@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -37,7 +38,7 @@ export default function RateApprovalsPage() {
   const { activeProperty, properties } = useActiveProperty();
   const propertyId = activeProperty?.id ?? properties[0]?.id;
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ roomTypeId: '', proposedRate: '', effectiveFrom: new Date().toISOString().slice(0, 10), effectiveTo: '', reason: '', departments: ['FINANCE', 'SALES', 'ADMIN'] });
+  const [form, setForm] = useState({ roomTypeId: '', proposedRate: '', effectiveFrom: localDate(), effectiveTo: '', reason: '', departments: ['FINANCE', 'SALES', 'ADMIN'] });
   const [target, setTarget] = useState<{ request: RateRequest; approval: Approval } | null>(null);
   const [signature, setSignature] = useState(user?.fullName ?? '');
   const [comment, setComment] = useState('');

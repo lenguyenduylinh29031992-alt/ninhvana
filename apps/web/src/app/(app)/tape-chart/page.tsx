@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -46,7 +47,7 @@ interface TapeChart {
 }
 
 function iso(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  return localDate(date);
 }
 function addDays(date: Date, days: number): Date {
   const next = new Date(date);

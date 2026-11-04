@@ -1,4 +1,5 @@
 'use client';
+import { localMonth } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -24,7 +25,7 @@ interface Run { id: string; period: string; status: string; gross: number; net: 
 export default function PayrollPage() {
   const { can } = useAccess(); const { activeProperty, properties } = useActiveProperty(); const queryClient = useQueryClient();
   const propertyId = activeProperty?.id ?? properties.find((property) => property.type === 'HOTEL')?.id ?? properties[0]?.id;
-  const currentPeriod = new Date().toISOString().slice(0, 7);
+  const currentPeriod = localMonth();
   const [period, setPeriod] = useState(currentPeriod);
 
   const employees = useQuery<Employee[]>({ queryKey: ['employees', propertyId], queryFn: () => api(`/hr/employees?propertyId=${propertyId}`), enabled: Boolean(propertyId) && can('payroll:view') });

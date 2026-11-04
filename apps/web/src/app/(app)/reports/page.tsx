@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -22,7 +23,7 @@ interface Report { template: string; title: string; from: string; to: string; co
 export default function ReportsPage() {
   const { can } = useAccess(); const { activeProperty, properties } = useActiveProperty();
   const propertyId = activeProperty?.id ?? properties.find((property) => property.type === 'HOTEL')?.id ?? properties[0]?.id;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDate();
   const [from, setFrom] = useState(`${today.slice(0, 7)}-01`); const [to, setTo] = useState(today);
   const [template, setTemplate] = useState('pnl'); const [runKey, setRunKey] = useState(0);
 

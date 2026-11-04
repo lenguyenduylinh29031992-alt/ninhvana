@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -19,7 +20,7 @@ interface EventRow { id: string; code: string; name: string; eventDate: string; 
 interface EventResponse { rows: EventRow[]; summary: { value: number; deposit: number; guests: number } }
 
 const money = (value: number) => new Intl.NumberFormat('vi-VN').format(value) + ' đ';
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => localDate();
 const STATUS: Record<string, string> = { TENTATIVE: 'Dự kiến', CONFIRMED: 'Đã xác nhận', COMPLETED: 'Hoàn tất', CANCELLED: 'Đã huỷ' };
 
 export default function BanquetPage() {

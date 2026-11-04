@@ -1,4 +1,5 @@
 'use client';
+import { localMonth } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -20,7 +21,7 @@ interface BudgetResponse { rows: BudgetRow[]; summary: { planned: number; actual
 interface Department { id: string; code: string; name: string }
 
 const money = (value: number) => new Intl.NumberFormat('vi-VN').format(value) + ' đ';
-const month = () => new Date().toISOString().slice(0, 7);
+const month = () => localMonth();
 
 export default function BudgetsPage() {
   const { can } = useAccess();

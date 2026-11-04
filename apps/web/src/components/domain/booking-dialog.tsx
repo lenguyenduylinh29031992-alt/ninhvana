@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,7 +36,7 @@ function today(): string {
 function addDays(iso: string, days: number): string {
   const date = new Date(`${iso}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
+  return localDate(date);
 }
 
 export function BookingDialog({

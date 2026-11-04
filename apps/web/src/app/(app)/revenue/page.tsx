@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useQuery } from '@tanstack/react-query';
 import { Building2, CalendarRange, MapPinned, TrendingUp, UtensilsCrossed } from 'lucide-react';
@@ -25,7 +26,7 @@ export default function RevenuePage() {
   const { can } = useAccess();
   const { activeProperty, properties } = useActiveProperty();
   const propertyId = activeProperty?.id ?? properties[0]?.id;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDate();
   const from = today.slice(0, 8) + '01';
   const enabled = Boolean(propertyId) && can('finance:view');
   const map = useQuery<MapResult>({ queryKey: ['property-map-revenue', propertyId], queryFn: () => api('/property-map'), enabled: Boolean(propertyId) });

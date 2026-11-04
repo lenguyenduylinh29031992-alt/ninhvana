@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -39,7 +40,7 @@ export default function FinancePage() {
   const { can } = useAccess();
   const { activeProperty, properties } = useActiveProperty();
   const propertyId = activeProperty?.id ?? properties.find((property) => property.type === 'HOTEL')?.id ?? properties[0]?.id;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDate();
   const [from, setFrom] = useState(`${today.slice(0, 7)}-01`);
   const [to, setTo] = useState(today);
   const [tab, setTab] = useState<(typeof TABS)[number][0]>('pnl');

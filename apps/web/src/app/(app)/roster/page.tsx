@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,7 +19,7 @@ interface Shift { id: string; department: string; employeeName: string; date: st
 interface Employee { id: string; fullName: string; department: string }
 interface Department { id: string; code: string; name: string }
 
-const date = (offset = 0) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
+const date = (offset = 0) => { const d = new Date(); d.setDate(d.getDate() + offset); return localDate(d); };
 
 export default function RosterPage() {
   const { can } = useAccess();

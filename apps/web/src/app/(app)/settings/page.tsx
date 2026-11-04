@@ -1,4 +1,5 @@
 'use client';
+import { localDate, localMonth } from '@/lib/dates';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -753,7 +754,7 @@ function ExchangeRateDialog({
 }) {
   const [base, setBase] = useState('USD');
   const [rate, setRate] = useState('26000');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(localDate());
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -855,7 +856,7 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
   const [newGid, setNewGid] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('TIKTOK');
-  const [filterPeriod, setFilterPeriod] = useState(new Date().toISOString().slice(0, 7));
+  const [filterPeriod, setFilterPeriod] = useState(localMonth());
   const sources = useQuery<SheetSource[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config') });
   const departments = useQuery<SheetDepartment[]>({ queryKey: ['sheet-departments'], queryFn: () => api('/hr/departments') });
   useEffect(() => {
@@ -869,7 +870,7 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
     onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không lưu được cấu hình'),
   });
   const syncAll = useMutation({
-    mutationFn: () => api(`/hr/sheets/sync?period=${new Date().toISOString().slice(0, 7)}`, { method: 'POST' }),
+    mutationFn: () => api(`/hr/sheets/sync?period=${localMonth()}`, { method: 'POST' }),
     onSuccess: async () => { toast.success('Đã bắt đầu đồng bộ Google Sheet tháng hiện tại'); await queryClient.invalidateQueries({ queryKey: ['sheet-config'] }); },
     onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không đồng bộ được'),
   });
@@ -937,7 +938,8 @@ function SheetSettings({ canManage }: { canManage: boolean }) {
 function OtherCostSettings({ canManage }: { canManage: boolean }) {
   const queryClient = useQueryClient();
   const [department, setDepartment] = useState('TIKTOK');
-  const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7));
+  const [period, setPeriod] = useState(localMonth());
+  const [periodReady, setPeriodReady] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, { url: string; label: string; enabled: boolean; gid: string }>>({});
   const [newUrl, setNewUrl] = useState('');
   const [newGid, setNewGid] = useState('');
@@ -955,6 +957,14 @@ function OtherCostSettings({ canManage }: { canManage: boolean }) {
     onError: (cause) => toast.error(cause instanceof ApiError ? cause.message : 'Không lưu được cấu hình'),
   });
   const rows = (sources.data ?? []).filter((source) => source.key.split(':')[0] === 'shopping' && source.department === department && source.period === period);
+  useEffect(() => {
+    if (periodReady || !sources.data) return;
+    const latest = sources.data
+      .filter((source) => source.key.split(':')[0] === 'shopping' && source.department === department && source.enabled && source.period && source.rows > 0)
+      .sort((a, b) => (b.period ?? '').localeCompare(a.period ?? ''))[0];
+    if (latest?.period) setPeriod(latest.period);
+    setPeriodReady(true);
+  }, [department, periodReady, sources.data]);
 
   return (
     <Card>

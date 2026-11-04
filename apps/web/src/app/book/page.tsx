@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -58,7 +59,7 @@ interface Created {
 function addDays(iso: string, days: number): string {
   const date = new Date(`${iso}T00:00:00`);
   date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
+  return localDate(date);
 }
 
 export default function BookingEnginePage() {
@@ -73,7 +74,7 @@ export default function BookingEnginePage() {
   const [created, setCreated] = useState<Created | null>(null);
 
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDate();
     setCheckIn(addDays(today, 7));
     setCheckOut(addDays(today, 9));
   }, []);

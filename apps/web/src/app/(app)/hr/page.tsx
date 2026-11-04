@@ -1,4 +1,5 @@
 'use client';
+import { localDate } from '@/lib/dates';
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -202,7 +203,7 @@ function AddEmployeeDialog({ open, onOpenChange, departments, canManage, onSaved
   const [code, setCode] = useState('');
   const [department, setDepartment] = useState('');
   const [position, setPosition] = useState('Nhân viên');
-  const [hireDate, setHireDate] = useState(new Date().toISOString().slice(0, 10));
+  const [hireDate, setHireDate] = useState(localDate());
   const [baseSalary, setBaseSalary] = useState('6500000');
   const [employmentType, setEmploymentType] = useState<'OFFICIAL' | 'PROBATION'>('OFFICIAL');
   const [email, setEmail] = useState('');

@@ -42,7 +42,7 @@ function withGid(url: string, gid?: string | null): string {
 }
 
 function currentPeriod(): string {
-  return new Date().toISOString().slice(0, 7);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit' }).format(new Date());
 }
 
 function parseCsv(input: string): CsvRow[] {
@@ -188,8 +188,8 @@ export class GoogleSheetSyncService implements OnModuleInit {
           const rows = parseCsv(await response.text());
           let imported = rows.filter((row) => row.some((cell) => cell.trim())).length;
           const message = 'Đã tải dữ liệu nguồn';
-          if (key === 'attendance') imported = await this.importAttendance(property, rows, resolvedDepartment);
-          if (key === 'payroll') imported = await this.importPayroll(property, rows, resolvedDepartment);
+          if (key === 'attendance') imported = await this.importAttendance(property, rows, resolvedDepartment, targetPeriod);
+          if (key === 'payroll') imported = await this.importPayroll(property, rows, resolvedDepartment, targetPeriod);
           if (key === 'shopping') imported = await this.importShopping(property, rows, targetPeriod);
           await this.prisma.googleSheetSync.upsert({
             where: { key: periodKey }, update: { url: configured?.url || source.url, gid: configured?.gid, department: resolvedDepartment, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
@@ -213,7 +213,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
     } finally { this.running = false; }
   }
 
-  private async employee(orgId: string, propertyId: string, name: string, department: string, code?: string) {
+  private async employee(orgId: string, propertyId: string, name: string, department: string, code?: string, hireDate?: Date) {
     const fullName = name.trim();
     const existing = await this.prisma.employee.findFirst({ where: { orgId, fullName, department } });
     if (existing) {
@@ -223,15 +223,16 @@ export class GoogleSheetSyncService implements OnModuleInit {
     const employeeCode = code || `SHEET-${fullName.replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
     return this.prisma.employee.create({ data: {
       orgId, propertyId, code: employeeCode, fullName, position: 'Nhân viên', department, source: 'GOOGLE_SHEET',
-      hireDate: new Date('2026-10-01T00:00:00Z'), baseSalary: new Prisma.Decimal(6_500_000), status: 'ACTIVE',
+      hireDate: hireDate ?? new Date(), baseSalary: new Prisma.Decimal(6_500_000), status: 'ACTIVE',
     } });
   }
 
-  private async importAttendance(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {
+  private async importAttendance(property: { id: string; orgId: string }, rows: CsvRow[], department: string, requestedPeriod?: string) {
     const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
     const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
-    const month = match ? Number(match[1]) : 10;
-    const year = match ? Number(match[2]) : 2026;
+    const requested = requestedPeriod?.split('-').map(Number);
+    const month = match ? Number(match[1]) : (requested?.[1] ?? new Date().getMonth() + 1);
+    const year = match ? Number(match[2]) : (requested?.[0] ?? new Date().getFullYear());
     let count = 0;
     for (let index = 0; index < rows.length; index += 1) {
       const header = rows[index] ?? [];
@@ -251,7 +252,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
         const name = (row[1] ?? '').trim();
         if (!name || normalize(name).startsWith('tổng công') || normalize(name).startsWith('số người') || normalize(name) === 'họ và tên') break;
         if (/^nhân viên\s+\d+$/i.test(name)) { rowIndex += 1; continue; }
-        const employee = await this.employee(property.orgId, property.id, name, department);
+        const employee = await this.employee(property.orgId, property.id, name, department, undefined, new Date(`${year}-${String(month).padStart(2, '0')}-01T00:00:00Z`));
         for (const [column, date] of dateColumns) {
           const meta = statusOf(row[column] ?? '');
           if (!meta) continue;
@@ -297,17 +298,28 @@ export class GoogleSheetSyncService implements OnModuleInit {
       }
     }
 
-    const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
-    const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
-    const month = match ? Number(match[1]) : new Date().getMonth() + 1;
-    const year = match ? Number(match[2]) : new Date().getFullYear();
-    const period = `${year}-${String(month).padStart(2, '0')}`;
-    if (requestedPeriod && period !== requestedPeriod) {
-      throw new Error(`Tab Google Sheet là tháng ${period}, không phải tháng ${requestedPeriod}; kiểm tra lại GID`);
+    const firstDataIndex = headerIndex + (subHeader.some((cell) => normalize(cell)) ? 2 : 1);
+    const dataPeriodCounts = new Map<string, number>();
+    for (const row of rows.slice(firstDataIndex, summaryIndex >= 0 ? summaryIndex : rows.length)) {
+      const date = (row[0] ?? '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (!date) continue;
+      const key = `${date[3]}-${String(Number(date[2])).padStart(2, '0')}`;
+      dataPeriodCounts.set(key, (dataPeriodCounts.get(key) ?? 0) + 1);
     }
+    // The tab title can be stale/copy-pasted; actual dated rows are authoritative.
+    const dataPeriod = [...dataPeriodCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
+    const titleMatch = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
+    const titlePeriod = titleMatch ? `${titleMatch[2]}-${String(Number(titleMatch[1])).padStart(2, '0')}` : undefined;
+    const period = dataPeriod ?? titlePeriod ?? requestedPeriod ?? currentPeriod();
+    if (requestedPeriod && period !== requestedPeriod) {
+      throw new Error(`Dữ liệu Google Sheet là tháng ${period}, không phải tháng ${requestedPeriod}; kiểm tra lại GID`);
+    }
+    const [yearText, monthText] = period.split('-');
+    const year = Number(yearText);
+    const month = Number(monthText);
 
     const details: Array<{ employeeName: string | null; description: string; category: string; amount: number; itemDate: Date }> = [];
-    const firstDataIndex = headerIndex + (subHeader.some((cell) => normalize(cell)) ? 2 : 1);
     for (const row of rows.slice(firstDataIndex, summaryIndex >= 0 ? summaryIndex : rows.length)) {
       const rawDate = (row[0] ?? '').trim();
       const date = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
@@ -352,7 +364,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
     return details.length;
   }
 
-  private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {
+  private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[], department: string, requestedPeriod?: string) {
     const headerIndex = rows.findIndex((row) => {
       const cells = row.map((cell) => normalize(cell));
       return cells.includes('họ và tên') && cells.some((cell) => cell.startsWith('lương cơ bản'));
@@ -360,7 +372,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
     const header = rows[headerIndex >= 0 ? headerIndex : 0] ?? [];
     const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
     const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
-    const period = match ? `${match[2]}-${String(match[1]).padStart(2, '0')}` : '2026-10';
+    const period = match ? `${match[2]}-${String(match[1]).padStart(2, '0')}` : (requestedPeriod ?? currentPeriod());
     const normalizedHeader = header.map((cell) => normalize(cell));
     const column = (needle: string) => {
       const wanted = normalize(needle);
@@ -385,7 +397,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
       const base = money(row[baseCol]);
       const rawNet = money(row[netCol]);
       if (!base || (base < 100_000 && rawNet === 0)) continue;
-      const employee = await this.employee(property.orgId, property.id, name, department);
+      const employee = await this.employee(property.orgId, property.id, name, department, undefined, new Date(`${period}-01T00:00:00Z`));
       const standardDays = money(row[standardCol]) || 27;
       const workDays = money(row[workCol]);
       const gross = Math.round((base / standardDays) * workDays);

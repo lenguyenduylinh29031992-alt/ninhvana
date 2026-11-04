@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Boxes, Plus, Receipt, RefreshCw, Truck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,7 +19,7 @@ import { PageHeader } from '@/components/ui/feedback';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PermissionNotice } from '@/components/domain/permission-notice';
 
-interface SheetCostConfig { key: string; period: string | null; department: string; gid: string | null; enabled: boolean }
+interface SheetCostConfig { key: string; period: string | null; department: string; gid: string | null; enabled: boolean; rows: number }
 
 interface ExpenseItem { id: string; employeeName: string | null; description: string; category: string; amount: number; itemDate: string }
 interface Expense { id: string; number: string; description: string; accountCode: string; department: string; amount: number; vatAmount: number; total: number; status: string; expenseDate: string; items?: ExpenseItem[] }
@@ -47,6 +47,17 @@ export default function CostsPage() {
   if (to) expenseQuery.set('to', to);
 
   const expenses = useQuery<Expense[]>({ queryKey: ['expenses', propertyId, from, to], queryFn: () => api(`/costs/expenses?${expenseQuery.toString()}`), enabled: Boolean(propertyId) && can('expense:view') });
+  const sheetConfig = useQuery<SheetCostConfig[]>({ queryKey: ['sheet-config'], queryFn: () => api('/hr/sheets/config'), enabled: can('expense:view') });
+  const [filterReady, setFilterReady] = useState(false);
+  useEffect(() => {
+    if (filterReady || !sheetConfig.data) return;
+    const latest = sheetConfig.data
+      .filter((config) => config.key.split(':')[0] === 'shopping' && config.enabled && config.period && config.rows > 0)
+      .sort((a, b) => (b.period ?? '').localeCompare(a.period ?? ''))[0];
+    if (latest?.period) { setYear(latest.period.slice(0, 4)); setMonth(latest.period.slice(5, 7)); }
+    setFilterReady(true);
+  }, [filterReady, sheetConfig.data]);
+
   const syncShopping = useMutation({
     mutationFn: async () => {
       const period = `${year}-${month}`;
