@@ -19,6 +19,8 @@ import { PageHeader } from '@/components/ui/feedback';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PermissionNotice } from '@/components/domain/permission-notice';
 
+interface SheetCostConfig { key: string; period: string | null; department: string; gid: string | null; enabled: boolean }
+
 interface ExpenseItem { id: string; employeeName: string | null; description: string; category: string; amount: number; itemDate: string }
 interface Expense { id: string; number: string; description: string; accountCode: string; department: string; amount: number; vatAmount: number; total: number; status: string; expenseDate: string; items?: ExpenseItem[] }
 interface StockRow { id: string; quantity: number; value: number; item?: { name: string; unit: string }; lowStock: boolean }
@@ -46,7 +48,15 @@ export default function CostsPage() {
 
   const expenses = useQuery<Expense[]>({ queryKey: ['expenses', propertyId, from, to], queryFn: () => api(`/costs/expenses?${expenseQuery.toString()}`), enabled: Boolean(propertyId) && can('expense:view') });
   const syncShopping = useMutation({
-    mutationFn: () => api<{ sources?: Array<{ key: string; ok: boolean; message?: string }> }>(`/hr/sheets/shopping/sync?propertyId=${propertyId}&period=${year}-${month}&department=TIKTOK`, { method: 'POST', body: {} }),
+    mutationFn: async () => {
+      const period = `${year}-${month}`;
+      const configs = await api<SheetCostConfig[]>('/hr/sheets/config');
+      const candidates = configs.filter((config) => config.key.split(':')[0] === 'shopping' && config.period === period && config.department === 'TIKTOK');
+      const config = candidates.find((item) => item.key === `shopping:${period}:TIKTOK`) ?? candidates[0];
+      if (!config) throw new Error(`Chưa có cấu hình Chi phí khác cho TIKTOK tháng ${period}`);
+      if (!config.gid) throw new Error(`Cấu hình ${config.key} chưa có GID`);
+      return api<{ sources?: Array<{ key: string; ok: boolean; message?: string }> }>(`/hr/sheets/shopping/sync?propertyId=${propertyId}&period=${period}&department=TIKTOK&configKey=${encodeURIComponent(config.key)}`, { method: 'POST', body: {} });
+    },
     onSuccess: async (result) => {
       const failed = (result.sources ?? []).filter((source) => !source.ok);
       if (failed.length) toast.error(failed.map((source) => source.message ?? 'Lỗi đồng bộ').join(' · '));

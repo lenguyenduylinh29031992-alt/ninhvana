@@ -960,7 +960,7 @@ function OtherCostSettings({ canManage }: { canManage: boolean }) {
     <Card>
       <CardHeader>
         <CardTitle>Chi phí khác</CardTitle>
-        <CardDescription>Google Sheet chi phí đi chợ / mua sắm. Chọn bộ phận, năm và tháng để chỉ hiển thị cấu hình của tháng đó.</CardDescription>
+        <CardDescription>Google Sheet chi phí đi chợ / mua sắm, được ghi vào nhóm <strong>Vận hành khác</strong> trong mục Chi phí. Chọn bộ phận và tháng để chỉ hiển thị cấu hình của tháng đó.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-end gap-2 rounded-xl border border-line bg-muted/20 p-3">

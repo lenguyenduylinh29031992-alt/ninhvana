@@ -125,13 +125,13 @@ export class GoogleSheetSyncService implements OnModuleInit {
     });
   }
 
-  async sync(actor: AuthUser, propertyId?: string, key?: string, period?: string, department?: string) {
+  async sync(actor: AuthUser, propertyId?: string, key?: string, period?: string, department?: string, configKey?: string) {
     if (propertyId) await this.assertProperty(actor, propertyId);
     if (key) {
       const { kind } = parseSourceKey(key);
       if (!(kind in SOURCES)) throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Nguồn Google Sheet không hợp lệ', 422);
     }
-    return this.syncAll('manual', key ? key.split(':')[0] : undefined, period, department);
+    return this.syncAll('manual', key ? key.split(':')[0] : undefined, period, department, configKey);
   }
 
   private async assertProperty(actor: AuthUser, propertyId: string) {
@@ -139,7 +139,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
     if (!exists) throw new AppError(ERROR_CODES.NOT_FOUND, 'Không tìm thấy cơ sở', 404);
   }
 
-  async syncAll(trigger: 'auto' | 'manual', onlyKey?: string, period?: string, department?: string) {
+  async syncAll(trigger: 'auto' | 'manual', onlyKey?: string, period?: string, department?: string, configKey?: string) {
     if (this.running) return { skipped: true, reason: 'Đang đồng bộ' };
     this.running = true;
     const property = await this.prisma.property.findFirstOrThrow({ where: { code: 'NVN' } });
@@ -162,10 +162,18 @@ export class GoogleSheetSyncService implements OnModuleInit {
               ];
           let configured: { url: string; gid: string | null; department: string; enabled: boolean } | null = null;
           let periodKey = key;
-          for (const candidate of candidateKeys.filter((value): value is string => Boolean(value))) {
-            const found = await this.prisma.googleSheetSync.findUnique({ where: { key: candidate } });
-            if (found && (!targetDepartment || found.department.toUpperCase() === targetDepartment)) {
-              configured = found; periodKey = candidate; break;
+          if (configKey) {
+            const requested = parseSourceKey(configKey);
+            if (requested.kind !== key) throw new Error(`Cấu hình ${configKey} không thuộc nguồn ${key}`);
+            const found = await this.prisma.googleSheetSync.findUnique({ where: { key: configKey } });
+            if (!found) throw new Error(`Không tìm thấy cấu hình ${configKey}`);
+            configured = found; periodKey = configKey;
+          } else {
+            for (const candidate of candidateKeys.filter((value): value is string => Boolean(value))) {
+              const found = await this.prisma.googleSheetSync.findUnique({ where: { key: candidate } });
+              if (found && (!targetDepartment || found.department.toUpperCase() === targetDepartment)) {
+                configured = found; periodKey = candidate; break;
+              }
             }
           }
           if (targetDepartment && !configured) {
@@ -182,7 +190,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
           const message = 'Đã tải dữ liệu nguồn';
           if (key === 'attendance') imported = await this.importAttendance(property, rows, resolvedDepartment);
           if (key === 'payroll') imported = await this.importPayroll(property, rows, resolvedDepartment);
-          if (key === 'shopping') imported = await this.importShopping(property, rows);
+          if (key === 'shopping') imported = await this.importShopping(property, rows, targetPeriod);
           await this.prisma.googleSheetSync.upsert({
             where: { key: periodKey }, update: { url: configured?.url || source.url, gid: configured?.gid, department: resolvedDepartment, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
             create: { key: periodKey, url: configured?.url || source.url, gid: configured?.gid, department: resolvedDepartment, period: targetPeriod ?? null, lastSyncedAt: new Date(), status: 'OK', message, rows: imported },
@@ -261,38 +269,47 @@ export class GoogleSheetSyncService implements OnModuleInit {
     return count;
   }
 
-  private async importShopping(property: { id: string; orgId: string }, rows: CsvRow[]) {
-    const headerIndex = rows.findIndex((row) => row.some((cell) => normalize(cell) === 'ngày'));
-    const header = rows[headerIndex >= 0 ? headerIndex : 0] ?? [];
-    const normalized = header.map((cell) => normalize(cell));
-    const dateCol = normalized.findIndex((cell) => cell === 'ngày');
-    const shopDescCol = normalized.findIndex((cell) => cell.includes('mua đồ chợ') && cell.includes('tên đồ'));
-    const onlineDescCol = normalized.findIndex((cell) => cell.includes('shopee') && cell.includes('tên đồ'));
-    const shopAmountCol = normalized.findIndex((cell) => cell === 'tổng tiền đồ');
-    const onlineAmountCol = normalized.findIndex((cell) => cell === 'tiền đồ online');
+  private async importShopping(property: { id: string; orgId: string }, rows: CsvRow[], requestedPeriod?: string) {
+    const headerIndex = rows.findIndex((row) => normalize(row[0] ?? '') === 'ngày');
+    if (headerIndex < 0) return 0;
+    const topHeader = rows[headerIndex] ?? [];
+    const subHeader = rows[headerIndex + 1] ?? [];
+    const top = topHeader.map((cell) => normalize(cell));
+    const sub = subHeader.map((cell) => normalize(cell));
+    const shopTop = top.findIndex((cell) => cell.includes('mua đồ chợ'));
+    const onlineTop = top.findIndex((cell) => cell.includes('shopee'));
+    const shopDescCol = shopTop;
+    const shopAmountCol = shopTop + 1;
+    const onlineDescCol = onlineTop;
+    const onlineAmountCol = onlineTop + 1;
     const summaryIndex = rows.findIndex((row) => normalize(row[0] ?? '').startsWith('tổng chi tháng'));
     const summaryRow = summaryIndex >= 0 ? rows[summaryIndex] : null;
-    if (dateCol < 0 || (shopAmountCol < 0 && onlineAmountCol < 0)) return 0;
+    if (shopTop < 0 && onlineTop < 0) return 0;
+
+    // Employee blocks have the person on the top header row and
+    // "Ứng Lương / Tên Đồ / Tiền Chợ" on the second header row.
+    const employeeColumns: Array<{ name: string; itemCol: number; amountCol: number }> = [];
+    for (let column = 0; column < topHeader.length; column += 1) {
+      const employee = (topHeader[column] ?? '').trim();
+      if (!employee) continue;
+      if (sub[column] === 'ứng lương' && sub[column + 1] === 'tên đồ' && sub[column + 2]?.startsWith('tiền')) {
+        employeeColumns.push({ name: employee, itemCol: column + 1, amountCol: column + 2 });
+      }
+    }
 
     const title = rows.flat().find((cell) => /THÁNG\s+\d{1,2}\/\d{4}/i.test(cell)) ?? '';
     const match = title.match(/THÁNG\s+(\d{1,2})\/(\d{4})/i);
     const month = match ? Number(match[1]) : new Date().getMonth() + 1;
     const year = match ? Number(match[2]) : new Date().getFullYear();
     const period = `${year}-${String(month).padStart(2, '0')}`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const summaryDate = new Date(`${period}-${String(lastDay).padStart(2, '0')}T00:00:00Z`);
-    const summaryTotal = summaryRow ? (money(summaryRow[3]) || money(summaryRow[1]) + money(summaryRow[2])) : 0;
-
-    // Employee columns are triplets: "NVxx Name Ứng Lương" | "Tên Đồ" | "Tiền Chợ".
-    const employeeColumns: Array<{ name: string; itemCol: number; amountCol: number }> = [];
-    for (let column = 0; column < header.length; column += 1) {
-      const employee = (header[column] ?? '').match(/^NV\d+\s+(.+?)\s+Ứng Lương$/i);
-      if (employee) employeeColumns.push({ name: employee[1].trim(), itemCol: column + 1, amountCol: column + 2 });
+    if (requestedPeriod && period !== requestedPeriod) {
+      throw new Error(`Tab Google Sheet là tháng ${period}, không phải tháng ${requestedPeriod}; kiểm tra lại GID`);
     }
 
     const details: Array<{ employeeName: string | null; description: string; category: string; amount: number; itemDate: Date }> = [];
-    for (const row of rows.slice(headerIndex >= 0 ? headerIndex + 1 : 1, summaryIndex >= 0 ? summaryIndex : rows.length)) {
-      const rawDate = (row[dateCol] ?? '').trim();
+    const firstDataIndex = headerIndex + (subHeader.some((cell) => normalize(cell)) ? 2 : 1);
+    for (const row of rows.slice(firstDataIndex, summaryIndex >= 0 ? summaryIndex : rows.length)) {
+      const rawDate = (row[0] ?? '').trim();
       const date = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
       if (!date) continue;
       const itemDate = new Date(`${date[3]}-${String(Number(date[2])).padStart(2, '0')}-${String(Number(date[1])).padStart(2, '0')}T00:00:00Z`);
@@ -310,10 +327,13 @@ export class GoogleSheetSyncService implements OnModuleInit {
       }
     }
 
+    const summaryTotal = summaryRow ? (money(summaryRow[3]) || money(summaryRow[1]) + money(summaryRow[2])) : 0;
     const total = summaryTotal || details.reduce((sum, item) => sum + item.amount, 0);
     if (total <= 0) return 0;
+    const lastDay = new Date(year, month, 0).getDate();
+    const summaryDate = new Date(`${period}-${String(lastDay).padStart(2, '0')}T00:00:00Z`);
 
-    // Replace the previous daily rows: they double-counted and had no employee detail.
+    // Replace previous daily rows and the previous summary for this month.
     await this.prisma.expense.deleteMany({ where: { propertyId: property.id, number: { startsWith: 'SHOP-' } } });
     const expense = await this.prisma.expense.create({ data: {
       orgId: property.orgId, propertyId: property.id, number: `SHOP-SUMMARY-${period}`,
@@ -329,7 +349,7 @@ export class GoogleSheetSyncService implements OnModuleInit {
         category: item.category, amount: new Prisma.Decimal(item.amount), itemDate: item.itemDate,
       })) });
     }
-    return details.length || 1;
+    return details.length;
   }
 
   private async importPayroll(property: { id: string; orgId: string }, rows: CsvRow[], department: string) {
